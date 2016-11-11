@@ -1,7 +1,16 @@
 # Binary files
 *.o
 *.so
+*.os
 *.a
+*.pyc
+
+# Editor backup files
+*.bak
+*~
+
+# Editor journaling files
+*.swp
 
 # Cscope
 cscope.files
@@ -10,6 +19,7 @@ cscope.in.out
 cscope.po.out
 
 # Tags
+.ctags
 TAGS
 .TAGS
 !TAGS/
