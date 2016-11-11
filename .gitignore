@@ -1,15 +1,15 @@
-# Binary files
+# Binary
 *.o
 *.so
 *.os
 *.a
 *.pyc
 
-# Editor backup files
+# Editor backup
 *.bak
 *~
 
-# Editor journaling files
+# Editor journaling
 *.swp
 
 # Cscope
