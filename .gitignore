@@ -1,29 +1,23 @@
-# Compiled Object files
-*.slo
-*.lo
+# Binary files
 *.o
-*.obj
-
-# Precompiled Headers
-*.gch
-*.pch
-
-# Compiled Dynamic libraries
 *.so
-*.dylib
-*.dll
-
-# Fortran module files
-*.mod
-*.smod
-
-# Compiled Static libraries
-*.lai
-*.la
 *.a
-*.lib
 
-# Executables
-*.exe
-*.out
-*.app
+# Cscope
+cscope.files
+cscope.out
+cscope.in.out
+cscope.po.out
+
+# Tags
+TAGS
+.TAGS
+!TAGS/
+tags
+.tags
+!tags/
+gtags.files
+GTAGS
+GRTAGS
+GPATH
+GSYMS
