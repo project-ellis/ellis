@@ -65,15 +65,15 @@ int EllisRegisterSource(const char *name, const EllisDecoder *src);
  *
  * @return A pointer to the EllisDecoder with which this name is associated.
  */
-EllisDecoder const *EllisGetSource(const char *name);
+const EllisDecoder *EllisGetSource(const char *name);
 
 /**
  * Construct an EllisNode from a source using the provided data.
  * TODO: zero-copy
  */
 EllisNode *EllisSrcDecode(
-  EllisDecoder const *src,
-  uint8_t const *data,
+  const EllisDecoder *src,
+  const uint8_t *data,
   size_t length);
 
 
@@ -111,7 +111,7 @@ typedef struct EllisEncoder {
    *
    * TODO: zero-copy interface.
    */
-  uint8_t *(*encodeMem)(struct EllisNode const *node, size_t *length);
+  uint8_t *(*encodeMem)(const struct EllisNode *node, size_t *length);
 } EllisEncoder;
 
 /**
@@ -131,7 +131,7 @@ int EllisRegisterSink(const char *name, const EllisEncoder *sink);
  * @return A pointer to the EllisEncoder with which this name is associated.
  */
 
-EllisEncoder const *EllisGetSink(char const *name)
+const EllisEncoder *EllisGetSink(const char *name)
 
 /**
  * Encode an EllisNode into bytes using the given sink.
@@ -139,7 +139,7 @@ EllisEncoder const *EllisGetSink(char const *name)
  * @param[in] sink The sink to use for encoding.
  * TODO: zero-copy
  */
-uint8_t *EllisEncoderEncode(EllisEncoder const *sink, EllisNode const *node, size_t
+uint8_t *EllisEncoderEncode(const EllisEncoder *sink, EllisNode const *node, size_t
   *length);
 
 #endif /* ELLIS_FLOW_H_ */
