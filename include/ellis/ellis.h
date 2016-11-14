@@ -28,10 +28,10 @@ enum EllisType {
   ELLIS_ARRAY,
   ELLIS_BINARY,
   ELLIS_BOOL,
-  ELLIS_DOUBLE,
   ELLIS_INT,
   ELLIS_MAP,
   ELLIS_NIL,
+  ELLIS_REAL,
   ELLIS_STRING
 };
 
@@ -80,7 +80,7 @@ typedef struct EllisBool EllisBool;
 /**
  * An IEEE 754 signed double type.
  */
-typedef struct EllisDouble EllisDouble;
+typedef struct EllisDouble EllisReal;
 
 /**
  * A 64-bit signed integer type.
