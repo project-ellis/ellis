@@ -24,7 +24,7 @@
 /**
  * An enum containing all the Ellis data types.
  */
-enum EllisType {
+enum ellis_type {
   ELLIS_ARRAY,
   ELLIS_BINARY,
   ELLIS_BOOL,
@@ -38,72 +38,72 @@ enum EllisType {
 /**
  * @brief A refcounted object that wraps an Ellis type; used for polymorphism.
  *
- * EllisNode is a refcounted object wrapping an Ellis type.. Upon construction,
+ * ellis_node is a refcounted object wrapping an Ellis type. Upon construction,
  * the refcount is set to 1, and the refcount is increased by 1 when the value
- * is stored (e.g. in an EllisNode or EllisMap). When the refcount reaches 0,
- * the EllisNode is freed. Note that EllisNil is treated as a special case, as
+ * is stored (e.g. in an ellis_node or ellis_map). When the refcount reaches 0,
+ * the ellis_node is freed. Note that ellis_nil is treated as a special case, as
  * it is a singleton that does not require memory allocation, so refcount
  * operations on it are no-ops.
  *
  */
-typedef struct EllisNode EllisNode;
+typedef struct ellis_node ellis_node;
 
 /**
- * Increase an EllisNode refcount by 1.
+ * Increase an ellis_node refcount by 1.
  *
- * @param[in] node an EllisNode
+ * @param[in] node an ellis_node
  */
-void EllisNodeRef(EllisNode *node);
+void ellis_node_ref(ellis_node *node);
 
 /**
- * Decrease an EllisNode refcount by 1, freeing it if the count reaches 0.
+ * Decrease an ellis_node refcount by 1, freeing it if the count reaches 0.
  *
- * @param[in] node an EllisNode
+ * @param[in] node an ellis_node
  */
-void EllisNodeDeref(EllisNode *node);
+void ellis_node_deref(ellis_node *node);
 
 /**
  * An array.
  */
-typedef struct EllisArray EllisArray;
+typedef struct ellis_array ellis_array;
 
 /**
  * A binary blob.
  */
-typedef struct EllisBinary EllisBinary;
+typedef struct ellis_binary ellis_binary;
 
 /**
  * A boolean (true or false).
  */
-typedef enum EllisBool EllisBool;
+typedef enum ellis_bool ellis_bool;
 
 /**
  * An IEEE 754 signed double type.
  */
-typedef struct EllisDouble EllisReal;
+typedef struct ellis_double EllisReal;
 
 /**
  * A 64-bit signed integer type.
  */
-typedef struct EllisInt EllisInt;
+typedef struct ellis_int ellis_int;
 
 /**
  * A key-value type.
  */
-typedef struct EllisMap EllisMap;
+typedef struct ellis_map ellis_map;
 
 /**
  * A singleton (nil, null, none) type.
  */
-typedef struct EllisNil EllisNil;
+typedef struct ellis_nil ellis_nil;
 
 /**
  * A UTF-8 string type.
  */
-typedef struct EllisString EllisString;
+typedef struct ellis_string ellis_string;
 
 /*
- * TODO: finish EllisMap
+ * TODO: finish ellis_map
  */
 
 /*
@@ -124,7 +124,7 @@ typedef struct EllisString EllisString;
  *
  * @return a new, empty array, or NULL if the function fails
  */
-EllisArray *EllisArrayMake(void);
+ellis_array *ellis_array_make(void);
 
 /**
  * Gets the length of the given array.
@@ -133,17 +133,17 @@ EllisArray *EllisArrayMake(void);
  *
  * @return the length of the array, in number of items.
  */
-size_t EllisArrayLength(EllisArray const *array);
+size_t ellis_array_length(ellis_array const *array);
 
 /**
- * Gets the given index in the given array, increasing the EllisNode's refcount by 1.
+ * Gets the given index in the given array, increasing the ellis_node's refcount by 1.
  *
  * @param[in] array an array
  * @param[in] index the index to get
  *
- * @return the EllisNode at the given index, or NULL if there is none
+ * @return the ellis_node at the given index, or NULL if there is none
  */
-EllisNode *EllisArrayGet(EllisArray *array, size_t index);
+ellis_node *ellis_array_get(ellis_array *array, size_t index);
 
 /**
  * Sets the given index in the given array to the given node.
@@ -154,7 +154,7 @@ EllisNode *EllisArrayGet(EllisArray *array, size_t index);
  *
  * @return 0 if successful, -1 if not
  */
-int EllisArraySet(EllisArray *array, size_t index, EllisNode *node);
+int ellis_array_set(ellis_array *array, size_t index, ellis_node *node);
 
 /**
  * Sets the given index in the given array to the given node while releasing the
@@ -166,7 +166,7 @@ int EllisArraySet(EllisArray *array, size_t index, EllisNode *node);
  *
  * @return 0 if successful, -1 if not
  */
-int EllisArraySetSteal(EllisArray *array, size_t index, EllisNode *node);
+int ellis_arraySetSteal(ellis_array *array, size_t index, ellis_node *node);
 
 /**
  * Appends the given node to the end of the given array.
@@ -176,7 +176,7 @@ int EllisArraySetSteal(EllisArray *array, size_t index, EllisNode *node);
  *
  * @return 0 on success and -1 on error
  */
-int EllisArrayAppend(EllisArray *array, EllisNode *node);
+int ellis_arrayAppend(ellis_array *array, ellis_node *node);
 
 /**
  * Appends the given node to the end of the given array, releasing the caller's
@@ -187,10 +187,10 @@ int EllisArrayAppend(EllisArray *array, EllisNode *node);
  *
  * @return 0 on success and -1 on error
  */
-int EllisArrayAppendSteal(EllisArray *array, EllisNode *node);
+int ellis_arrayAppendSteal(ellis_array *array, ellis_node *node);
 
 /**
- * Appends the given mnodes to the end of the given array. Equivalent to calling
+ * Appends the given nodes to the end of the given array. Equivalent to calling
  * Append many times.
  *
  * @param[in] array an array
@@ -199,8 +199,11 @@ int EllisArrayAppendSteal(EllisArray *array, EllisNode *node);
  *
  * @return 0 on success and -1 on error
  */
-int EllisArrayExtend(EllisArray *array, EllisNode *nodes, size_t length);
-int EllisArrayExtendSteal(EllisArray *array, EllisNode *nodes, size_t length);
+int ellis_array_extend(ellis_array *array, ellis_node *nodes, size_t length);
+int ellis_array_extend_steal(
+    ellis_array *array,
+    ellis_node *nodes,
+    size_t length);
 
 /**
  * Inserts the given node into the given array, after the item at the given
@@ -212,7 +215,7 @@ int EllisArrayExtendSteal(EllisArray *array, EllisNode *nodes, size_t length);
  *
  * @return 0 on success and -1 on error
  */
-int EllisArrayInsert(EllisArray *array, size_t index, EllisNode *node);
+int ellis_array_insert(ellis_array *array, size_t index, ellis_node *node);
 
 /**
  * Inserts the given node into the given array, after the item at the given
@@ -224,7 +227,10 @@ int EllisArrayInsert(EllisArray *array, size_t index, EllisNode *node);
  *
  * @return 0 on success and -1 on error
  */
-int EllisArrayInsertSteal(EllisArray *array, size_t index, EllisNode *node);
+int ellis_array_insert_steal(
+    ellis_array *array,
+    size_t index,
+    ellis_node *node);
 
 /**
  * Removes the node at the given index from the given array, decreasing the refcount by 1.
@@ -234,7 +240,7 @@ int EllisArrayInsertSteal(EllisArray *array, size_t index, EllisNode *node);
  *
  * @return 0 on success and -1 on error
  */
-int EllisArrayRemove(EllisArray *array, size_t index);
+int ellis_array_remove(ellis_array *array, size_t index);
 
 /**
  * Empties the contents of the given array, decreasing the refcount of each
@@ -242,27 +248,26 @@ int EllisArrayRemove(EllisArray *array, size_t index);
  *
  * @param[in] array an array
  */
-void EllisArrayClear(EllisArray *array);
+void ellis_array_clear(ellis_array *array);
 
 /**
  * A convenience macro to allow easy iteration of the given array. index will be
  * set to the current index in the iteration and value will be set to the
  * current node. Equivalent to calling the given code block inside a for loop
- * that uses EllisArrayGet(array, index) and EllisArrayLength(array).
+ * that uses ellis_array_get(array, index) and ellis_array_length(array).
  */
-EllisArrayForeach(array, index, value)
+ellis_array_foreach(array, index, value)
 
 /**
  * Constructs a bool.
  *
  * @return a new bool with the given value
  */
-EllisBool *EllisBoolMake(EllisBool val);
+ellis_bool *ellis_bool_make(ellis_bool val);
 
-/* TODO: lowercase underscores */
+/* TODO: pass in an ellis_node, don't have ellis_array type */
 /* TODO: add get value functions for everything */
 /* TODO: add an error type */
-/* TODO: pass in an EllisNode, don't have EllisArray type */
 /* TODO: add init/alloc split */
 
 /**
@@ -270,14 +275,14 @@ EllisBool *EllisBoolMake(EllisBool val);
  *
  * @return a new real
  */
-EllisDouble *EllisRealMake(double val);
+ellis_double *ellis_real_make(double val);
 
 /**
  * Constructs a new int with the given value.
  *
  * @return a new int
  */
-EllisInt *EllisIntMake(int val);
+ellis_int *ellis_int_make(int val);
 
 [ MAPS: WORK IN PROGRESS ]
 
@@ -286,13 +291,13 @@ EllisInt *EllisIntMake(int val);
  *
  * @return a Nil
  */
-EllisNil *EllisNilMake(void);
+ellis_nil *ellis_nil_make(void);
 
 /**
  * Constructs a string.
  *
  * @return a string
  */
-EllisString *EllisStringMake(char const *val);
+ellis_string *ellis_string_make(char const *val);
 
 #endif /* ELLIS_H_ */

@@ -23,56 +23,56 @@
 */
 
 /**
- * The callback table for an EllisDecoder.
+ * The callback table for an ellis_decoder.
  */
-typedef struct EllisDecoder {
+typedef struct ellis_decoder {
   /**
-   * Hook to initialize an EllisDecoder.
+   * Hook to initialize an ellis_decoder.
    *
-   * @param data Private, source-specific data for the EllisDecoder.
+   * @param data Private, source-specific data for the ellis_decoder.
    */
 
   void (*init)(void *data);
   /**
-   * Hook to deinitialize an EllisDecoder.
+   * Hook to deinitialize an ellis_decoder.
    *
-   * @param data Private, source-specific data for the EllisDecoder.
+   * @param data Private, source-specific data for the ellis_decoder.
    */
   void (*deinit)(void *data);
 
   /**
    * Hook to construct an Ellis node from raw data. The caller is responsible
-   * for freeing the yielded EllisNode.
+   * for freeing the yielded ellis_node.
    *
    * TODO: zero-copy interface.
    */
-  EllisNode *(*decodeMem)(const uint8_t *data, size_t length);
-} EllisDecoder;
+  ellis_node *(*decode_mem)(const uint8_t *data, size_t length);
+} ellis_decoder;
 
 /**
- * Register an EllisDecoder, associating it with the given name.
- * @param[in] name The name with which to associate the EllisDecoder.
- * @param[in] src The EllisDecoder callback table.
+ * Register an ellis_decoder, associating it with the given name.
+ * @param[in] name The name with which to associate the ellis_decoder.
+ * @param[in] src The ellis_decoder callback table.
  *
  * @return 0 if successful, -1 if not.
  */
-int EllisRegisterSource(const char *name, const EllisDecoder *src);
+int ellis_register_source(const char *name, const ellis_decoder *src);
 
 /**
- * Lookup an EllisDecoder.
+ * Lookup an ellis_decoder.
  *
  * @param[in] name The source name to lookup.
  *
- * @return A pointer to the EllisDecoder with which this name is associated.
+ * @return A pointer to the ellis_decoder with which this name is associated.
  */
-const EllisDecoder *EllisGetSource(const char *name);
+const ellis_decoder *ellis_get_source(const char *name);
 
 /**
- * Construct an EllisNode from a source using the provided data.
+ * Construct an ellis_node from a source using the provided data.
  * TODO: zero-copy
  */
-EllisNode *EllisSrcDecode(
-  const EllisDecoder *src,
+ellis_node *ellis_src_decode(
+  const ellis_decoder *src,
   const uint8_t *data,
   size_t length);
 
@@ -87,59 +87,61 @@ EllisNode *EllisSrcDecode(
  */
 
 /**
- * The callback table for an EllisEncoder.
+ * The callback table for an ellis_encoder.
  */
-typedef struct EllisEncoder {
+typedef struct ellis_encoder {
 
   /**
-   * Hook to initialize an EllisEncoder.
+   * Hook to initialize an ellis_encoder.
    *
-   * @param data Private, sink-specific data for the EllisEncoder.
+   * @param data Private, sink-specific data for the ellis_encoder.
    */
 
   void (*init)(void *data);
   /**
-   * Hook to deinitialize an EllisEncoder.
+   * Hook to deinitialize an ellis_encoder.
    *
-   * @param data Private, sink-specific data for the EllisEncoder.
+   * @param data Private, sink-specific data for the ellis_encoder.
    */
   void (*deinit)(void *data);
 
   /**
    * Hook to construct an Ellis node from raw data. The caller is responsible
-   * for freeing the yielded EllisNode.
+   * for freeing the yielded ellis_node.
    *
    * TODO: zero-copy interface.
    */
-  uint8_t *(*encodeMem)(const struct EllisNode *node, size_t *length);
-} EllisEncoder;
+  uint8_t *(*encode_mem)(const struct ellis_node *node, size_t *length);
+} ellis_encoder;
 
 /**
- * Register an EllisEncoder, associating it with the given name.
- * @param[in] name The name with which to associate the EllisEncoder.
- * @param[in] src The EllisEncoder callback table.
+ * Register an ellis_encoder, associating it with the given name.
+ * @param[in] name The name with which to associate the ellis_encoder.
+ * @param[in] src The ellis_encoder callback table.
  *
  * @return 0 if successful, -1 if not.
  */
-int EllisRegisterSink(const char *name, const EllisEncoder *sink);
+int ellis_register_sink(const char *name, const ellis_encoder *sink);
 
 /**
- * Lookup an EllisEncoder.
+ * Lookup an ellis_encoder.
  *
  * @param[in] name The sink name to lookup.
  *
- * @return A pointer to the EllisEncoder with which this name is associated.
+ * @return A pointer to the ellis_encoder with which this name is associated.
  */
 
-const EllisEncoder *EllisGetSink(const char *name)
+const ellis_encoder *ellis_get_sink(const char *name)
 
 /**
- * Encode an EllisNode into bytes using the given sink.
+ * Encode an ellis_node into bytes using the given sink.
  *
  * @param[in] sink The sink to use for encoding.
  * TODO: zero-copy
  */
-uint8_t *EllisEncoderEncode(const EllisEncoder *sink, EllisNode const *node, size_t
-  *length);
+uint8_t *ellis_encoder_encode(
+    const ellis_encoder *sink,
+    ellis_node const *node,
+    size_t *length);
 
 #endif /* ELLIS_FLOW_H_ */
