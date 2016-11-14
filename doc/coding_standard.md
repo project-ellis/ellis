@@ -125,6 +125,7 @@ typedef struct ellis_node ellis_node;
 
 ellis_node *ellis_node_alloc(ellis_allocator *alloc);
 ellis_node *ellis_node_init(ellis_node *node, const char *name);
+ellis_node *ellis_node_create(const char *name);
 ellis_node *ellis_node_init_copy(ellis_node *node, const ellis_node *other);
 ellis_node *ellis_node_init_move(ellis_node *node, ellis_node *other);
 
