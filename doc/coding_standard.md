@@ -53,8 +53,9 @@
 * C++ headers do not use `using.hpp` nor pollute namespace with `using`.
 * Keep contents of `using.hpp` short--carefully chosen set of ubiquitous types.
 * *Always use braces* for if/for/etc even for single statement body.
-* Use *static* declaration whenever possible.
-* Do not leave code disabled indefinitely.  Use `#if 0` to disable.
+* Use *static* file-scope variables and functions whenever possible.
+* Do not leave code disabled except very temporarily.  Use `#if 0`, not
+  comments, to disable.
 * Don't casually mix signed and unsigned.
 * Use *unsigned types for bit manipulation*.
 * Use *extra parentheses* when unclear order of evaluation raises questions.
@@ -67,7 +68,7 @@
 * Local versions of common defs in `ellis/private/defs.h`.
 * User-specifiable allocation, logging, and fatal error callbacks.
 * Prefer fixed width types when cross-platform behavior matters.
-* Do not assume little-endian.
+* Do not assume either way regarding endianness.
 
 ## C++ Header
 
