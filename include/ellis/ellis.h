@@ -11,6 +11,10 @@
 #ifndef ELLIS_H_
 #define ELLIS_H_
 
+/* TODO: add get value functions for everything */
+/* TODO: add an error type */
+/* TODO: add ellis_map */
+
 /**
  *  ____        _          _____
  * |  _ \  __ _| |_ __ _  |_   _|   _ _ __   ___  ___
@@ -35,6 +39,15 @@ enum ellis_type {
   ELLIS_STRING
 };
 
+/*
+ *  ____        _          _ _  __      _   _
+ * |  _ \  __ _| |_ __ _  | (_)/ _| ___| |_(_)_ __ ___   ___
+ * | | | |/ _` | __/ _` | | | | |_ / _ \ __| | '_ ` _ \ / _ \
+ * | |_| | (_| | || (_| | | | |  _|  __/ |_| | | | | | |  __/
+ * |____/ \__,_|\__\__,_| |_|_|_|  \___|\__|_|_| |_| |_|\___|
+ *
+ */
+
 /**
  * @brief A refcounted object that wraps an Ellis type; used for polymorphism.
  *
@@ -49,82 +62,174 @@ enum ellis_type {
 typedef struct ellis_node ellis_node;
 
 /**
- * Increase an ellis_node refcount by 1.
+ * Increases an ellis_node refcount by 1.
  *
  * @param[in] node an ellis_node
  */
 void ellis_node_ref(ellis_node *node);
 
 /**
- * Decrease an ellis_node refcount by 1, freeing it if the count reaches 0.
+ * Decreases an ellis_node refcount by 1, freeing it if the count reaches 0.
  *
  * @param[in] node an ellis_node
  */
 void ellis_node_deref(ellis_node *node);
 
 /**
- * An array.
- */
-typedef struct ellis_array ellis_array;
-
-/**
- * A binary blob.
- */
-typedef struct ellis_binary ellis_binary;
-
-/**
- * A boolean (true or false).
- */
-typedef enum ellis_bool ellis_bool;
-
-/**
- * An IEEE 754 signed double type.
- */
-typedef struct ellis_double EllisReal;
-
-/**
- * A 64-bit signed integer type.
- */
-typedef struct ellis_int ellis_int;
-
-/**
- * A key-value type.
- */
-typedef struct ellis_map ellis_map;
-
-/**
- * A singleton (nil, null, none) type.
- */
-typedef struct ellis_nil ellis_nil;
-
-/**
- * A UTF-8 string type.
- */
-typedef struct ellis_string ellis_string;
-
-/*
- * TODO: finish ellis_map
- */
-
-/*
- *   ____                _                   _   _
- *  / ___|___  _ __  ___| |_ _ __ _   _  ___| |_(_) ___  _ __
- * | |   / _ \| '_ \/ __| __| '__| | | |/ __| __| |/ _ \| '_ \
- * | |__| (_) | | | \__ \ |_| |  | |_| | (__| |_| | (_) | | | |
- *  \____\___/|_| |_|___/\__|_|   \__,_|\___|\__|_|\___/|_| |_|
+ * Allocates a new node, using the given allocator.
  *
+ * @param alloc an allocator
+ *
+ * @return a new node
  */
-
-/*
- * TODO: [ TBD: return codes more specific than 0 vs. -1 ? ]
- */
+ellis_node *ellis_node_alloc(ellis_allocator *alloc);
 
 /**
- * Constructs an empty array.
+ * Initializes an empty array.
  *
  * @return a new, empty array, or NULL if the function fails
  */
-ellis_array *ellis_array_make(void);
+ellis_node *ellis_node_init_array(void);
+
+/**
+ * Initializes a real with the given value.
+ *
+ * @return a new real with the given value, or NULL if the function fails
+ */
+ellis_node *ellis_node_init_real(double real);
+
+/**
+ * Initializes a new int with the given value.
+ *
+ * @return a new int, or NULL if the function fails
+ */
+ellis_node *ellis_node_init_int(uint64_t i);
+
+/**
+ * Initializes a Nil.
+ *
+ * @return a Nil, or NULL if the function fails
+ */
+ellis_node *ellis_node_init_nil(void);
+
+/**
+ * Initializes a string.
+ *
+ * @return a string, or NULL if the function fails
+ */
+ellis_node *ellis_node_init_string(char const *s);
+
+/* TODO: is this a good idea, at all? */
+/**
+ * Initializes a string node from an input string without copying the input
+ * string. It is invalid to later use the input string, as the node takes
+ * control of it. When the node is deallocated, the input string will be freed
+ * using the allocator associated with the ellis node.
+ *
+ * @return a string, or NULL if the function fails
+ */
+ellis_node *ellis_node_init_string_steal(char *s);
+
+/**
+ * Allocates and initializes an empty array, as a convenience.
+ *
+ * @return a new, empty array, or NULL if the function fails
+ */
+ellis_node *ellis_node_create_array(void);
+
+/**
+ * Allocates and initializes a bool, as a convenience.
+ *
+ * @return a new bool with the given value, or NULL if the function fails
+ */
+ellis_node *ellis_node_create_bool(ellis_bool val);
+
+/**
+ * Allocates and initializes a real, as a convenience.
+ *
+ * @return a new real with the given value, or NULL if the function fails
+ */
+ellis_node *ellis_node_create_real(double real);
+
+/**
+ * Allocates and initializes an int, as a convenience.
+ *
+ * @return a new int with the given value, or NULL if the function fails
+ */
+ellis_node *ellis_node_create_int(uint64_t real);
+
+/**
+ * Allocates and initializes a Nil, as a convenience.
+ *
+ * @return a new Nil with the given value, or NULL if the function fails
+ */
+ellis_node *ellis_node_create_nil(void);
+
+/**
+ * Allocates and initializes a string, as a convenience.
+ *
+ * @return a new string with the given value, or NULL if the function fails
+ */
+ellis_node *ellis_node_create_string(const char *s);
+
+/* TODO: is this a good idea, at all? */
+/**
+ * Allocates and initializes a string node from an input string without copying
+ * the input string. It is invalid to later use the input string, as the node
+ * takes control of it. When the node is deallocated, the input string will be
+ * freed using the allocator associated with the ellis node.
+ *
+ * @return a new string with the given value, or NULL if the function fails
+ */
+ellis_node *ellis_node_create_string_steal(char *s);
+
+/**
+ * Allocates and initializes an empty map, as a convenience.
+ *
+ * @return a new, empty map, or NULL if the function fails
+ */
+ellis_node *ellis_node_create_map(void);
+
+/**
+ * Initializes an empty map.
+ *
+ * @return a new, empty map, or NULL if the function fails
+ */
+ellis_node *ellis_node_init_map(void);
+
+/**
+ * Initializes a node from the contents of another node, performing a deep copy
+ * such that the other node can be safely freed and the new node can continue to
+ * be used.
+ *
+ * @param node the node to initialize
+ * @param other the node from which to copy
+ *
+ * @return node the node that was initialized
+ */
+ellis_node *ellis_node_init_copy(ellis_node *node, const ellis_node *other);
+
+/* TODO: how should this work? does it make sense in C? */
+/* TODO: doxygen */
+ellis_node *ellis_node_init_steal(ellis_node *node, ellis_node *other);
+
+/**
+ * Deinitialize a node, nullifying the contents such that it is invalid to later
+ * use the node in any way other than to call init or dealloc on it.
+ *
+ * @param node a node
+ *
+ * @return the passed-in node
+ */
+ellis_node *ellis_node_deinit(ellis_node *node);
+
+/**
+ * Deallocates a node, freeing the memory to which it is associated. This
+ * function is the reverse of the alloc function.
+ *
+ * @param node a node
+ */
+void ellis_node_dealloc(ellis_node *node);
 
 /**
  * Gets the length of the given array.
@@ -166,7 +271,7 @@ int ellis_array_set(ellis_array *array, size_t index, ellis_node *node);
  *
  * @return 0 if successful, -1 if not
  */
-int ellis_arraySetSteal(ellis_array *array, size_t index, ellis_node *node);
+int ellis_array_set_steal(ellis_array *array, size_t index, ellis_node *node);
 
 /**
  * Appends the given node to the end of the given array.
@@ -176,7 +281,7 @@ int ellis_arraySetSteal(ellis_array *array, size_t index, ellis_node *node);
  *
  * @return 0 on success and -1 on error
  */
-int ellis_arrayAppend(ellis_array *array, ellis_node *node);
+int ellis_array_append(ellis_array *array, ellis_node *node);
 
 /**
  * Appends the given node to the end of the given array, releasing the caller's
@@ -187,7 +292,7 @@ int ellis_arrayAppend(ellis_array *array, ellis_node *node);
  *
  * @return 0 on success and -1 on error
  */
-int ellis_arrayAppendSteal(ellis_array *array, ellis_node *node);
+int ellis_array_append_steal(ellis_array *array, ellis_node *node);
 
 /**
  * Appends the given nodes to the end of the given array. Equivalent to calling
@@ -257,47 +362,5 @@ void ellis_array_clear(ellis_array *array);
  * that uses ellis_array_get(array, index) and ellis_array_length(array).
  */
 ellis_array_foreach(array, index, value)
-
-/**
- * Constructs a bool.
- *
- * @return a new bool with the given value
- */
-ellis_bool *ellis_bool_make(ellis_bool val);
-
-/* TODO: pass in an ellis_node, don't have ellis_array type */
-/* TODO: add get value functions for everything */
-/* TODO: add an error type */
-/* TODO: add init/alloc split */
-
-/**
- * Constructs a real with the given value.
- *
- * @return a new real
- */
-ellis_double *ellis_real_make(double val);
-
-/**
- * Constructs a new int with the given value.
- *
- * @return a new int
- */
-ellis_int *ellis_int_make(int val);
-
-[ MAPS: WORK IN PROGRESS ]
-
-/**
- * Constructs a Nil.
- *
- * @return a Nil
- */
-ellis_nil *ellis_nil_make(void);
-
-/**
- * Constructs a string.
- *
- * @return a string
- */
-ellis_string *ellis_string_make(char const *val);
 
 #endif /* ELLIS_H_ */
