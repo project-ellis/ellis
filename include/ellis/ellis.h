@@ -75,7 +75,7 @@ typedef struct EllisBinary EllisBinary;
 /**
  * A boolean (true or false).
  */
-typedef struct EllisBool EllisBool;
+typedef enum EllisBool EllisBool;
 
 /**
  * An IEEE 754 signed double type.
@@ -103,7 +103,6 @@ typedef struct EllisNil EllisNil;
 typedef struct EllisString EllisString;
 
 /*
- * TODO: finish doxygen
  * TODO: finish EllisMap
  */
 
@@ -121,77 +120,179 @@ typedef struct EllisString EllisString;
  */
 
 /**
- * Constructs an empty EllisArray.
+ * Constructs an empty array.
  *
- * @return a new array
+ * @return a new, empty array, or NULL if the function fails
  */
 EllisArray *EllisArrayMake(void);
 
-/*
- * Returns the length of the EllisArray (in number of EllisNode items).
+/**
+ * Gets the length of the given array.
+ *
+ * @param[in] array an array
+ *
+ * @return the length of the array, in number of items.
  */
 size_t EllisArrayLength(EllisArray const *array);
 
-/* Gets the given index in the given EllisArray, increasing the EllisNode's refcount by 1. */
+/**
+ * Gets the given index in the given array, increasing the EllisNode's refcount by 1.
+ *
+ * @param[in] array an array
+ * @param[in] index the index to get
+ *
+ * @return the EllisNode at the given index, or NULL if there is none
+ */
 EllisNode *EllisArrayGet(EllisArray *array, size_t index);
 
-/* Sets the given index in the given EllisArray to the given EllisNode. */
+/**
+ * Sets the given index in the given array to the given node.
+ *
+ * @param[in] array an array
+ * @param[in] index the index to set
+ * @param[in] node the node to set the index to
+ *
+ * @return 0 if successful, -1 if not
+ */
 int EllisArraySet(EllisArray *array, size_t index, EllisNode *node);
+
+/**
+ * Sets the given index in the given array to the given node while releasing the
+ * caller's reference to the node.
+ *
+ * @param[in] array an array
+ * @param[in] index the index to set
+ * @param[in] node the node to set the index to
+ *
+ * @return 0 if successful, -1 if not
+ */
 int EllisArraySetSteal(EllisArray *array, size_t index, EllisNode *node);
 
-/*
- * Appends the given EllisNode to the end of the given EllisArray. Returns 0 on success and -1 on error.
+/**
+ * Appends the given node to the end of the given array.
+ *
+ * @param[in] array an array
+ * @param[in] node a node
+ *
+ * @return 0 on success and -1 on error
  */
 int EllisArrayAppend(EllisArray *array, EllisNode *node);
+
+/**
+ * Appends the given node to the end of the given array, releasing the caller's
+ * reference to the node.
+ *
+ * @param[in] array an array
+ * @param[in] node a node
+ *
+ * @return 0 on success and -1 on error
+ */
 int EllisArrayAppendSteal(EllisArray *array, EllisNode *node);
 
-/*
- * Appends the given items to the end of the given EllisArray. Equivalent to calling Append many times. Returns 0 on success and -1 on error.
+/**
+ * Appends the given mnodes to the end of the given array. Equivalent to calling
+ * Append many times.
+ *
+ * @param[in] array an array
+ * @param[in] nodes a pointer to a list of nodes
+ * @param[in] length the length (in nodes) of the nodes list
+ *
+ * @return 0 on success and -1 on error
  */
 int EllisArrayExtend(EllisArray *array, EllisNode *nodes, size_t length);
 int EllisArrayExtendSteal(EllisArray *array, EllisNode *nodes, size_t length);
 
-/*
- * Inserts the given EllisNode at the given index into the given EllisArray. Returns 0 on success and -1 on error.
+/**
+ * Inserts the given node into the given array, after the item at the given
+ * index.
+ *
+ * @param[in] array an array
+ * @param[in] index an index into the array
+ * @param[in] node a node to insert
+ *
+ * @return 0 on success and -1 on error
  */
 int EllisArrayInsert(EllisArray *array, size_t index, EllisNode *node);
+
+/**
+ * Inserts the given node into the given array, after the item at the given
+ * index, releasing the caller's reference to the node.
+ *
+ * @param[in] array an array
+ * @param[in] index an index into the array
+ * @param[in] node a node to insert
+ *
+ * @return 0 on success and -1 on error
+ */
 int EllisArrayInsertSteal(EllisArray *array, size_t index, EllisNode *node);
 
-/*
- * Removes the EllisNode at the given index from the given EllisArray, decreasing the refcount by 1. Returns 0 on success and -1 on error.
+/**
+ * Removes the node at the given index from the given array, decreasing the refcount by 1.
+ *
+ * @param[in] array an array
+ * @param[in] index an index to remove
+ *
+ * @return 0 on success and -1 on error
  */
-Int EllisArrayRemove(EllisArray *array, EllisNode *node);
+int EllisArrayRemove(EllisArray *array, size_t index);
 
-/*
- * Empties the contents of the given EllisArray, decreasing the refcount of each contained item by 1.
+/**
+ * Empties the contents of the given array, decreasing the refcount of each
+ * contained item by 1.
+ *
+ * @param[in] array an array
  */
 void EllisArrayClear(EllisArray *array);
 
-/* A convenience macro to allow easy iteration of the given EllisArray. index will be set to the current index in the iteration and value will be set to the current EllisNode *. Equivalent to calling the given code block inside a for loop that uses EllisArrayGet(array, index) and EllisArrayLength(array).
+/**
+ * A convenience macro to allow easy iteration of the given array. index will be
+ * set to the current index in the iteration and value will be set to the
+ * current node. Equivalent to calling the given code block inside a for loop
+ * that uses EllisArrayGet(array, index) and EllisArrayLength(array).
  */
 EllisArrayForeach(array, index, value)
 
-EllisBool *EllisBoolMake(int val);
+/**
+ * Constructs a bool.
+ *
+ * @return a new bool with the given value
+ */
+EllisBool *EllisBoolMake(EllisBool val);
 
-EllisDouble *EllisDoubleMake(double val);
+/* TODO: lowercase underscores */
+/* TODO: add get value functions for everything */
+/* TODO: add an error type */
+/* TODO: pass in an EllisNode, don't have EllisArray type */
+/* TODO: add init/alloc split */
 
+/**
+ * Constructs a real with the given value.
+ *
+ * @return a new real
+ */
+EllisDouble *EllisRealMake(double val);
+
+/**
+ * Constructs a new int with the given value.
+ *
+ * @return a new int
+ */
 EllisInt *EllisIntMake(int val);
 
-[ MAPS: WORK IN PROGRESS
+[ MAPS: WORK IN PROGRESS ]
 
-/*
- * Constructs an empty EllisMap.
+/**
+ * Constructs a Nil.
+ *
+ * @return a Nil
  */
-EllisMap *EllisMapMake(void);
-
-/*
- * Returns the length of the EllisMap (in number of EllisNode items).
- */
-size_t EllisMapLength(EllisMap const *map);
-
 EllisNil *EllisNilMake(void);
 
+/**
+ * Constructs a string.
+ *
+ * @return a string
+ */
 EllisString *EllisStringMake(char const *val);
-EllisString *EllisStringSteal(char *val);
 
 #endif /* ELLIS_H_ */
