@@ -144,22 +144,6 @@ ellis_node *ellis_node_init_u8str(
     const char *s,
     ellis_err **err);
 
-/* TODO: is this a good idea, at all? */
-/**
- * Initializes a u8str node from an input u8str without copying the input
- * u8str. It is invalid to later use the input u8str, as the node takes
- * control of it. When the node is deallocated, the input u8str will be freed
- * using the allocator associated with the ellis node.
- *
- * @param[in] node a node
- * @param[out] err an error
- *
- * @return a u8str, or NULL if the function fails
- */
-ellis_node *ellis_node_init_u8str_steal(
-    ellis_node *node,
-    char *s, ellis_err **err);
-
 /**
  * Allocates and initializes an empty array, as a convenience.
  *
@@ -214,19 +198,6 @@ ellis_node *ellis_node_create_nil(void, ellis_err **err);
  */
 ellis_node *ellis_node_create_u8str(const char *s, ellis_err **err);
 
-/* TODO: is this a good idea, at all? */
-/**
- * Allocates and initializes a u8str node from an input u8str without copying
- * the input u8str. It is invalid to later use the input u8str, as the node
- * takes control of it. When the node is deallocated, the input u8str will be
- * freed using the allocator associated with the ellis node.
- *
- * @param[out] err an error
- *
- * @return a new u8str with the given value, or NULL if the function fails
- */
-ellis_node *ellis_node_create_u8str_steal(char *s, ellis_err **err);
-
 /**
  * Allocates and initializes an empty map, as a convenience.
  *
@@ -261,9 +232,8 @@ ellis_node *ellis_node_init_copy(
     const ellis_node *other,
     ellis_err **err);
 
-/* TODO: how should this work? does it make sense in C? */
 /* TODO: doxygen */
-ellis_node *ellis_node_init_steal(
+ellis_node *ellis_node_init_move(
     ellis_node *node,
     ellis_node *other,
     ellis_err **err);
@@ -345,7 +315,7 @@ int ellis_array_set(
  *
  * @return 0 if successful, -1 if not
  */
-int ellis_array_set_steal(
+int ellis_array_set_move(
     ellis_array *array,
     size_t index,
     ellis_node *node,
@@ -372,7 +342,7 @@ int ellis_array_append(ellis_array *array, ellis_node *node, ellis_err **err);
  *
  * @return 0 on success and -1 on error
  */
-int ellis_array_append_steal(
+int ellis_array_append_move(
     ellis_array *array,
     ellis_node *node,
     ellis_err **err);
@@ -396,7 +366,7 @@ int ellis_array_extend(
 
 /**
  * Appends the given nodes to the end of the given array, releasing the caller's
- * reference to the appended nodes. Equivalent to calling append_steal many
+ * reference to the appended nodes. Equivalent to calling append_move many
  * times.
  *
  * @param[in] array an array
@@ -406,7 +376,7 @@ int ellis_array_extend(
  *
  * @return 0 on success and -1 on error
  */
-int ellis_array_extend_steal(
+int ellis_array_extend_move(
     ellis_array *array,
     ellis_node *nodes,
     size_t length,
@@ -440,7 +410,7 @@ int ellis_array_insert(
  *
  * @return 0 on success and -1 on error
  */
-int ellis_array_insert_steal(
+int ellis_array_insert_move(
     ellis_array *array,
     size_t index,
     ellis_node *node,
