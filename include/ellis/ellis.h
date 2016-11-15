@@ -11,9 +11,9 @@
 #ifndef ELLIS_H_
 #define ELLIS_H_
 
-/* TODO: add get value functions for everything */
 /* TODO: add an error type */
 /* TODO: add ellis_map */
+/* TODO: zero-copy interface */
 
 /**
  *  ____        _          _____
@@ -231,6 +231,15 @@ ellis_node *ellis_node_deinit(ellis_node *node);
  */
 void ellis_node_dealloc(ellis_node *node);
 
+/*
+ *     _
+ *    / \   _ __ _ __ __ _ _   _
+ *   / _ \ | '__| '__/ _` | | | |
+ *  / ___ \| |  | | | (_| | |_| |
+ * /_/   \_\_|  |_|  \__,_|\__, |
+ *                         |___/
+ */
+
 /**
  * Gets the length of the given array.
  *
@@ -362,5 +371,136 @@ void ellis_array_clear(ellis_array *array);
  * that uses ellis_array_get(array, index) and ellis_array_length(array).
  */
 ellis_array_foreach(array, index, value)
+
+/*
+ *  ____  _
+ * | __ )(_)_ __   __ _ _ __ _   _
+ * |  _ \| | '_ \ / _` | '__| | | |
+ * | |_) | | | | | (_| | |  | |_| |
+ * |____/|_|_| |_|\__,_|_|   \__, |
+ *                           |___/
+ *
+ */
+
+/* TODO: zero-copy interface */
+/**
+ * Set a binary object to the given contents.
+ */
+/* TODO: doxygen */
+void ellis_binary_set(SOMETHING);
+
+/* TODO: doxygen */
+void ellis_binary_value(SOMETHING);
+
+/*
+ *  ____              _
+ * | __ )  ___   ___ | |
+ * |  _ \ / _ \ / _ \| |
+ * | |_) | (_) | (_) | |
+ * |____/ \___/ \___/|_|
+ *
+ */
+
+/**
+ * The underlying value of a bool.
+ */
+enum ellis_bool_val {
+  ELLIS_FALSE = 0,
+  ELLIS_TRUE = 1
+};
+
+/**
+ * Gets the underlying bool value.
+ *
+ * @param node a node
+ *
+ * @return the node's value
+ */
+ellis_bool_val ellis_bool_value(const ellis_node *node);
+
+/*
+ *  ___       _
+ * |_ _|_ __ | |_
+ *  | || '_ \| __|
+ *  | || | | | |_
+ * |___|_| |_|\__|
+ *
+ */
+
+/**
+ * Gets the underlying int value.
+ *
+ * @param node a node
+ *
+ * @return the node's value
+ */
+uint64_t ellis_int_value(const ellis_node *node);
+
+/*
+ *  __  __
+ * |  \/  | __ _ _ __
+ * | |\/| |/ _` | '_ \
+ * | |  | | (_| | |_) |
+ * |_|  |_|\__,_| .__/
+ *              |_|
+ *
+ */
+
+/* TODO */
+
+/*
+ *  _   _ _ _
+ * | \ | (_) |
+ * |  \| | | |
+ * | |\  | | |
+ * |_| \_|_|_|
+ *
+ */
+
+/**
+ * Checks if a node is Nil.
+ *
+ * @param node a node
+ *
+ * @return 1 if the node is Nil, 0 otherwise
+ */
+int ellis_is_nil(const ellis_node *node);
+
+/*
+ *  ____            _
+ * |  _ \ ___  __ _| |
+ * | |_) / _ \/ _` | |
+ * |  _ <  __/ (_| | |
+ * |_| \_\___|\__,_|_|
+ *
+ */
+
+/**
+ * Gets the underlying double value.
+ *
+ * @param node a node
+ *
+ * @return the node's value
+ */
+double ellis_real_value(const ellis_node *node);
+
+/*
+ *  ____  _        _
+ * / ___|| |_ _ __(_)_ __   __ _
+ * \___ \| __| '__| | '_ \ / _` |
+ *  ___) | |_| |  | | | | | (_| |
+ * |____/ \__|_|  |_|_| |_|\__, |
+ *                         |___/
+ *
+ */
+
+/**
+ * Gets the underlying string value.
+ *
+ * @param node a node
+ *
+ * @return the node's value
+ */
+const char *ellis_string_value(const ellis_node *node);
 
 #endif /* ELLIS_H_ */
