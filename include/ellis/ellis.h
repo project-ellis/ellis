@@ -44,55 +44,6 @@ enum ellis_type {
 };
 
 /*
- *  _____
- * | ____|_ __ _ __ ___  _ __ ___
- * |  _| | '__| '__/ _ \| '__/ __|
- * | |___| |  | | | (_) | |  \__ \
- * |_____|_|  |_|  \___/|_|  |___/
- *
- */
-
-/**
- * @brief An object representing an error code and associated message.
- *
- * A type that represents an error. This type is handled similarly to how GError
- * in GLib is handled. A double pointer to this type is passed through many
- * functions and allocated if an error occurs. In such a function, the passed-in
- * value should be set to NULL prior to being called. If instead the pointer
- * itself is NULL, this means that errors will be ignored.
- */
-typedef struct ellis_error ellis_error;
-
-/**
- * Gets the error code associated with a given error. This code will be in the
- * form -errno, with errno values coming from either the standard errno.h or
- * ellis/errno.h.
- *
- * @param[out] err an error object
- *
- * @return an error code, in the form -errno
- */
-int ellis_error_code(const ellis_error *err);
-
-/**
- * Gets the human-readable error message associated with a given error. The
- * message object should not be directly freed but instead should be freed by
- * using ellis_error_free.
- *
- * @param[out] err an error object
- *
- * @return the message
- */
-const char *ellis_error_msg(const ellis_error *err);
-
-/**
- * Frees an error object.
- *
- * @param[out] err an error object
- */
-void ellis_error_free(const ellis_error *err);
-
-/*
  *  ____        _          _ _  __      _   _
  * |  _ \  __ _| |_ __ _  | (_)/ _| ___| |_(_)_ __ ___   ___
  * | | | |/ _` | __/ _` | | | | |_ / _ \ __| | '_ ` _ \ / _ \
