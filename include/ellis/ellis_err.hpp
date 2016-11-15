@@ -38,7 +38,8 @@ public:
   /** Returns the machine-usable error code associated with the error.
    *
    * This value will be one of the normal errno values, such as EINVAL,
-   * or one of the Ellis-defined values in ellis_err_code. */
+   * or one of the Ellis-defined values in ellis_err_code. Note that the value
+   * will always be negative. */
   int code();
 
   /** Returns the filename of the location in the code that created the
@@ -51,7 +52,7 @@ public:
 
   /** Returns the human-readable message associated with the error.  */
   std::string msg();
-  
+
   /** Return a summary string including code, file, line, and msg. */
   std::string summary();
 };

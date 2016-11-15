@@ -40,6 +40,9 @@ typedef struct ellis_err ellis_err;
  */
 int ellis_err_code(const ellis_err *err);
 
+/* TODO: doxygen */
+const char *ellis_err_file(const ellis_err *err);
+
 /**
  * Gets the human-readable error message associated with a given error. The
  * message object should not be directly freed but instead should be freed
@@ -50,6 +53,9 @@ int ellis_err_code(const ellis_err *err);
  * @return the message
  */
 const char *ellis_err_msg(const ellis_err *err);
+
+/* TODO: doxygen */
+const char *ellis_err_summary(const ellis_err *err);
 
 /**
  * Frees an error object.
