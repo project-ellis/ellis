@@ -17,6 +17,7 @@
 extern "C" {
 #endif
 
+
 /*
  *  ____                     _
  * |  _ \  ___  ___ ___   __| | ___ _ __ ___
@@ -147,6 +148,7 @@ uint8_t *ellis_encoder_encode(
     const ellis_encoder *sink,
     ellis_node const *node,
     size_t *length);
+
 
 #ifdef __cplusplus
 } /* extern "C" */

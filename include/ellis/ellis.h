@@ -15,6 +15,7 @@
 extern "C" {
 #endif
 
+
 /* TODO: add ellis_map */
 /* TODO: zero-copy interface */
 
@@ -654,6 +655,7 @@ double ellis_real_value(const ellis_node *node, ellis_err **err);
  * @return the node's value
  */
 const char *ellis_string_value(const ellis_node *node, ellis_err **err);
+
 
 #ifdef __cplusplus
 } /* extern "C" */

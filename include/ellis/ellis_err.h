@@ -15,6 +15,7 @@
 extern "C" {
 #endif
 
+
 /**
  * @brief An object representing an error, including a code and message.
  *
@@ -56,6 +57,7 @@ const char *ellis_err_msg(const ellis_err *err);
  * @param[out] err an error object
  */
 void ellis_err_free(const ellis_err *err);
+
 
 #ifdef __cplusplus
 } /* extern "C" */

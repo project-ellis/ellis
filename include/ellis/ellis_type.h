@@ -15,6 +15,7 @@
 extern "C" {
 #endif
 
+
 /**
  * An enum containing all the Ellis data types.
  */
@@ -28,6 +29,7 @@ enum ellis_type {
   ELLIS_REAL,
   ELLIS_STRING
 };
+
 
 #ifdef __cplusplus
 } /* extern "C" */
