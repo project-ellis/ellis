@@ -11,6 +11,9 @@
 #ifndef ELLIS_ERR_H_
 #define ELLIS_ERR_H_
 
+#ifndef __cplusplus
+extern "C" {
+#endif
 
 /**
  * @brief An object representing an error, including a code and message.
@@ -54,5 +57,8 @@ const char *ellis_err_msg(const ellis_err *err);
  */
 void ellis_err_free(const ellis_err *err);
 
+#ifdef __cplusplus
+} /* extern "C" */
+#endif
 
 #endif /* ELLIS_ERR_H_ */

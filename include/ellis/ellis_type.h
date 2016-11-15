@@ -11,6 +11,9 @@
 #ifndef ELLIS_TYPE_H_
 #define ELLIS_TYPE_H_
 
+#ifndef __cplusplus
+extern "C" {
+#endif
 
 /**
  * An enum containing all the Ellis data types.
@@ -26,5 +29,8 @@ enum ellis_type {
   ELLIS_STRING
 };
 
+#ifdef __cplusplus
+} /* extern "C" */
+#endif
 
 #endif /* ELLIS_TYPE_H_ */
