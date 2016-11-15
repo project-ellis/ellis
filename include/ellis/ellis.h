@@ -36,11 +36,11 @@ enum ellis_type {
   ELLIS_ARRAY,
   ELLIS_BINARY,
   ELLIS_BOOL,
-  ELLIS_INT,
+  ELLIS_DOUBLE,
+  ELLIS_INT64,
   ELLIS_MAP,
   ELLIS_NIL,
-  ELLIS_REAL,
-  ELLIS_STRING
+  ELLIS_U8STR
 };
 
 /*
@@ -102,14 +102,14 @@ ellis_node *ellis_node_alloc(ellis_allocator *alloc, ellis_err **err);
 ellis_node *ellis_node_init_array(ellis_node *node, ellis_err **err);
 
 /**
- * Initializes a real with the given value.
+ * Initializes a double with the given value.
  *
  * @param[in] node a node
  * @param[out] err an error
  *
- * @return a new real with the given value, or NULL if the function fails
+ * @return a new double with the given value, or NULL if the function fails
  */
-ellis_node *ellis_node_init_real(ellis_node *node, double real, ellis_err **err);
+ellis_node *ellis_node_init_double(ellis_node *node, double d, ellis_err **err);
 
 /**
  * Initializes a new int with the given value.
@@ -119,7 +119,7 @@ ellis_node *ellis_node_init_real(ellis_node *node, double real, ellis_err **err)
  *
  * @return a new int, or NULL if the function fails
  */
-ellis_node *ellis_node_init_int(ellis_node *node, uint64_t i, ellis_err **err);
+ellis_node *ellis_node_init_int(ellis_node *node, int64_t i, ellis_err **err);
 
 /**
  * Initializes a Nil.
@@ -132,31 +132,31 @@ ellis_node *ellis_node_init_int(ellis_node *node, uint64_t i, ellis_err **err);
 ellis_node *ellis_node_init_nil(ellis_node *node, void, ellis_err **err);
 
 /**
- * Initializes a string.
+ * Initializes a u8str.
  *
  * @param[in] node a node
  * @param[out] err an error
  *
- * @return a string, or NULL if the function fails
+ * @return a u8str, or NULL if the function fails
  */
-ellis_node *ellis_node_init_string(
+ellis_node *ellis_node_init_u8str(
     ellis_node *node,
     const char *s,
     ellis_err **err);
 
 /* TODO: is this a good idea, at all? */
 /**
- * Initializes a string node from an input string without copying the input
- * string. It is invalid to later use the input string, as the node takes
- * control of it. When the node is deallocated, the input string will be freed
+ * Initializes a u8str node from an input u8str without copying the input
+ * u8str. It is invalid to later use the input u8str, as the node takes
+ * control of it. When the node is deallocated, the input u8str will be freed
  * using the allocator associated with the ellis node.
  *
  * @param[in] node a node
  * @param[out] err an error
  *
- * @return a string, or NULL if the function fails
+ * @return a u8str, or NULL if the function fails
  */
-ellis_node *ellis_node_init_string_steal(
+ellis_node *ellis_node_init_u8str_steal(
     ellis_node *node,
     char *s, ellis_err **err);
 
@@ -179,13 +179,13 @@ ellis_node *ellis_node_create_array(ellis_err **err);
 ellis_node *ellis_node_create_bool(ellis_bool val, ellis_err **err);
 
 /**
- * Allocates and initializes a real, as a convenience.
+ * Allocates and initializes a double, as a convenience.
  *
  * @param[out] err an error
  *
- * @return a new real with the given value, or NULL if the function fails
+ * @return a new double with the given value, or NULL if the function fails
  */
-ellis_node *ellis_node_create_real(double real, ellis_err **err);
+ellis_node *ellis_node_create_double(double d, ellis_err **err);
 
 /**
  * Allocates and initializes an int, as a convenience.
@@ -194,7 +194,7 @@ ellis_node *ellis_node_create_real(double real, ellis_err **err);
  *
  * @return a new int with the given value, or NULL if the function fails
  */
-ellis_node *ellis_node_create_int(uint64_t real, ellis_err **err);
+ellis_node *ellis_node_create_int(int64_t i, ellis_err **err);
 
 /**
  * Allocates and initializes a Nil, as a convenience.
@@ -206,26 +206,26 @@ ellis_node *ellis_node_create_int(uint64_t real, ellis_err **err);
 ellis_node *ellis_node_create_nil(void, ellis_err **err);
 
 /**
- * Allocates and initializes a string, as a convenience.
+ * Allocates and initializes a u8str, as a convenience.
  *
  * @param[out] err an error
  *
- * @return a new string with the given value, or NULL if the function fails
+ * @return a new u8str with the given value, or NULL if the function fails
  */
-ellis_node *ellis_node_create_string(const char *s, ellis_err **err);
+ellis_node *ellis_node_create_u8str(const char *s, ellis_err **err);
 
 /* TODO: is this a good idea, at all? */
 /**
- * Allocates and initializes a string node from an input string without copying
- * the input string. It is invalid to later use the input string, as the node
- * takes control of it. When the node is deallocated, the input string will be
+ * Allocates and initializes a u8str node from an input u8str without copying
+ * the input u8str. It is invalid to later use the input u8str, as the node
+ * takes control of it. When the node is deallocated, the input u8str will be
  * freed using the allocator associated with the ellis node.
  *
  * @param[out] err an error
  *
- * @return a new string with the given value, or NULL if the function fails
+ * @return a new u8str with the given value, or NULL if the function fails
  */
-ellis_node *ellis_node_create_string_steal(char *s, ellis_err **err);
+ellis_node *ellis_node_create_u8str_steal(char *s, ellis_err **err);
 
 /**
  * Allocates and initializes an empty map, as a convenience.
@@ -517,17 +517,37 @@ enum ellis_bool_val {
  * Gets the underlying bool value.
  *
  * @param[in] node a node
+ * @param[out] err an error
  *
  * @return the node's value
  */
 ellis_bool_val ellis_bool_value(const ellis_node *node, ellis_err **err);
 
 /*
- *  ___       _
- * |_ _|_ __ | |_
- *  | || '_ \| __|
- *  | || | | | |_
- * |___|_| |_|\__|
+ *  ____              _     _
+ * |  _ \  ___  _   _| |__ | | ___
+ * | | | |/ _ \| | | | '_ \| |/ _ \
+ * | |_| | (_) | |_| | |_) | |  __/
+ * |____/ \___/ \__,_|_.__/|_|\___|
+ *
+ */
+
+/**
+ * Gets the underlying double value.
+ *
+ * @param[in] node a node
+ * @param[out] err an error
+ *
+ * @return the node's value
+ */
+double ellis_double_value(const ellis_node *node, ellis_err **err);
+
+/*
+ *  ___       _    __   _  _
+ * |_ _|_ __ | |_ / /_ | || |
+ *  | || '_ \| __| '_ \| || |_
+ *  | || | | | |_| (_) |__   _|
+ * |___|_| |_|\__|\___/   |_|
  *
  */
 
@@ -535,10 +555,11 @@ ellis_bool_val ellis_bool_value(const ellis_node *node, ellis_err **err);
  * Gets the underlying int value.
  *
  * @param[in] node a node
+ * @param[out] err an error
  *
  * @return the node's value
  */
-uint64_t ellis_int_value(const ellis_node *node, ellis_err **err);
+int64_t ellis_int_value(const ellis_node *node, ellis_err **err);
 
 /*
  *  __  __
@@ -565,47 +586,30 @@ uint64_t ellis_int_value(const ellis_node *node, ellis_err **err);
  * Checks if a node is Nil.
  *
  * @param[in] node a node
+ * @param[out] err an error
  *
  * @return 1 if the node is Nil, 0 otherwise
  */
 int ellis_is_nil(const ellis_node *node, ellis_err **err);
 
 /*
- *  ____            _
- * |  _ \ ___  __ _| |
- * | |_) / _ \/ _` | |
- * |  _ <  __/ (_| | |
- * |_| \_\___|\__,_|_|
+ *  _   _  ___      _
+ * | | | |( _ ) ___| |_ _ __
+ * | | | |/ _ \/ __| __| '__|
+ * | |_| | (_) \__ \ |_| |
+ *  \___/ \___/|___/\__|_|
  *
  */
 
 /**
- * Gets the underlying double value.
+ * Gets the underlying u8str value.
  *
  * @param[in] node a node
+ * @param[out] err an error
  *
  * @return the node's value
  */
-double ellis_real_value(const ellis_node *node, ellis_err **err);
-
-/*
- *  ____  _        _
- * / ___|| |_ _ __(_)_ __   __ _
- * \___ \| __| '__| | '_ \ / _` |
- *  ___) | |_| |  | | | | | (_| |
- * |____/ \__|_|  |_|_| |_|\__, |
- *                         |___/
- *
- */
-
-/**
- * Gets the underlying string value.
- *
- * @param[in] node a node
- *
- * @return the node's value
- */
-const char *ellis_string_value(const ellis_node *node, ellis_err **err);
+const char *ellis_u8str_value(const ellis_node *node, ellis_err **err);
 
 
 #ifdef __cplusplus

@@ -1,10 +1,9 @@
 /*
  * @file ellis_type.h
  *
- * @brief Ellis public C header.
+ * @brief Ellis types C++ header.
  *
- * This is the C header for Ellis, which implements the standalone Ellis data
- * interaction routines.
+ * This is the C++ header for Ellis types.
  */
 
 #pragma once
@@ -19,11 +18,11 @@ enum class ellis_type {
   ARRAY,
   BINARY,
   BOOL,
-  INT,
+  DOUBLE,
+  INT64,
   MAP,
   NIL,
-  REAL,
-  STRING
+  U8STR
 };
 
 
