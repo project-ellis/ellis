@@ -10,6 +10,8 @@
 ## Naming Conventions
 
 * Lower case with underscores in most cases.  (Slower to type, easier to read).
+* Prefer short names, but long enough to be clear over realm used.
+* Single letter variables OK in short blocks like loops.
 * `g_foo` for global
 * `m_foo` for member
 * `s_foo` for static
