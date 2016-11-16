@@ -11,6 +11,8 @@
 #define ELLIS_TYPE_HPP_
 
 
+namespace ellis {
+
 /**
  * An enum containing all the Ellis data types.
  */
@@ -25,5 +27,7 @@ enum class ellis_type {
   U8STR
 };
 
+
+}  /* namespace ellis */
 
 #endif /* ELLIS_TYPE_HPP_ */

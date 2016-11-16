@@ -11,11 +11,22 @@
 #ifndef ELLIS_ERR_HPP_
 #define ELLIS_ERR_HPP_
 
+#include <stdexcept>
+#include <string>
+
+
+namespace ellis {
+
 
 enum class ellis_err_code {
   WRONG_TYPE = 4096,
   PARSING_ERROR = 4097,
 };
+
+
+#define MAKE_ELLIS_ERR(CODE, MSG) \
+  ellis_err((int)CODE, __FILE__, __LINE__, (MSG))
+
 
 class ellis_err : public std::runtime_error {
 
@@ -58,4 +69,6 @@ public:
 };
 
 
-#endif /* ELLIS_ERR_HPP_ */
+}  /* namespace ellis */
+
+#endif  /* ELLIS_ERR_HPP_ */

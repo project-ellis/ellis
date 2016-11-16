@@ -9,8 +9,12 @@
 #ifndef ELLIS_NODE_HPP_
 #define ELLIS_NODE_HPP_
 
-#include <string>
+#include <deque>
 #include <ellis/ellis_type.hpp>
+#include <memory>
+#include <string>
+#include <unordered_map>
+#include <vector>
 
 namespace ellis {
 
@@ -42,6 +46,29 @@ class ellis_map_node;
  * will decrease.
  */
 class ellis_node {
+  using arr_t = std::deque<ellis_node>;
+  using map_t = std::unordered_map<std::string, ellis_node>;
+  using bin_t = std::vector<uint8_t>;
+  using pad_t = char[8];
+  using refcount_t = unsigned;
+  union {
+    bool m_boo;
+    double m_dbl;
+    int64_t m_int;
+    std::string m_str;
+    arr_t *m_arr;
+    map_t *m_map;
+    bin_t *m_bin;
+    pad_t m_pad;
+  };
+  // TODO: steal bits from pointer for type...
+  mutable refcount_t *m_refcount;
+  unsigned m_type:4;
+
+  void _zap_contents(ellis_type t);
+  void _grab_contents(const ellis_node &other);
+  void _release_contents();
+
  public:
 
   /*   ____                _                   _
@@ -52,23 +79,25 @@ class ellis_node {
    *
    */
 
+  // TODO: experiment re safety w/o explicit constructors
+
   /** Construct an ARRAY, MAP, or NIL node. */
   explicit ellis_node(ellis_type);
 
   /** Construct a BINARY node. */
-  explicit ellis_node(uint8_t *mem, size_t bytes);
+  ellis_node(const uint8_t *mem, size_t bytes);
 
   /** Construct a BOOL node. */
-  explicit ellis_node(bool);
+  ellis_node(bool);
 
   /** Construct a U8STR node. */
-  explicit ellis_node(const std::string&);
+  ellis_node(const std::string&);
 
   /** Construct an INT64 node. */
-  explicit ellis_node(int64_t);
+  ellis_node(int64_t);
 
   /** Construct a DOUBLE node. */
-  explicit ellis_node(double);
+  ellis_node(double);
 
   /** Copy constructor.
    *
@@ -91,6 +120,7 @@ class ellis_node {
    *
    */
 
+  void release();
   ~ellis_node();
 
 
@@ -169,18 +199,20 @@ class ellis_node {
    * Will throw WRONG_TYPE error if type is not convertible.
    */
   explicit operator int64_t() const;
+  int64_t as_int() const;
 
   /** Get contents as a double.
    *
    * Will throw WRONG_TYPE error if type is not convertible.
    */
   explicit operator double() const;
+  int64_t as_double() const;
 
   /** Provide access to UTF-8 string contents.
    *
    * Will throw WRONG_TYPE error if type is not U8STR.
    */
-  std::string & as_u8str() const;
+  const std::string & as_u8str() const;
 
   /** Provide access to array functionality.
    *
@@ -198,10 +230,11 @@ class ellis_node {
 
   /** Provide access to binary blob contents.
    *
+   * Fills in the size parameter with the actual size of binary data.
    * Will throw WRONG_TYPE error if type is not BINARY.
    */
-  std::pair<uint8_t*, size_t> as_binary();
-  std::pair<const uint8_t*, size_t> as_const_binary() const;
+  uint8_t* as_binary(size_t *size);
+  const uint8_t* as_binary(size_t *size) const;
 
 
   /** Get value from tree at given path (e.g. "{log}{handlers}[0]{sync}").
@@ -211,10 +244,32 @@ class ellis_node {
    */
   ellis_node & get_path(const std::string &path);
   const ellis_node & get_path(const std::string &path) const;
+
+  friend class ellis_array_node;
+  friend class ellis_map_node;
 };
 
 
-}
+/*  ___          _
+ * |_ _|___  ___| |_ _ __ ___  __ _ _ __ ___
+ *  | |/ _ \/ __| __| '__/ _ \/ _` | '_ ` _ \
+ *  | | (_) \__ \ |_| | |  __/ (_| | | | | | |
+ * |___\___/|___/\__|_|  \___|\__,_|_| |_| |_|
+ *
+ *   ___                       _
+ *  / _ \ _ __   ___ _ __ __ _| |_ ___  _ __ ___
+ * | | | | '_ \ / _ \ '__/ _` | __/ _ \| '__/ __|
+ * | |_| | |_) |  __/ | | (_| | || (_) | |  \__ \
+ *  \___/| .__/ \___|_|  \__,_|\__\___/|_|  |___/
+ *       |_|
+ */
+
+
+std::ostream & operator<<(std::ostream & os, const ellis_node & v);
+std::istream & operator>>(std::istream & is, ellis_node & v);
+
+
+}  /* namespace ellis */
 
 
 #endif /* ELLIS_NODE_HPP_ */

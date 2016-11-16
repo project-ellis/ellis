@@ -3,7 +3,7 @@ cc     = gcc
 cxx    = g++
 cflags = -std=gnu99
 cxxflags = -std=c++11
-ccflags = -Wall -Wextra -Werror -g -O3 -fPIC -pthread -Iinclude
+ccflags = -Wall -Wextra -Werror -g -O0 -fPIC -pthread -Iinclude
 ldflags = -pthread -shared
 builddir = build
 
@@ -22,7 +22,8 @@ rule link
   description = LINK $out
 
 build $builddir/ellis_node.o: cxxcompile src/ellis_node.cpp
-build $builddir/libellis.so: link $builddir/ellis_node.o
+build $builddir/ellis_map_node.o: cxxcompile src/ellis_map_node.cpp
+build $builddir/libellis.so: link $builddir/ellis_node.o $builddir/ellis_map_node.o
 
 build all: phony | $builddir/libellis.so
 default $builddir/libellis.so

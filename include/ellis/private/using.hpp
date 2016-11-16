@@ -13,6 +13,7 @@
 
 
 #include <algorithm>
+#include <assert.h>  // TODO: replace with ellis_system assert/fatal
 #include <deque>
 #include <list>
 #include <map>
@@ -26,6 +27,8 @@
 using std::deque;
 using std::function;
 using std::list;
+using std::make_pair;
+using std::make_shared;
 using std::map;
 using std::pair;
 using std::shared_ptr;

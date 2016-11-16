@@ -11,9 +11,16 @@
 
 #include <string>
 #include <vector>
-#include <ellis/ellis_type.hpp>
+#include <ellis/ellis_node.hpp>
 
 namespace ellis {
+
+
+struct ellis_merge_policy {
+  bool key_exists_hit;
+  bool key_missing_hit;
+  bool abort_on_miss;
+};
 
 
 /** Typesafe map wrap.
@@ -25,9 +32,14 @@ class ellis_map_node {
   /* Contains a single data member--an ellis_node--and no vtable or
    * other wrapping.  This is important since we plan to cast between the two
    * in order to use this shell class for type safety. */
-  ellis_node node;
+  ellis_node m_node;
 
 public:
+  /** Constructor
+   */
+  ellis_map_node() = delete;
+  ~ellis_map_node() {}
+
   /** Return a reference to the value with the given key.
    *
    * Will throw std::out_of_range if key is not present.
@@ -74,7 +86,6 @@ public:
 
   /** Remove all entries in the map. */
   void clear();
-
 };
 
 
