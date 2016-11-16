@@ -9,6 +9,8 @@
 #ifndef ELLIS_ARRAY_NODE_HPP_
 #define ELLIS_ARRAY_NODE_HPP_
 
+#include <dequeue>
+#include <ellis/ellis_node.hpp>
 #include <ellis/ellis_type.hpp>
 
 namespace ellis {
@@ -20,18 +22,19 @@ namespace ellis {
  * validated as an array by ellis_node::as_array().
  */
 class ellis_array_node {
-  /* Contains a single data member--an ellis_node--and no vtable or
-   * other wrapping.  This is important since we plan to cast between the two
-   * in order to use this shell class for type safety. */
-  ellis_node node;
+  std::deque<ellis_node> m_data;
 
 public:
+  /** Constructor
+   */
+  ellis_array_node();
+
   /** Return a reference to the element at the given index.
    *
    * Will throw std::out_of_range if key is not present.
    */
-  ellis_node& operator[](size_t);
-  const ellis_node& operator[](size_t) const;
+  ellis_node& operator[](size_t index);
+  const ellis_node& operator[](size_t index) const;
 
   /** Append a node to the end of the array.
    */
@@ -73,34 +76,6 @@ public:
   /** Remove all elements from the array. */
   void clear();
 };
-
-
-/** Policy for merges to ellis maps. */
-struct ellis_merge_policy {
-  bool key_exists_hit;
-  bool key_missing_hit;
-  bool abort_on_miss;
-};
-
-
-/*  ___          _
- * |_ _|___  ___| |_ _ __ ___  __ _ _ __ ___
- *  | |/ _ \/ __| __| '__/ _ \/ _` | '_ ` _ \
- *  | | (_) \__ \ |_| | |  __/ (_| | | | | | |
- * |___\___/|___/\__|_|  \___|\__,_|_| |_| |_|
- *
- *   ___                       _
- *  / _ \ _ __   ___ _ __ __ _| |_ ___  _ __ ___
- * | | | | '_ \ / _ \ '__/ _` | __/ _ \| '__/ __|
- * | |_| | |_) |  __/ | | (_| | || (_) | |  \__ \
- *  \___/| .__/ \___|_|  \__,_|\__\___/|_|  |___/
- *       |_|
- */
-
-
-std::ostream & operator<<(std::ostream & os, const ellis_node & v);
-std::istream & operator>>(std::istream & is, ellis_node & v);
-
 
 } /* namespace ellis */
 
