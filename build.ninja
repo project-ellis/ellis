@@ -1,0 +1,28 @@
+# build.ninja
+cc     = gcc
+cxx    = g++
+cflags = -std=gnu99
+cxxflags = -std=c++11
+ccflags = -Wall -Wextra -Werror -g -O3 -fPIC -pthread -Iinclude
+ldflags = -pthread -shared
+builddir = build
+
+rule cxxcompile
+  depfile = $out.d
+  command = $cxx -MMD -MF $out.d $cxxflags $ccflags -c $in -o $out
+  description = CXX $out
+
+rule cccompile
+  depfile = $out.d
+  command = $cc -MMD -MF $out.d $cflags $ccflags -c $in -o $out
+  description = CC $out
+
+rule link
+  command = $cxx $ldflags -o $out $in
+  description = LINK $out
+
+build $builddir/ellis_node.o: cxxcompile src/ellis_node.cpp
+build $builddir/libellis.so: link $builddir/ellis_node.o
+
+build all: phony | $builddir/libellis.so
+default $builddir/libellis.so
