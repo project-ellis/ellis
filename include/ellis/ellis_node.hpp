@@ -10,9 +10,7 @@
 #define ELLIS_NODE_HPP_
 
 #include <string>
-#include <vector>
 #include <ellis/ellis_type.hpp>
-#include <ellis/ellis_err.hpp>
 
 namespace ellis {
 
@@ -22,9 +20,13 @@ class ellis_array_node;
 class ellis_map_node;
 
 
+/* TODO: steal/adapt doxygen documentation from the C headers */
+/* TODO: name the variables in the function prototypes */
+
+
 /** ellis_node is an in-memory generic hierarchical node that can represent a
  * map, array, integer, or string, etc, corresponding to a hierarchical object
- * expressed in XML, JSON, BSON, or msgpack.
+ * expressed in a variety of formats, such as XML, JSON, BSON, or msgpack.
  *
  * It is intended as a convenient interoperable in-memory object (representing
  * unpacked data received from network or disk in some serialized form), and
@@ -123,7 +125,7 @@ class ellis_node {
    *
    * Equality is defined as one might expect--types same, simple values same,
    * array sizes and elements same, map keys and values same.
-   * 
+   *
    * Note that we also define not equal operator, but we do not define
    * lesser/greater operators since there is not a clear scheme for ordering
    * at this time.
@@ -212,155 +214,7 @@ class ellis_node {
 };
 
 
-/** Typesafe array wrap.
- *
- * Operations on an ellis_array_node assume that the ellis_node has been
- * validated as an array by ellis_node::as_array().
- */
-class ellis_array_node {
-  /* Contains a single data member--an ellis_node--and no vtable or
-   * other wrapping.  This is important since we plan to cast between the two
-   * in order to use this shell class for type safety. */
-  ellis_node node;
-
-public:
-  /** Return a reference to the element at the given index.
-   *
-   * Will throw std::out_of_range if key is not present.
-   */
-  ellis_node& operator[](size_t);
-  const ellis_node& operator[](size_t) const;
-
-  /** Append a node to the end of the array.
-   */
-  void append(const ellis_node &node);
-  void append(ellis_node &&node);
-
-  /** Extend array by appending the contents of another array.
-   */
-  void extend(const ellis_array_node &other);
-  void extend(ellis_array_node &&other);
-
-  /** Insert a new element at the given position. */
-  void insert(size_t position, const ellis_node &);
-  void insert(size_t position, ellis_node &&);
-
-  /** Remove element at the given position. */
-  void erase(size_t position);
-
-  /** Reserve space for n elements in the vector, without actually changing
-   * the length.  Has no effect if n is less than or equal to current length. */
-  void reserve(size_t n);
-
-  /** Run the specified function on each element in the array. */
-  void foreach(std::function<void(ellis_node &)> fn);
-  void foreach(std::function<void(const ellis_node &)> fn) const;
-
-  /** Select elements in the array matching given criteria.
-   *
-   * The result is a new array (with elements copy on write).
-   */
-  ellis_array_node & filter(std::function<bool(const ellis_node &)> fn) const;
-
-  /** Return number of elements in array. */
-  size_t length() const;
-
-  /** Return true iff there are no elements in the array (length==0). */
-  bool empty() const;
-
-  /** Remove all elements from the array. */
-  void clear();
-};
-
-
-/** Policy for merges to ellis maps. */
-struct ellis_merge_policy {
-  bool key_exists_hit;
-  bool key_missing_hit;
-  bool abort_on_miss;
-};
-
-
-/** Typesafe map wrap.
- *
- * Operations on an ellis_map_node assume that the ellis_node has been
- * validated as a map by ellis_node::as_map().
- */
-class ellis_map_node {
-  /* Contains a single data member--an ellis_node--and no vtable or
-   * other wrapping.  This is important since we plan to cast between the two
-   * in order to use this shell class for type safety. */
-  ellis_node node;
-
-public:
-  /** Return a reference to the value with the given key.
-   *
-   * Will throw std::out_of_range if key is not present.
-   */
-  ellis_node & operator[](const std::string &);
-  const ellis_node & operator[](const std::string &) const;
-
-  /** Add a new value with the given key name. */
-  void insert(const std::string &, const ellis_node &);
-  void insert(const std::string &, ellis_node &&);
-
-  /** Merge the contents of another map, using the given policy. */
-  void merge(const ellis_map_node &other, const ellis_merge_policy &policy);
-
-  /** Remove the given key and corresponding value from the map.
-   *
-   * If key is not present, do nothing (not an error).
-   */
-  void erase(const std::string &);
-
-  /** Return true iff the map has a key of the given name. */
-  bool has_key(const std::string &) const;
-
-  /** Return the keys found in the map. */
-  std::vector<std::string> keys() const;
-
-  /** Run the specified function on each key/value entry in the map. */
-  void foreach(std::function<void(const std::string &, ellis_node &)> fn);
-  void foreach(std::function<
-      void(const std::string &, const ellis_node &)> fn) const;
-
-  /** Select entries in the map matching given criteria.
-   *
-   * The result is a new map (with entries copy on write).
-   */
-  ellis_map_node & filter(std::function<
-      bool(const std::string &, const ellis_node &)> fn) const;
-
-  /** Return number of keys in map. */
-  size_t length() const;
-
-  /** Return true iff there are no entries in the map. */
-  bool empty() const;
-
-  /** Remove all entries in the map. */
-  void clear();
-
-};
-
-
-/*  ___          _
- * |_ _|___  ___| |_ _ __ ___  __ _ _ __ ___
- *  | |/ _ \/ __| __| '__/ _ \/ _` | '_ ` _ \
- *  | | (_) \__ \ |_| | |  __/ (_| | | | | | |
- * |___\___/|___/\__|_|  \___|\__,_|_| |_| |_|
- *
- *   ___                       _
- *  / _ \ _ __   ___ _ __ __ _| |_ ___  _ __ ___
- * | | | | '_ \ / _ \ '__/ _` | __/ _ \| '__/ __|
- * | |_| | |_) |  __/ | | (_| | || (_) | |  \__ \
- *  \___/| .__/ \___|_|  \__,_|\__\___/|_|  |___/
- *       |_|
- */
-
-
-std::ostream & operator<<(std::ostream & os, const ellis_node & v);
-std::istream & operator>>(std::istream & is, ellis_node & v);
-
+}
 
 
 #endif /* ELLIS_NODE_HPP_ */
