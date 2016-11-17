@@ -103,9 +103,7 @@ array_node array_node::filter(std::function<bool(const node &)> fn) const
     }
   }
 
-  /* TODO: is there a way to directly return res_arr? i shouldn't have to
-   * re-call the function, but res_arr is indeed a local reference... */
-  return res_node._as_array();
+  return res_arr;
 }
 
 
