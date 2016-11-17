@@ -262,6 +262,67 @@ type node::get_type() const
 }
 
 
+int64_t node::_as_int64() const
+{
+  return m_int;
+}
+
+
+int64_t node::_as_double() const
+{
+  return m_dbl;
+}
+
+
+const std::string & node::_as_u8str() const
+{
+  return m_str;
+}
+
+
+array_node & node::_as_array()
+{
+  /* Re-use code from const version. */
+  return const_cast<array_node&>(
+      static_cast<const node*>(this)->_as_array());
+}
+
+
+const array_node & node::_as_array() const
+{
+  return *(reinterpret_cast<const array_node*>(this));
+}
+
+
+map_node & node::_as_map()
+{
+  /* Re-use code from const version. */
+  return const_cast<map_node&>(
+      static_cast<const node*>(this)->_as_map());
+}
+
+
+const map_node & node::_as_map() const
+{
+  return *(reinterpret_cast<const map_node*>(this));
+}
+
+
+uint8_t* node::_as_binary(size_t *size)
+{
+  /* Re-use code from const version. */
+  return const_cast<uint8_t*>(
+      static_cast<const node*>(this)->_as_binary(size));
+}
+
+
+const uint8_t* node::_as_binary(size_t *size) const
+{
+  *size = m_blk->m_bin.size();
+  return m_blk->m_bin.data();
+}
+
+
 node::operator int64_t() const
 {
   return as_int64();
@@ -274,27 +335,24 @@ node::operator double() const
 }
 
 
-/* TODO: add _ versions of the as_* functions that skip type checks. */
-
-
 int64_t node::as_int64() const
 {
   TYPE_VERIFY(INT64);
-  return m_int;
+  return _as_int64();
 }
 
 
 int64_t node::as_double() const
 {
   TYPE_VERIFY(DOUBLE);
-  return m_dbl;
+  return _as_double();
 }
 
 
 const std::string & node::as_u8str() const
 {
   TYPE_VERIFY(U8STR);
-  return m_str;
+  return _as_u8str();
 }
 
 
@@ -309,7 +367,7 @@ array_node & node::as_array()
 const array_node & node::as_array() const
 {
   TYPE_VERIFY(ARRAY);
-  return *(reinterpret_cast<const array_node*>(this));
+  return _as_array();
 }
 
 
@@ -324,7 +382,7 @@ map_node & node::as_map()
 const map_node & node::as_map() const
 {
   TYPE_VERIFY(MAP);
-  return *(reinterpret_cast<const map_node*>(this));
+  return _as_map();
 }
 
 
@@ -339,8 +397,7 @@ uint8_t* node::as_binary(size_t *size)
 const uint8_t* node::as_binary(size_t *size) const
 {
   TYPE_VERIFY(BINARY);
-  *size = m_blk->m_bin.size();
-  return m_blk->m_bin.data();
+  return _as_binary(size);
 }
 
 #if 0

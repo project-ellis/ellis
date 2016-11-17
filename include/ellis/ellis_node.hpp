@@ -64,6 +64,48 @@ class node {
   void _grab_contents(const node &other);
   void _release_contents();
 
+ private:
+  /** Get contents as an int64_t.
+   *
+   * Will not check type.
+   */
+  int64_t _as_int64() const;
+
+  /** Get contents as a double.
+   *
+   * Will not check type.
+   */
+  int64_t _as_double() const;
+
+  /** Provide access to UTF-8 string contents.
+   *
+   * Will not check type.
+   */
+  const std::string & _as_u8str() const;
+
+  /** Provide access to array functionality.
+   *
+   * Will not check type.
+   */
+  array_node & _as_array();
+  const array_node & _as_array() const;
+
+  /** Provide access to map functionality.
+   *
+   * Will not check type.
+   */
+  map_node & _as_map();
+  const map_node & _as_map() const;
+
+  /** Provide access to binary blob contents.
+   *
+   * Fills in the size parameter with the actual size of binary data.
+   * Will not check type.
+   */
+  uint8_t* _as_binary(size_t *size);
+  const uint8_t* _as_binary(size_t *size) const;
+
+
  public:
 
   /*   ____                _                   _

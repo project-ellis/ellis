@@ -96,8 +96,7 @@ void array_node::foreach(std::function<void(const node &)> fn) const
 array_node array_node::filter(std::function<bool(const node &)> fn) const
 {
   node res_node(type::ARRAY);
-  /* TODO: add unsafe version of as_array and other functions and use it */
-  array_node &res_arr = res_node.as_array();
+  array_node &res_arr = res_node._as_array();
   for (node &node : m_node.m_blk->m_arr) {
     if (fn(node)) {
       res_arr.append(node);
@@ -106,7 +105,7 @@ array_node array_node::filter(std::function<bool(const node &)> fn) const
 
   /* TODO: is there a way to directly return res_arr? i shouldn't have to
    * re-call the function, but res_arr is indeed a local reference... */
-  return res_node.as_array();
+  return res_node._as_array();
 }
 
 
