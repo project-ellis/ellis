@@ -17,14 +17,14 @@ namespace ellis {
  * An enum containing all the Ellis data types.
  */
 enum class ellis_type {
-  ARRAY,
-  BINARY,
-  BOOL,
-  DOUBLE,
-  INT64,
-  MAP,
-  NIL,
-  U8STR
+  ARRAY = 0,
+  BINARY = 1,
+  BOOL = 2,
+  DOUBLE = 3,
+  INT64 = 4,
+  MAP = 5,
+  NIL = 6,
+  U8STR = 7
 };
 
 
