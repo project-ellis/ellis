@@ -3,7 +3,7 @@ cc     = gcc
 cxx    = g++
 cflags = -std=gnu99
 cxxflags = -std=c++11
-ccflags = -Wall -Wextra -Werror -g -O0 -fPIC -pthread -Iinclude
+ccflags = -Wall -Wextra -Wpedantic -Werror -g -O0 -fPIC -pthread -Iinclude
 ldflags = -pthread
 builddir = build
 

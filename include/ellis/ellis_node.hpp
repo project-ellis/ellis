@@ -253,7 +253,7 @@ namespace prize_types {
   using map_t = std::unordered_map<std::string, ellis_node>;
   using bin_t = std::vector<uint8_t>;
   using refcount_t = unsigned;
-};
+}
 
 
 struct prize_blk {
