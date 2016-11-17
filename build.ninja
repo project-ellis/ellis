@@ -30,7 +30,7 @@ build $builddir/ellis_err.o: cxxcompile src/ellis_err.cpp
 build $builddir/ellis_map_node.o: cxxcompile src/ellis_map_node.cpp
 build $builddir/libellis.so: lib $builddir/ellis_node.o $builddir/ellis_map_node.o $builddir/ellis_err.o
 build $builddir/ellis_test.o: cxxcompile test/ellis_test.cpp
-build $builddir/ellis_test: prog $builddir/ellis_test.o
+build $builddir/ellis_test: prog $builddir/ellis_test.o $builddir/libellis.so
 
 build all: phony | $builddir/libellis.so $builddir/ellis_test
 default all
