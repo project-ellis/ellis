@@ -22,6 +22,7 @@ namespace ellis {
 /* Forward declaration. */
 class ellis_array_node;
 class ellis_map_node;
+struct prize_blk;
 
 
 /* TODO: steal/adapt doxygen documentation from the C headers */
@@ -46,25 +47,19 @@ class ellis_map_node;
  * will decrease.
  */
 class ellis_node {
-  using arr_t = std::deque<ellis_node>;
-  using map_t = std::unordered_map<std::string, ellis_node>;
-  using bin_t = std::vector<uint8_t>;
-  using pad_t = char[8];
-  using refcount_t = unsigned;
+
+  using pad_t = char[8];  /* pad covers union--checked via static_assert */
   union {
     bool m_boo;
     double m_dbl;
     int64_t m_int;
     std::string m_str;
-    arr_t *m_arr;
-    map_t *m_map;
-    bin_t *m_bin;
+    prize_blk *m_blk;
     pad_t m_pad;
   };
-  // TODO: steal bits from pointer for type...
-  mutable refcount_t *m_refcount;
-  unsigned m_type:4;
+  unsigned m_type;
 
+  bool _is_refcounted();
   void _zap_contents(ellis_type t);
   void _grab_contents(const ellis_node &other);
   void _release_contents();
@@ -247,6 +242,24 @@ class ellis_node {
 
   friend class ellis_array_node;
   friend class ellis_map_node;
+};
+
+
+namespace prize_types {
+  using arr_t = std::deque<ellis_node>;
+  using map_t = std::unordered_map<std::string, ellis_node>;
+  using bin_t = std::vector<uint8_t>;
+  using refcount_t = unsigned;
+};
+
+
+struct prize_blk {
+  prize_types::refcount_t m_refcount;
+  union {
+    prize_types::arr_t m_arr;
+    prize_types::map_t m_map;
+    prize_types::bin_t m_bin;
+  };
 };
 
 

@@ -9,20 +9,20 @@ namespace ellis {
 
 ellis_node & ellis_map_node::operator[](const std::string &key)
 {
-  auto it = m_node.m_map->find(key);
+  auto it = m_node.m_blk->m_map.find(key);
   return it->second;
 }
 
 
 void ellis_map_node::insert(const std::string &key, const ellis_node &val)
 {
-  m_node.m_map->emplace(key, val);
+  m_node.m_blk->m_map.emplace(key, val);
 }
 
 
 void ellis_map_node::insert(const std::string &key, ellis_node &&val)
 {
-  m_node.m_map->emplace(key, std::move(val));
+  m_node.m_blk->m_map.emplace(key, std::move(val));
 }
 
 
