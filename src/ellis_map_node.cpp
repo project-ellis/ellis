@@ -7,24 +7,24 @@
 namespace ellis {
 
 
-ellis_map_node::~ellis_map_node()
+map_node::~map_node()
 {
-  /* Do nothing; destruction is handled by ellis_node. */
+  /* Do nothing; destruction is handled by node. */
 }
 
 
-ellis_node & ellis_map_node::operator[](const std::string &key)
+node & map_node::operator[](const std::string &key)
 {
-  return const_cast<ellis_node&>(
-      (*(static_cast<const ellis_map_node*>(this)))[key]);
+  return const_cast<node&>(
+      (*(static_cast<const map_node*>(this)))[key]);
 }
 
 
-const ellis_node & ellis_map_node::operator[](const std::string &key) const
+const node & map_node::operator[](const std::string &key) const
 {
   const auto it = m_node.m_blk->m_map.find(key);
   if (it == m_node.m_blk->m_map.end()) {
-    auto added = m_node.m_blk->m_map.emplace(key, ellis_node(ellis_type::NIL));
+    auto added = m_node.m_blk->m_map.emplace(key, node(type::NIL));
     assert(added.second == true);
     return added.first->second;
   }
@@ -32,13 +32,13 @@ const ellis_node & ellis_map_node::operator[](const std::string &key) const
 }
 
 
-void ellis_map_node::insert(const std::string &key, const ellis_node &val)
+void map_node::insert(const std::string &key, const node &val)
 {
   m_node.m_blk->m_map.emplace(key, val);
 }
 
 
-void ellis_map_node::insert(const std::string &key, ellis_node &&val)
+void map_node::insert(const std::string &key, node &&val)
 {
   m_node.m_blk->m_map.emplace(key, std::move(val));
 }

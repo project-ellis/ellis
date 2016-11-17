@@ -1,5 +1,5 @@
 /*
- * @file ellis_err.h
+ * @file err.h
  *
  * @brief Ellis public C header.
  *
@@ -19,7 +19,7 @@ extern "C" {
 /**
  * @brief An object representing an error, including a code and message.
  *
- * When calling ellis functions, a pointer to an ellis_err pointer (initially
+ * When calling ellis functions, a pointer to an err pointer (initially
  * set to null) is provided to the ellis function for storing the address of
  * any error that has been generated in the course of the function.
  *
@@ -27,7 +27,7 @@ extern "C" {
  *
  * The user should call the error free function.
  */
-typedef struct ellis_err ellis_err;
+typedef struct err err;
 
 /**
  * Gets the error code associated with a given error. This code will be in the
@@ -38,31 +38,31 @@ typedef struct ellis_err ellis_err;
  *
  * @return an error code, in the form -errno
  */
-int ellis_err_code(const ellis_err *err);
+int err_code(const err *err);
 
 /* TODO: doxygen */
-const char *ellis_err_file(const ellis_err *err);
+const char *err_file(const err *err);
 
 /**
  * Gets the human-readable error message associated with a given error. The
  * message object should not be directly freed but instead should be freed
- * implicitly through the actions of ellis_err_free.
+ * implicitly through the actions of err_free.
  *
  * @param[out] err an error object
  *
  * @return the message
  */
-const char *ellis_err_msg(const ellis_err *err);
+const char *err_msg(const err *err);
 
 /* TODO: doxygen */
-const char *ellis_err_summary(const ellis_err *err);
+const char *err_summary(const err *err);
 
 /**
  * Frees an error object.
  *
  * @param[out] err an error object
  */
-void ellis_err_free(const ellis_err *err);
+void err_free(const err *err);
 
 
 #ifdef __cplusplus

@@ -8,12 +8,12 @@
 void arraytest()
 {
   using namespace ellis;
-  ellis_node en(ellis_type::ARRAY);
+  node en(type::ARRAY);
 
-  ellis_node foo(std::string("foo"));
+  node foo(std::string("foo"));
   en.as_array().append(foo);
 
-  ellis_node four((int64_t)4);
+  node four((int64_t)4);
   en.as_array().append(four);
 
   assert(en.as_array()[0].as_u8str() == foo.as_u8str());
@@ -23,9 +23,9 @@ void arraytest()
 void maptest()
 {
   using namespace ellis;
-  ellis_node en(ellis_type::MAP);
-  ellis_node foo(std::string("foo"));
-  ellis_node four((int64_t)4);
+  node en(type::MAP);
+  node foo(std::string("foo"));
+  node four((int64_t)4);
   en.as_map().insert(foo.as_u8str(), four);
   assert(en.as_map()[foo.as_u8str()].as_int64() == four.as_int64());
 }

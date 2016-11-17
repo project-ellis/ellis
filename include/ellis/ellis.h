@@ -16,7 +16,7 @@ extern "C" {
 #endif
 
 
-/* TODO: add ellis_map */
+/* TODO: add map */
 /* TODO: zero-copy interface */
 
 /**
@@ -32,7 +32,7 @@ extern "C" {
 /**
  * An enum containing all the Ellis data types.
  */
-enum ellis_type {
+enum type {
   ELLIS_ARRAY,
   ELLIS_BINARY,
   ELLIS_BOOL,
@@ -55,31 +55,31 @@ enum ellis_type {
 /**
  * @brief A refcounted object that wraps an Ellis type; used for polymorphism.
  *
- * ellis_node is a refcounted object wrapping an Ellis type. Upon construction,
+ * node is a refcounted object wrapping an Ellis type. Upon construction,
  * the refcount is set to 1, and the refcount is increased by 1 when the value
- * is stored (e.g. in an ellis_node or ellis_map). When the refcount reaches 0,
- * the ellis_node is freed. Note that ellis_nil is treated as a special case, as
+ * is stored (e.g. in an node or map). When the refcount reaches 0,
+ * the node is freed. Note that nil is treated as a special case, as
  * it is a singleton that does not require memory allocation, so refcount
  * operations on it are no-ops.
  *
  */
-typedef struct ellis_node ellis_node;
+typedef struct node node;
 
 /**
- * Increases an ellis_node refcount by 1.
+ * Increases an node refcount by 1.
  *
  * @param[in] node a node
  * @param[out] err an error
  */
-void ellis_node_ref(ellis_node *node, ellis_err **err);
+void node_ref(node *node, err **err);
 
 /**
- * Decreases an ellis_node refcount by 1, freeing it if the count reaches 0.
+ * Decreases an node refcount by 1, freeing it if the count reaches 0.
  *
  * @param[in] node a node
  * @param[out] err an error
  */
-void ellis_node_deref(ellis_node *node, ellis_err **err);
+void node_deref(node *node, err **err);
 
 /**
  * Allocates a new node, using the given allocator.
@@ -89,7 +89,7 @@ void ellis_node_deref(ellis_node *node, ellis_err **err);
  *
  * @return a new node
  */
-ellis_node *ellis_node_alloc(ellis_allocator *alloc, ellis_err **err);
+node *node_alloc(allocator *alloc, err **err);
 
 /**
  * Initializes an empty array.
@@ -99,7 +99,7 @@ ellis_node *ellis_node_alloc(ellis_allocator *alloc, ellis_err **err);
  *
  * @return a new, empty array, or NULL if the function fails
  */
-ellis_node *ellis_node_init_array(ellis_node *node, ellis_err **err);
+node *node_init_array(node *node, err **err);
 
 /**
  * Initializes a double with the given value.
@@ -109,7 +109,7 @@ ellis_node *ellis_node_init_array(ellis_node *node, ellis_err **err);
  *
  * @return a new double with the given value, or NULL if the function fails
  */
-ellis_node *ellis_node_init_double(ellis_node *node, double d, ellis_err **err);
+node *node_init_double(node *node, double d, err **err);
 
 /**
  * Initializes a new int with the given value.
@@ -119,7 +119,7 @@ ellis_node *ellis_node_init_double(ellis_node *node, double d, ellis_err **err);
  *
  * @return a new int, or NULL if the function fails
  */
-ellis_node *ellis_node_init_int(ellis_node *node, int64_t i, ellis_err **err);
+node *node_init_int(node *node, int64_t i, err **err);
 
 /**
  * Initializes a Nil.
@@ -129,7 +129,7 @@ ellis_node *ellis_node_init_int(ellis_node *node, int64_t i, ellis_err **err);
  *
  * @return a Nil, or NULL if the function fails
  */
-ellis_node *ellis_node_init_nil(ellis_node *node, void, ellis_err **err);
+node *node_init_nil(node *node, void, err **err);
 
 /**
  * Initializes a u8str.
@@ -139,10 +139,10 @@ ellis_node *ellis_node_init_nil(ellis_node *node, void, ellis_err **err);
  *
  * @return a u8str, or NULL if the function fails
  */
-ellis_node *ellis_node_init_u8str(
-    ellis_node *node,
+node *node_init_u8str(
+    node *node,
     const char *s,
-    ellis_err **err);
+    err **err);
 
 /**
  * Allocates and initializes an empty array, as a convenience.
@@ -151,7 +151,7 @@ ellis_node *ellis_node_init_u8str(
  *
  * @return a new, empty array, or NULL if the function fails
  */
-ellis_node *ellis_node_create_array(ellis_err **err);
+node *node_create_array(err **err);
 
 /**
  * Allocates and initializes a bool, as a convenience.
@@ -160,7 +160,7 @@ ellis_node *ellis_node_create_array(ellis_err **err);
  *
  * @return a new bool with the given value, or NULL if the function fails
  */
-ellis_node *ellis_node_create_bool(ellis_bool val, ellis_err **err);
+node *node_create_bool(bool val, err **err);
 
 /**
  * Allocates and initializes a double, as a convenience.
@@ -169,7 +169,7 @@ ellis_node *ellis_node_create_bool(ellis_bool val, ellis_err **err);
  *
  * @return a new double with the given value, or NULL if the function fails
  */
-ellis_node *ellis_node_create_double(double d, ellis_err **err);
+node *node_create_double(double d, err **err);
 
 /**
  * Allocates and initializes an int, as a convenience.
@@ -178,7 +178,7 @@ ellis_node *ellis_node_create_double(double d, ellis_err **err);
  *
  * @return a new int with the given value, or NULL if the function fails
  */
-ellis_node *ellis_node_create_int(int64_t i, ellis_err **err);
+node *node_create_int(int64_t i, err **err);
 
 /**
  * Allocates and initializes a Nil, as a convenience.
@@ -187,7 +187,7 @@ ellis_node *ellis_node_create_int(int64_t i, ellis_err **err);
  *
  * @return a new Nil with the given value, or NULL if the function fails
  */
-ellis_node *ellis_node_create_nil(void, ellis_err **err);
+node *node_create_nil(void, err **err);
 
 /**
  * Allocates and initializes a u8str, as a convenience.
@@ -196,7 +196,7 @@ ellis_node *ellis_node_create_nil(void, ellis_err **err);
  *
  * @return a new u8str with the given value, or NULL if the function fails
  */
-ellis_node *ellis_node_create_u8str(const char *s, ellis_err **err);
+node *node_create_u8str(const char *s, err **err);
 
 /**
  * Allocates and initializes an empty map, as a convenience.
@@ -205,7 +205,7 @@ ellis_node *ellis_node_create_u8str(const char *s, ellis_err **err);
  *
  * @return a new, empty map, or NULL if the function fails
  */
-ellis_node *ellis_node_create_map(void, ellis_err **err);
+node *node_create_map(void, err **err);
 
 /**
  * Initializes an empty map.
@@ -214,7 +214,7 @@ ellis_node *ellis_node_create_map(void, ellis_err **err);
  *
  * @return a new, empty map, or NULL if the function fails
  */
-ellis_node *ellis_node_init_map(void, ellis_err **err);
+node *node_init_map(void, err **err);
 
 /**
  * Initializes a node from the contents of another node, performing a deep copy
@@ -227,16 +227,16 @@ ellis_node *ellis_node_init_map(void, ellis_err **err);
  *
  * @return node the node that was initialized
  */
-ellis_node *ellis_node_init_copy(
-    ellis_node *node,
-    const ellis_node *other,
-    ellis_err **err);
+node *node_init_copy(
+    node *node,
+    const node *other,
+    err **err);
 
 /* TODO: doxygen */
-ellis_node *ellis_node_init_move(
-    ellis_node *node,
-    ellis_node *other,
-    ellis_err **err);
+node *node_init_move(
+    node *node,
+    node *other,
+    err **err);
 
 /**
  * Deinitialize a node, nullifying the contents such that it is invalid to later
@@ -247,7 +247,7 @@ ellis_node *ellis_node_init_move(
  *
  * @return the passed-in node
  */
-ellis_node *ellis_node_deinit(ellis_node *node, ellis_err **err);
+node *node_deinit(node *node, err **err);
 
 /**
  * Deallocates a node, freeing the memory to which it is associated. This
@@ -256,7 +256,7 @@ ellis_node *ellis_node_deinit(ellis_node *node, ellis_err **err);
  * @param[in] node a node
  * @param[out] err an error
  */
-void ellis_node_dealloc(ellis_node *node, ellis_err **err);
+void node_dealloc(node *node, err **err);
 
 /*
  *     _
@@ -275,18 +275,18 @@ void ellis_node_dealloc(ellis_node *node, ellis_err **err);
  *
  * @return the length of the array, in number of items.
  */
-size_t ellis_array_length(const ellis_array *array, ellis_err **err);
+size_t array_length(const array *array, err **err);
 
 /**
- * Gets the given index in the given array, increasing the ellis_node's refcount by 1.
+ * Gets the given index in the given array, increasing the node's refcount by 1.
  *
  * @param[in] array an array
  * @param[in] index the index to get
  * @param[out] err an error
  *
- * @return the ellis_node at the given index, or NULL if there is none
+ * @return the node at the given index, or NULL if there is none
  */
-ellis_node *ellis_array_get(ellis_array *array, size_t index, ellis_err **err);
+node *array_get(array *array, size_t index, err **err);
 
 /**
  * Sets the given index in the given array to the given node.
@@ -298,11 +298,11 @@ ellis_node *ellis_array_get(ellis_array *array, size_t index, ellis_err **err);
  *
  * @return 0 if successful, -1 if not
  */
-int ellis_array_set(
-    ellis_array *array,
+int array_set(
+    array *array,
     size_t index,
-    ellis_node *node,
-    ellis_err **err);
+    node *node,
+    err **err);
 
 /**
  * Sets the given index in the given array to the given node while releasing the
@@ -315,11 +315,11 @@ int ellis_array_set(
  *
  * @return 0 if successful, -1 if not
  */
-int ellis_array_set_move(
-    ellis_array *array,
+int array_set_move(
+    array *array,
     size_t index,
-    ellis_node *node,
-    ellis_err **err);
+    node *node,
+    err **err);
 
 /**
  * Appends the given node to the end of the given array.
@@ -330,7 +330,7 @@ int ellis_array_set_move(
  *
  * @return 0 on success and -1 on error
  */
-int ellis_array_append(ellis_array *array, ellis_node *node, ellis_err **err);
+int array_append(array *array, node *node, err **err);
 
 /**
  * Appends the given node to the end of the given array, releasing the caller's
@@ -342,10 +342,10 @@ int ellis_array_append(ellis_array *array, ellis_node *node, ellis_err **err);
  *
  * @return 0 on success and -1 on error
  */
-int ellis_array_append_move(
-    ellis_array *array,
-    ellis_node *node,
-    ellis_err **err);
+int array_append_move(
+    array *array,
+    node *node,
+    err **err);
 
 /**
  * Appends the given nodes to the end of the given array. Equivalent to calling
@@ -358,11 +358,11 @@ int ellis_array_append_move(
  *
  * @return 0 on success and -1 on error
  */
-int ellis_array_extend(
-    ellis_array *array,
-    ellis_node *nodes,
+int array_extend(
+    array *array,
+    node *nodes,
     size_t length,
-    ellis_err **err);
+    err **err);
 
 /**
  * Appends the given nodes to the end of the given array, releasing the caller's
@@ -376,11 +376,11 @@ int ellis_array_extend(
  *
  * @return 0 on success and -1 on error
  */
-int ellis_array_extend_move(
-    ellis_array *array,
-    ellis_node *nodes,
+int array_extend_move(
+    array *array,
+    node *nodes,
     size_t length,
-    ellis_err **err);
+    err **err);
 
 /**
  * Inserts the given node into the given array, after the item at the given
@@ -393,11 +393,11 @@ int ellis_array_extend_move(
  *
  * @return 0 on success and -1 on error
  */
-int ellis_array_insert(
-    ellis_array *array,
+int array_insert(
+    array *array,
     size_t index,
-    ellis_node *node,
-    ellis_err **err);
+    node *node,
+    err **err);
 
 /**
  * Inserts the given node into the given array, after the item at the given
@@ -410,11 +410,11 @@ int ellis_array_insert(
  *
  * @return 0 on success and -1 on error
  */
-int ellis_array_insert_move(
-    ellis_array *array,
+int array_insert_move(
+    array *array,
     size_t index,
-    ellis_node *node,
-    ellis_err **err);
+    node *node,
+    err **err);
 
 /**
  * Removes the node at the given index from the given array, decreasing the refcount by 1.
@@ -425,7 +425,7 @@ int ellis_array_insert_move(
  *
  * @return 0 on success and -1 on error
  */
-int ellis_array_remove(ellis_array *array, size_t index, ellis_err **err);
+int array_remove(array *array, size_t index, err **err);
 
 /**
  * Empties the contents of the given array, decreasing the refcount of each
@@ -434,15 +434,15 @@ int ellis_array_remove(ellis_array *array, size_t index, ellis_err **err);
  * @param[in] array an array
  * @param[out] err an error
  */
-void ellis_array_clear(ellis_array *array, ellis_err **err);
+void array_clear(array *array, err **err);
 
 /**
  * A convenience macro to allow easy iteration of the given array. index will be
  * set to the current index in the iteration and value will be set to the
  * current node. Equivalent to calling the given code block inside a for loop
- * that uses ellis_array_get(array, index) and ellis_array_length(array).
+ * that uses array_get(array, index) and array_length(array).
  */
-ellis_array_foreach(array, index, value, err)
+array_foreach(array, index, value, err)
 
 /*
  *  ____  _
@@ -461,10 +461,10 @@ ellis_array_foreach(array, index, value, err)
  * @param[out] err an error
  */
 /* TODO: doxygen */
-void ellis_binary_set(SOMETHING, ellis_err **err);
+void binary_set(SOMETHING, err **err);
 
 /* TODO: doxygen */
-void ellis_binary_value(SOMETHING, ellis_err **err);
+void binary_value(SOMETHING, err **err);
 
 /*
  *  ____              _
@@ -478,7 +478,7 @@ void ellis_binary_value(SOMETHING, ellis_err **err);
 /**
  * The underlying value of a bool.
  */
-enum ellis_bool_val {
+enum bool_val {
   ELLIS_FALSE = 0,
   ELLIS_TRUE = 1
 };
@@ -491,7 +491,7 @@ enum ellis_bool_val {
  *
  * @return the node's value
  */
-ellis_bool_val ellis_bool_value(const ellis_node *node, ellis_err **err);
+bool_val bool_value(const node *node, err **err);
 
 /*
  *  ____              _     _
@@ -510,7 +510,7 @@ ellis_bool_val ellis_bool_value(const ellis_node *node, ellis_err **err);
  *
  * @return the node's value
  */
-double ellis_double_value(const ellis_node *node, ellis_err **err);
+double double_value(const node *node, err **err);
 
 /*
  *  ___       _    __   _  _
@@ -529,7 +529,7 @@ double ellis_double_value(const ellis_node *node, ellis_err **err);
  *
  * @return the node's value
  */
-int64_t ellis_int_value(const ellis_node *node, ellis_err **err);
+int64_t int_value(const node *node, err **err);
 
 /*
  *  __  __
@@ -560,7 +560,7 @@ int64_t ellis_int_value(const ellis_node *node, ellis_err **err);
  *
  * @return 1 if the node is Nil, 0 otherwise
  */
-int ellis_is_nil(const ellis_node *node, ellis_err **err);
+int is_nil(const node *node, err **err);
 
 /*
  *  _   _  ___      _
@@ -579,7 +579,7 @@ int ellis_is_nil(const ellis_node *node, ellis_err **err);
  *
  * @return the node's value
  */
-const char *ellis_u8str_value(const ellis_node *node, ellis_err **err);
+const char *u8str_value(const node *node, err **err);
 
 
 #ifdef __cplusplus

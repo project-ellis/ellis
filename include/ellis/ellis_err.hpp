@@ -1,5 +1,5 @@
 /*
- * @file ellis_err.hpp
+ * @file err.hpp
  *
  * @brief Ellis error public C++ header.
  *
@@ -18,17 +18,17 @@
 namespace ellis {
 
 
-enum class ellis_err_code {
+enum class err_code {
   WRONG_TYPE = 4096,
   PARSING_ERROR = 4097,
 };
 
 
 #define MAKE_ELLIS_ERR(CODE, MSG) \
-  ellis_err((int)CODE, __FILE__, __LINE__, (MSG))
+  err((int)CODE, __FILE__, __LINE__, (MSG))
 
 
-class ellis_err : public std::runtime_error {
+class err : public std::runtime_error {
 
 public:
   int m_code;
@@ -36,20 +36,20 @@ public:
   int m_line;
 
 public:
-  ellis_err(
+  err(
       int code,
       const std::string &file,
       int line,
       const std::string &msg);
-  ellis_err(const ellis_err &) = default;
-  ~ellis_err();
+  err(const err &) = default;
+  ~err();
 
-  ellis_err& operator=(const ellis_err &) = default;
+  err& operator=(const err &) = default;
 
   /** Returns the machine-usable error code associated with the error.
    *
    * This value will be one of the normal errno values, such as EINVAL,
-   * or one of the Ellis-defined values in ellis_err_code. Note that the value
+   * or one of the Ellis-defined values in err_code. Note that the value
    * will always be negative. */
   int code();
 

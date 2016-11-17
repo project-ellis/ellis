@@ -1,5 +1,5 @@
 /*
- * @file ellis_type.h
+ * @file type.h
  *
  * @brief Ellis public C header.
  *
@@ -19,7 +19,7 @@ extern "C" {
 /**
  * An enum containing all the Ellis data types.
  */
-enum ellis_type {
+enum type {
   ELLIS_ARRAY,
   ELLIS_BINARY,
   ELLIS_BOOL,

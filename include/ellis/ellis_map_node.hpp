@@ -1,5 +1,5 @@
 /*
- * @file ellis_map_node.hpp
+ * @file map_node.hpp
  *
  * @brief Ellis map node public C++ header.
  *
@@ -16,7 +16,7 @@
 namespace ellis {
 
 
-struct ellis_merge_policy {
+struct merge_policy {
   bool key_exists_hit;
   bool key_missing_hit;
   bool abort_on_miss;
@@ -25,34 +25,34 @@ struct ellis_merge_policy {
 
 /** Typesafe map wrap.
  *
- * Operations on an ellis_map_node assume that the ellis_node has been
- * validated as a map by ellis_node::as_map().
+ * Operations on an map_node assume that the node has been
+ * validated as a map by node::as_map().
  */
-class ellis_map_node {
-  /* Contains a single data member--an ellis_node--and no vtable or
+class map_node {
+  /* Contains a single data member--an node--and no vtable or
    * other wrapping.  This is important since we plan to cast between the two
    * in order to use this shell class for type safety. */
-  ellis_node m_node;
+  node m_node;
 
 public:
   /** Constructor
    */
-  ellis_map_node() = delete;
-  ~ellis_map_node();
+  map_node() = delete;
+  ~map_node();
 
   /** Return a reference to the value with the given key.
    *
    * Will throw std::out_of_range if key is not present.
    */
-  ellis_node & operator[](const std::string &);
-  const ellis_node & operator[](const std::string &) const;
+  node & operator[](const std::string &);
+  const node & operator[](const std::string &) const;
 
   /** Add a new value with the given key name. */
-  void insert(const std::string &, const ellis_node &);
-  void insert(const std::string &, ellis_node &&);
+  void insert(const std::string &, const node &);
+  void insert(const std::string &, node &&);
 
   /** Merge the contents of another map, using the given policy. */
-  void merge(const ellis_map_node &other, const ellis_merge_policy &policy);
+  void merge(const map_node &other, const merge_policy &policy);
 
   /** Remove the given key and corresponding value from the map.
    *
@@ -67,16 +67,16 @@ public:
   std::vector<std::string> keys() const;
 
   /** Run the specified function on each key/value entry in the map. */
-  void foreach(std::function<void(const std::string &, ellis_node &)> fn);
+  void foreach(std::function<void(const std::string &, node &)> fn);
   void foreach(std::function<
-      void(const std::string &, const ellis_node &)> fn) const;
+      void(const std::string &, const node &)> fn) const;
 
   /** Select entries in the map matching given criteria.
    *
    * The result is a new map (with entries copy on write).
    */
-  ellis_map_node & filter(std::function<
-      bool(const std::string &, const ellis_node &)> fn) const;
+  map_node & filter(std::function<
+      bool(const std::string &, const node &)> fn) const;
 
   /** Return number of keys in map. */
   size_t length() const;

@@ -1,5 +1,5 @@
 /*
- * @file ellis_array_node.hpp
+ * @file array_node.hpp
  *
  * @brief Ellis array node public C++ header.
  *
@@ -17,41 +17,41 @@ namespace ellis {
 
 /** Typesafe array wrap.
  *
- * Operations on an ellis_array_node assume that the ellis_node has been
- * validated as an array by ellis_node::as_array().
+ * Operations on an array_node assume that the node has been
+ * validated as an array by node::as_array().
  */
-class ellis_array_node {
-  /* Contains a single data member--an ellis_node--and no vtable or
+class array_node {
+  /* Contains a single data member--an node--and no vtable or
    * other wrapping.  This is important since we plan to cast between the two
    * in order to use this shell class for type safety. */
-  ellis_node m_node;
+  node m_node;
 
 public:
   /** Constructor
    */
-  ellis_array_node() = delete;
-  ~ellis_array_node();
+  array_node() = delete;
+  ~array_node();
 
   /** Return a reference to the element at the given index.
    *
    * Will throw std::out_of_range if key is not present.
    */
-  ellis_node& operator[](size_t index);
-  const ellis_node& operator[](size_t index) const;
+  node& operator[](size_t index);
+  const node& operator[](size_t index) const;
 
   /** Append a node to the end of the array.
    */
-  void append(const ellis_node &node);
-  void append(ellis_node &&node);
+  void append(const node &node);
+  void append(node &&node);
 
   /** Extend array by appending the contents of another array.
    */
-  void extend(const ellis_array_node &other);
-  void extend(ellis_array_node &&other);
+  void extend(const array_node &other);
+  void extend(array_node &&other);
 
   /** Insert a new element at the given position. */
-  void insert(size_t pos, const ellis_node &);
-  void insert(size_t pos, ellis_node &&);
+  void insert(size_t pos, const node &);
+  void insert(size_t pos, node &&);
 
   /** Remove element at the given position. */
   void erase(size_t pos);
@@ -61,14 +61,14 @@ public:
   void reserve(size_t n);
 
   /** Run the specified function on each element in the array. */
-  void foreach(std::function<void(ellis_node &)> fn);
-  void foreach(std::function<void(const ellis_node &)> fn) const;
+  void foreach(std::function<void(node &)> fn);
+  void foreach(std::function<void(const node &)> fn) const;
 
   /** Select elements in the array matching given criteria.
    *
    * The result is a new array (with elements copy on write).
    */
-  ellis_array_node filter(std::function<bool(const ellis_node &)> fn) const;
+  array_node filter(std::function<bool(const node &)> fn) const;
 
   /** Return number of elements in array. */
   size_t length() const;

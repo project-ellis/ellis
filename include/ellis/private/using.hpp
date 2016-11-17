@@ -13,7 +13,7 @@
 
 
 #include <algorithm>
-#include <assert.h>  // TODO: replace with ellis_system assert/fatal
+#include <assert.h>  // TODO: replace with system assert/fatal
 #include <deque>
 #include <list>
 #include <map>

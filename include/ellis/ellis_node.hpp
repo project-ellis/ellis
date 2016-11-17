@@ -1,5 +1,5 @@
 /*
- * @file ellis_node.hpp
+ * @file node.hpp
  *
  * @brief Ellis node public C++ header.
  *
@@ -20,8 +20,8 @@ namespace ellis {
 
 
 /* Forward declaration. */
-class ellis_array_node;
-class ellis_map_node;
+class array_node;
+class map_node;
 struct prize_blk;
 
 
@@ -29,15 +29,15 @@ struct prize_blk;
 /* TODO: name the variables in the function prototypes */
 
 
-/** ellis_node is an in-memory generic hierarchical node that can represent a
+/** node is an in-memory generic hierarchical node that can represent a
  * map, array, integer, or string, etc, corresponding to a hierarchical object
  * expressed in a variety of formats, such as XML, JSON, BSON, or msgpack.
  *
  * It is intended as a convenient interoperable in-memory object (representing
  * unpacked data received from network or disk in some serialized form), and
  * for general purpose conveyance between functions in a program after having
- * been received.  For example, a server might receive an ellis_node using one
- * serialization format, modify the ellis_node, store it into a queue, and
+ * been received.  For example, a server might receive an node using one
+ * serialization format, modify the node, store it into a queue, and
  * then send it elsewhere in a completely different format.
  *
  * This object has ref-counted copy-on-write semantics--if you make a copy,
@@ -46,7 +46,7 @@ struct prize_blk;
  * with new reference count equal to one, and the original reference count
  * will decrease.
  */
-class ellis_node {
+class node {
 
   using pad_t = char[8];  /* pad covers union--checked via static_assert */
   union {
@@ -60,8 +60,8 @@ class ellis_node {
   unsigned m_type;
 
   bool _is_refcounted();
-  void _zap_contents(ellis_type t);
-  void _grab_contents(const ellis_node &other);
+  void _zap_contents(type t);
+  void _grab_contents(const node &other);
   void _release_contents();
 
  public:
@@ -77,37 +77,37 @@ class ellis_node {
   // TODO: experiment re safety w/o explicit constructors
 
   /** Construct an ARRAY, MAP, or NIL node. */
-  explicit ellis_node(ellis_type);
+  explicit node(type);
 
   /** Construct a BINARY node. */
-  explicit ellis_node(const uint8_t *mem, size_t bytes);
+  explicit node(const uint8_t *mem, size_t bytes);
 
   /** Construct a BOOL node. */
-  explicit ellis_node(bool);
+  explicit node(bool);
 
   /** Construct a U8STR node. */
-  explicit ellis_node(const std::string&);
+  explicit node(const std::string&);
 
   /** Construct a U8STR node with move sementics. */
-  explicit ellis_node(std::string&);
+  explicit node(std::string&);
 
   /** Construct an INT64 node. */
-  explicit ellis_node(int64_t);
+  explicit node(int64_t);
 
   /** Construct a DOUBLE node. */
-  explicit ellis_node(double);
+  explicit node(double);
 
   /** Copy constructor.
    *
    * Shares contents by incrementing ref count.  Contents are subject to
    * copy on write, until refcount goes down to 1 again. */
-  ellis_node(const ellis_node& other);
+  node(const node& other);
 
   /** Move constructor.
    *
    * Steals contents, without changing ref count.  Other no longer has a
    * reference count, and will not affect the contents when deleted. */
-  ellis_node(ellis_node&& other);
+  node(node&& other);
 
 
   /*  ____            _                   _
@@ -119,10 +119,10 @@ class ellis_node {
    */
 
   void release();
-  ~ellis_node();
+  ~node();
 
 
-  void swap(ellis_node &other);
+  void swap(node &other);
 
 
   /*   ___                       _
@@ -139,7 +139,7 @@ class ellis_node {
    *
    * Any prior contents of this node are lost (refcount decremented).
    */
-  ellis_node& operator=(const ellis_node& rhs);
+  node& operator=(const node& rhs);
 
   /** Move assignment operator.
    *
@@ -147,7 +147,7 @@ class ellis_node {
    *
    * Any prior contents of this node are lost (refcount decremented).
    */
-  ellis_node& operator=(ellis_node&& rhs);
+  node& operator=(node&& rhs);
 
   /** Equality operator.
    *
@@ -158,13 +158,13 @@ class ellis_node {
    * lesser/greater operators since there is not a clear scheme for ordering
    * at this time.
    */
-  bool operator==(const ellis_node &) const;
+  bool operator==(const node &) const;
 
   /** Inequality operator.
    *
    * Same as (not (a==b)).
    */
-  bool operator!=(const ellis_node &o) const { return not (*this == o); }
+  bool operator!=(const node &o) const { return not (*this == o); }
 
 
   /*  _____
@@ -177,10 +177,10 @@ class ellis_node {
 
 
   /** Check whether this node is of type t. */
-  bool is_type(ellis_type t) const;
+  bool is_type(type t) const;
 
   /** Return the type of this node. */
-  ellis_type get_type() const;
+  type get_type() const;
 
 
   /*   ____            _             _
@@ -216,15 +216,15 @@ class ellis_node {
    *
    * Will throw WRONG_TYPE error if type is not ARRAY.
    */
-  ellis_array_node & as_array();
-  const ellis_array_node & as_array() const;
+  array_node & as_array();
+  const array_node & as_array() const;
 
   /** Provide access to map functionality.
    *
    * Will throw WRONG_TYPE error if type is not MAP.
    */
-  ellis_map_node & as_map();
-  const ellis_map_node & as_map() const;
+  map_node & as_map();
+  const map_node & as_map() const;
 
   /** Provide access to binary blob contents.
    *
@@ -240,17 +240,17 @@ class ellis_node {
    * If successful, will cause reference counts to increment for the relevant
    * subtree rooted at that path.
    */
-  ellis_node & get_path(const std::string &path);
-  const ellis_node & get_path(const std::string &path) const;
+  node & get_path(const std::string &path);
+  const node & get_path(const std::string &path) const;
 
-  friend class ellis_array_node;
-  friend class ellis_map_node;
+  friend class array_node;
+  friend class map_node;
 };
 
 
 namespace prize_types {
-  using arr_t = std::vector<ellis_node>;
-  using map_t = std::unordered_map<std::string, ellis_node>;
+  using arr_t = std::vector<node>;
+  using map_t = std::unordered_map<std::string, node>;
   using bin_t = std::vector<uint8_t>;
   using refcount_t = unsigned;
 }
@@ -281,8 +281,8 @@ struct prize_blk {
  */
 
 
-std::ostream & operator<<(std::ostream & os, const ellis_node & v);
-std::istream & operator>>(std::istream & is, ellis_node & v);
+std::ostream & operator<<(std::ostream & os, const node & v);
+std::istream & operator>>(std::istream & is, node & v);
 
 
 }  /* namespace ellis */

@@ -6,7 +6,7 @@
 namespace ellis {
 
 
-ellis_err::ellis_err(
+err::err(
     int code,
     const std::string &file,
     int line,
@@ -19,36 +19,36 @@ ellis_err::ellis_err(
 }
 
 
-ellis_err::~ellis_err()
+err::~err()
 {
 }
 
 
-int ellis_err::code()
+int err::code()
 {
   return m_code;
 }
 
 
-std::string ellis_err::file()
+std::string err::file()
 {
   return m_file;
 }
 
 
-int ellis_err::line()
+int err::line()
 {
   return m_line;
 }
 
 
-std::string ellis_err::msg()
+std::string err::msg()
 {
   return what();
 }
 
 
-std::string ellis_err::summary()
+std::string err::summary()
 {
   return string(what()) + " at " + m_file + ":" + std::to_string(m_line);
 }

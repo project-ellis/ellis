@@ -5,37 +5,37 @@
 
 namespace ellis {
 
-ellis_array_node::~ellis_array_node()
+array_node::~array_node()
 {
-  /* Do nothing; destruction is handled by ellis_node. */
+  /* Do nothing; destruction is handled by node. */
 }
 
 
-ellis_node& ellis_array_node::operator[](size_t index)
-{
-  return m_node.m_blk->m_arr[index];
-}
-
-
-const ellis_node& ellis_array_node::operator[](size_t index) const
+node& array_node::operator[](size_t index)
 {
   return m_node.m_blk->m_arr[index];
 }
 
 
-void ellis_array_node::append(const ellis_node &node)
+const node& array_node::operator[](size_t index) const
+{
+  return m_node.m_blk->m_arr[index];
+}
+
+
+void array_node::append(const node &node)
 {
   m_node.m_blk->m_arr.push_back(node);
 }
 
 
-void ellis_array_node::append(ellis_node &&node)
+void array_node::append(node &&node)
 {
   m_node.m_blk->m_arr.push_back(node);
 }
 
 
-void ellis_array_node::extend(const ellis_array_node &other)
+void array_node::extend(const array_node &other)
 {
   m_node.m_blk->m_arr.insert(
     m_node.m_blk->m_arr.cend(),
@@ -44,7 +44,7 @@ void ellis_array_node::extend(const ellis_array_node &other)
 }
 
 
-void ellis_array_node::extend(ellis_array_node &&other)
+void array_node::extend(array_node &&other)
 {
   m_node.m_blk->m_arr.insert(
     m_node.m_blk->m_arr.end(),
@@ -53,52 +53,52 @@ void ellis_array_node::extend(ellis_array_node &&other)
 }
 
 
-void ellis_array_node::insert(size_t pos, const ellis_node &other)
+void array_node::insert(size_t pos, const node &other)
 {
   m_node.m_blk->m_arr.insert(m_node.m_blk->m_arr.cbegin() + pos, other);
 }
 
 
-void ellis_array_node::insert(size_t pos, ellis_node &&other)
+void array_node::insert(size_t pos, node &&other)
 {
   m_node.m_blk->m_arr.insert(m_node.m_blk->m_arr.begin() + pos, other);
 }
 
 
-void ellis_array_node::erase(size_t pos)
+void array_node::erase(size_t pos)
 {
   m_node.m_blk->m_arr.erase(m_node.m_blk->m_arr.begin() + pos);
 }
 
 
-void ellis_array_node::reserve(size_t n)
+void array_node::reserve(size_t n)
 {
   m_node.m_blk->m_arr.reserve(n);
 }
 
 
-void ellis_array_node::foreach(std::function<void(ellis_node &)> fn)
+void array_node::foreach(std::function<void(node &)> fn)
 {
-  for (ellis_node &node : m_node.m_blk->m_arr) {
+  for (node &node : m_node.m_blk->m_arr) {
     fn(node);
   }
 }
 
 
-void ellis_array_node::foreach(std::function<void(const ellis_node &)> fn) const
+void array_node::foreach(std::function<void(const node &)> fn) const
 {
-  for (const ellis_node &node : m_node.m_blk->m_arr) {
+  for (const node &node : m_node.m_blk->m_arr) {
     fn(node);
   }
 }
 
 
-ellis_array_node ellis_array_node::filter(std::function<bool(const ellis_node &)> fn) const
+array_node array_node::filter(std::function<bool(const node &)> fn) const
 {
-  ellis_node res_node(ellis_type::ARRAY);
+  node res_node(type::ARRAY);
   /* TODO: add unsafe version of as_array and other functions and use it */
-  ellis_array_node &res_arr = res_node.as_array();
-  for (ellis_node &node : m_node.m_blk->m_arr) {
+  array_node &res_arr = res_node.as_array();
+  for (node &node : m_node.m_blk->m_arr) {
     if (fn(node)) {
       res_arr.append(node);
     }
@@ -110,19 +110,19 @@ ellis_array_node ellis_array_node::filter(std::function<bool(const ellis_node &)
 }
 
 
-size_t ellis_array_node::length() const
+size_t array_node::length() const
 {
   return m_node.m_blk->m_arr.size();
 }
 
 
-bool ellis_array_node::empty() const
+bool array_node::empty() const
 {
   return m_node.m_blk->m_arr.empty();
 }
 
 
-void ellis_array_node::clear()
+void array_node::clear()
 {
   m_node.m_blk->m_arr.clear();
 }

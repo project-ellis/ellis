@@ -11,25 +11,25 @@ namespace ellis {
 /** A convenience macro for throwing an error when type is improper. */
 #define TYPE_VERIFY(typ) \
   do { \
-    if (get_type() != ellis_type::typ) { \
-      throw MAKE_ELLIS_ERR(ellis_err_code::WRONG_TYPE, "not " #typ); \
+    if (get_type() != type::typ) { \
+      throw MAKE_ELLIS_ERR(err_code::WRONG_TYPE, "not " #typ); \
     } \
   } while (0)
 
 
-bool ellis_node::_is_refcounted()
+bool node::_is_refcounted()
 {
-  switch (ellis_type(m_type)) {
-    case ellis_type::BOOL:
-    case ellis_type::DOUBLE:
-    case ellis_type::INT64:
-    case ellis_type::NIL:
-    case ellis_type::U8STR:
+  switch (type(m_type)) {
+    case type::BOOL:
+    case type::DOUBLE:
+    case type::INT64:
+    case type::NIL:
+    case type::U8STR:
       return false;
 
-    case ellis_type::ARRAY:
-    case ellis_type::BINARY:
-    case ellis_type::MAP:
+    case type::ARRAY:
+    case type::BINARY:
+    case type::MAP:
       return true;
   }
   /* Never reached. */
@@ -43,12 +43,12 @@ bool ellis_node::_is_refcounted()
  * If m_type indicates a pointer in the union, it will be set up;
  * or if an in-place constructor is needed, it will be called.
  */
-void ellis_node::_zap_contents(ellis_type t)
+void node::_zap_contents(type t)
 {
   using namespace ::ellis::prize_types;
 
   m_type = (int)t;
-  if (ellis_type(m_type) == ellis_type::U8STR) {
+  if (type(m_type) == type::U8STR) {
     new (&m_str) std::string();
   }
   else if (_is_refcounted()) {
@@ -58,16 +58,16 @@ void ellis_node::_zap_contents(ellis_type t)
      */
     m_blk = (prize_blk*)malloc(sizeof(*m_blk));
     m_blk->m_refcount = 1;
-    switch (ellis_type(m_type)) {
-      case ellis_type::ARRAY:
+    switch (type(m_type)) {
+      case type::ARRAY:
         new (&(m_blk->m_arr)) arr_t();
         break;
 
-      case ellis_type::BINARY:
+      case type::BINARY:
         new (&(m_blk->m_bin)) bin_t();
         break;
 
-      case ellis_type::MAP:
+      case type::MAP:
         new (&(m_blk->m_map)) map_t();
         break;
 
@@ -88,10 +88,10 @@ void ellis_node::_zap_contents(ellis_type t)
  * If the node already has contents, caller should call _release_contents()
  * before calling this function.
  */
-void ellis_node::_grab_contents(const ellis_node& other)
+void node::_grab_contents(const node& other)
 {
   m_type = other.m_type;
-  if (ellis_type(m_type) == ellis_type::U8STR) {
+  if (type(m_type) == type::U8STR) {
     /* In-place string copy constructor. */
     new (&m_str) std::string(other.m_str);
   }
@@ -101,7 +101,7 @@ void ellis_node::_grab_contents(const ellis_node& other)
   }
   else {
     static_assert(
-        sizeof(m_pad) == offsetof(ellis_node, m_type),
+        sizeof(m_pad) == offsetof(node, m_type),
         "Uh oh, m_pad does not seem to cover entire union...");
     memcpy(m_pad, other.m_pad, sizeof(m_pad));
   }
@@ -113,25 +113,25 @@ void ellis_node::_grab_contents(const ellis_node& other)
  * It is safe to call _release_contents multiple times, which has the same
  * effect as calling it once.
  */
-void ellis_node::_release_contents()
+void node::_release_contents()
 {
   using namespace ::ellis::prize_types;
-  if (ellis_type(m_type) == ellis_type::U8STR) {
+  if (type(m_type) == type::U8STR) {
     m_str.~basic_string<char>();
   }
   else if (_is_refcounted()) {
     m_blk->m_refcount--;
     if (m_blk->m_refcount == 0) {
-      switch (ellis_type(m_type)) {
-        case ellis_type::ARRAY:
+      switch (type(m_type)) {
+        case type::ARRAY:
           m_blk->m_arr.~arr_t();
           break;
 
-        case ellis_type::BINARY:
+        case type::BINARY:
           m_blk->m_bin.~bin_t();
           break;
 
-        case ellis_type::MAP:
+        case type::MAP:
           m_blk->m_map.~map_t();
           break;
 
@@ -147,80 +147,80 @@ void ellis_node::_release_contents()
   /*
    * Set to NIL so that we don't do a string destruction or decref twice.
    */
-  m_type = (int)ellis_type::NIL;
+  m_type = (int)type::NIL;
 }
 
 
-ellis_node::ellis_node(ellis_type t)
+node::node(type t)
 {
   _zap_contents(t);
 }
 
 
-ellis_node::ellis_node(const uint8_t *mem, size_t bytes)
+node::node(const uint8_t *mem, size_t bytes)
 {
-  _zap_contents(ellis_type::BINARY);
+  _zap_contents(type::BINARY);
   m_blk->m_bin.resize(bytes);
   memcpy(m_blk->m_bin.data(), mem, bytes);
 }
 
 
-ellis_node::ellis_node(bool b)
+node::node(bool b)
 {
-  _zap_contents(ellis_type::BOOL);
+  _zap_contents(type::BOOL);
   m_boo = b;
 }
 
 
-ellis_node::ellis_node(const std::string& s)
+node::node(const std::string& s)
 {
-  _zap_contents(ellis_type::U8STR);
+  _zap_contents(type::U8STR);
   m_str = s;
 }
 
 
-ellis_node::ellis_node(int64_t i)
+node::node(int64_t i)
 {
-  _zap_contents(ellis_type::INT64);
+  _zap_contents(type::INT64);
   m_int = i;
 }
 
 
-ellis_node::ellis_node(double d)
+node::node(double d)
 {
-  _zap_contents(ellis_type::DOUBLE);
+  _zap_contents(type::DOUBLE);
   m_dbl = d;
 }
 
 
-ellis_node::ellis_node(const ellis_node& other)
+node::node(const node& other)
 {
   _grab_contents(other);
 }
 
 
-ellis_node::ellis_node(ellis_node&& other)
+node::node(node&& other)
 {
   _grab_contents(other);
   other._release_contents();
 }
 
 
-ellis_node::~ellis_node()
+node::~node()
 {
   _release_contents();
 }
 
 
-void ellis_node::swap(ellis_node &other)
+void node::swap(node &other)
 {
-  ellis_node tmp(*this);
+  node tmp(*this);
   *this = other;
   other = tmp;
 }
 
 
-ellis_node& ellis_node::operator=(const ellis_node& rhs)
+node& node::operator=(const node& rhs)
 {
   _release_contents();
   _grab_contents(rhs);
@@ -228,7 +228,7 @@ ellis_node& ellis_node::operator=(const ellis_node& rhs)
 }
 
 
-ellis_node& ellis_node::operator=(ellis_node&& rhs)
+node& node::operator=(node&& rhs)
 {
   _release_contents();
   _grab_contents(rhs);
@@ -238,37 +238,37 @@ ellis_node& ellis_node::operator=(ellis_node&& rhs)
 
 
 #if 0
-bool ellis_node::operator==(const ellis_node &) const
+bool node::operator==(const node &) const
 {
 }
 
 
-bool ellis_node::operator!=(const ellis_node &o) const
+bool node::operator!=(const node &o) const
 {
   return not (*this == o)
 }
 #endif
 
 
-bool ellis_node::is_type(ellis_type t) const
+bool node::is_type(type t) const
 {
   return get_type() == t;
 }
 
 
-ellis_type ellis_node::get_type() const
+type node::get_type() const
 {
-  return (ellis_type)m_type;
+  return (type)m_type;
 }
 
 
-ellis_node::operator int64_t() const
+node::operator int64_t() const
 {
   return as_int64();
 }
 
 
-ellis_node::operator double() const
+node::operator double() const
 {
   return as_double();
 }
@@ -277,66 +277,66 @@ ellis_node::operator double() const
 /* TODO: add _ versions of the as_* functions that skip type checks. */
 
 
-int64_t ellis_node::as_int64() const
+int64_t node::as_int64() const
 {
   TYPE_VERIFY(INT64);
   return m_int;
 }
 
 
-int64_t ellis_node::as_double() const
+int64_t node::as_double() const
 {
   TYPE_VERIFY(DOUBLE);
   return m_dbl;
 }
 
 
-const std::string & ellis_node::as_u8str() const
+const std::string & node::as_u8str() const
 {
   TYPE_VERIFY(U8STR);
   return m_str;
 }
 
 
-ellis_array_node & ellis_node::as_array()
+array_node & node::as_array()
 {
   /* Re-use code from const version. */
-  return const_cast<ellis_array_node&>(
-      static_cast<const ellis_node*>(this)->as_array());
+  return const_cast<array_node&>(
+      static_cast<const node*>(this)->as_array());
 }
 
 
-const ellis_array_node & ellis_node::as_array() const
+const array_node & node::as_array() const
 {
   TYPE_VERIFY(ARRAY);
-  return *(reinterpret_cast<const ellis_array_node*>(this));
+  return *(reinterpret_cast<const array_node*>(this));
 }
 
 
-ellis_map_node & ellis_node::as_map()
+map_node & node::as_map()
 {
   /* Re-use code from const version. */
-  return const_cast<ellis_map_node&>(
-      static_cast<const ellis_node*>(this)->as_map());
+  return const_cast<map_node&>(
+      static_cast<const node*>(this)->as_map());
 }
 
 
-const ellis_map_node & ellis_node::as_map() const
+const map_node & node::as_map() const
 {
   TYPE_VERIFY(MAP);
-  return *(reinterpret_cast<const ellis_map_node*>(this));
+  return *(reinterpret_cast<const map_node*>(this));
 }
 
 
-uint8_t* ellis_node::as_binary(size_t *size)
+uint8_t* node::as_binary(size_t *size)
 {
   /* Re-use code from const version. */
   return const_cast<uint8_t*>(
-      static_cast<const ellis_node*>(this)->as_binary(size));
+      static_cast<const node*>(this)->as_binary(size));
 }
 
 
-const uint8_t* ellis_node::as_binary(size_t *size) const
+const uint8_t* node::as_binary(size_t *size) const
 {
   TYPE_VERIFY(BINARY);
   *size = m_blk->m_bin.size();
@@ -344,12 +344,12 @@ const uint8_t* ellis_node::as_binary(size_t *size) const
 }
 
 #if 0
-ellis_node & ellis_node::get_path(const std::string &path)
+node & node::get_path(const std::string &path)
 {
 }
 
 
-const ellis_node & ellis_node::get_path(const std::string &path) const
+const node & node::get_path(const std::string &path) const
 {
 }
 

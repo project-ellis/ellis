@@ -1,5 +1,5 @@
 /*
- * @file ellis_type.h
+ * @file type.h
  *
  * @brief Ellis types C++ header.
  *
@@ -16,7 +16,7 @@ namespace ellis {
 /**
  * An enum containing all the Ellis data types.
  */
-enum class ellis_type {
+enum class type {
   ARRAY = 0,
   BINARY = 1,
   BOOL = 2,
