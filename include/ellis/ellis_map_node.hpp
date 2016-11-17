@@ -89,6 +89,6 @@ public:
 };
 
 
-} /* namespace ellis */
+}  /* namespace ellis */
 
 #endif /* ELLIS_MAP_NODE_HPP_ */

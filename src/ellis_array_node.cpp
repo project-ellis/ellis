@@ -1,5 +1,7 @@
 #include <ellis/ellis_array_node.hpp>
+
 #include <ellis/ellis_node.hpp>
+#include <ellis/private/using.hpp>
 
 namespace ellis {
 

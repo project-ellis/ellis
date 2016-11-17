@@ -80,6 +80,6 @@ public:
   void clear();
 };
 
-} /* namespace ellis */
+}  /* namespace ellis */
 
-#endif /* ELLIS_ARRAY_NODE_HPP_ */
+#endif  /* ELLIS_ARRAY_NODE_HPP_ */

@@ -4,7 +4,6 @@
 #include <ellis/private/using.hpp>
 #include <stddef.h>
 #include <string.h>
-#include <strings.h>
 
 namespace ellis {
 

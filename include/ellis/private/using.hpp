@@ -32,6 +32,7 @@ using std::make_pair;
 using std::make_shared;
 using std::map;
 using std::pair;
+using std::runtime_error;
 using std::shared_ptr;
 using std::string;
 using std::unique_ptr;

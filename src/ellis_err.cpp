@@ -11,7 +11,7 @@ ellis_err::ellis_err(
     const std::string &file,
     int line,
     const std::string &msg) :
-  std::runtime_error(msg),
+  runtime_error(msg),
   m_code(code),
   m_file(file),
   m_line(line)
@@ -50,7 +50,7 @@ std::string ellis_err::msg()
 
 std::string ellis_err::summary()
 {
-  return std::string(what()) + " at " + m_file + ":" + std::to_string(m_line);
+  return string(what()) + " at " + m_file + ":" + std::to_string(m_line);
 }
 
 
