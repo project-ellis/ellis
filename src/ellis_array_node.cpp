@@ -13,13 +13,13 @@ ellis_array_node::~ellis_array_node()
 
 ellis_node& ellis_array_node::operator[](size_t index)
 {
-  return m_node.m_blk->m_arr.operator[](index);
+  return m_node.m_blk->m_arr[index];
 }
 
 
 const ellis_node& ellis_array_node::operator[](size_t index) const
 {
-  return m_node.m_blk->m_arr.operator[](index);
+  return m_node.m_blk->m_arr[index];
 }
 
 
