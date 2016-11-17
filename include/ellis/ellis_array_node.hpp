@@ -9,7 +9,6 @@
 #ifndef ELLIS_ARRAY_NODE_HPP_
 #define ELLIS_ARRAY_NODE_HPP_
 
-#include <dequeue>
 #include <ellis/ellis_node.hpp>
 #include <ellis/ellis_type.hpp>
 
@@ -22,12 +21,16 @@ namespace ellis {
  * validated as an array by ellis_node::as_array().
  */
 class ellis_array_node {
-  std::deque<ellis_node> m_data;
+  /* Contains a single data member--an ellis_node--and no vtable or
+   * other wrapping.  This is important since we plan to cast between the two
+   * in order to use this shell class for type safety. */
+  ellis_node m_node;
 
 public:
   /** Constructor
    */
-  ellis_array_node();
+  ellis_array_node() = delete;
+  ~ellis_array_node();
 
   /** Return a reference to the element at the given index.
    *
@@ -47,11 +50,11 @@ public:
   void extend(ellis_array_node &&other);
 
   /** Insert a new element at the given position. */
-  void insert(size_t position, const ellis_node &);
-  void insert(size_t position, ellis_node &&);
+  void insert(size_t pos, const ellis_node &);
+  void insert(size_t pos, ellis_node &&);
 
   /** Remove element at the given position. */
-  void erase(size_t position);
+  void erase(size_t pos);
 
   /** Reserve space for n elements in the vector, without actually changing
    * the length.  Has no effect if n is less than or equal to current length. */

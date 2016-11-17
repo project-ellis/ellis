@@ -7,6 +7,11 @@
 namespace ellis {
 
 
+ellis_map_node::~ellis_map_node()
+{
+  /* Do nothing; destruction is handled by ellis_node. */
+}
+
 ellis_node & ellis_map_node::operator[](const std::string &key)
 {
   auto it = m_node.m_blk->m_map.find(key);

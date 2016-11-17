@@ -38,7 +38,7 @@ public:
   /** Constructor
    */
   ellis_map_node() = delete;
-  ~ellis_map_node() {}
+  ~ellis_map_node();
 
   /** Return a reference to the value with the given key.
    *

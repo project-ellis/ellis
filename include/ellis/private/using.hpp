@@ -25,6 +25,7 @@
 
 
 using std::deque;
+using std::for_each;
 using std::function;
 using std::list;
 using std::make_pair;

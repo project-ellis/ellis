@@ -9,11 +9,11 @@
 #ifndef ELLIS_NODE_HPP_
 #define ELLIS_NODE_HPP_
 
-#include <deque>
 #include <ellis/ellis_type.hpp>
 #include <memory>
 #include <string>
 #include <unordered_map>
+#include <vector>
 #include <vector>
 
 namespace ellis {
@@ -80,19 +80,22 @@ class ellis_node {
   explicit ellis_node(ellis_type);
 
   /** Construct a BINARY node. */
-  ellis_node(const uint8_t *mem, size_t bytes);
+  explicit ellis_node(const uint8_t *mem, size_t bytes);
 
   /** Construct a BOOL node. */
-  ellis_node(bool);
+  explicit ellis_node(bool);
 
   /** Construct a U8STR node. */
-  ellis_node(const std::string&);
+  explicit ellis_node(const std::string&);
+
+  /** Construct a U8STR node with move sementics. */
+  explicit ellis_node(std::string&);
 
   /** Construct an INT64 node. */
-  ellis_node(int64_t);
+  explicit ellis_node(int64_t);
 
   /** Construct a DOUBLE node. */
-  ellis_node(double);
+  explicit ellis_node(double);
 
   /** Copy constructor.
    *
@@ -246,7 +249,7 @@ class ellis_node {
 
 
 namespace prize_types {
-  using arr_t = std::deque<ellis_node>;
+  using arr_t = std::vector<ellis_node>;
   using map_t = std::unordered_map<std::string, ellis_node>;
   using bin_t = std::vector<uint8_t>;
   using refcount_t = unsigned;

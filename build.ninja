@@ -28,7 +28,8 @@ rule prog
 build $builddir/ellis_node.o: cxxcompile src/ellis_node.cpp
 build $builddir/ellis_err.o: cxxcompile src/ellis_err.cpp
 build $builddir/ellis_map_node.o: cxxcompile src/ellis_map_node.cpp
-build $builddir/libellis.so: lib $builddir/ellis_node.o $builddir/ellis_map_node.o $builddir/ellis_err.o
+build $builddir/ellis_array_node.o: cxxcompile src/ellis_array_node.cpp
+build $builddir/libellis.so: lib $builddir/ellis_node.o $builddir/ellis_map_node.o $builddir/ellis_array_node.o $builddir/ellis_err.o
 build $builddir/ellis_test.o: cxxcompile test/ellis_test.cpp
 build $builddir/ellis_test: prog $builddir/ellis_test.o $builddir/libellis.so
 

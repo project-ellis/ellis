@@ -289,17 +289,19 @@ const std::string & ellis_node::as_u8str() const
 }
 
 
-#if 0
 ellis_array_node & ellis_node::as_array()
 {
+  /* Re-use code from const version. */
+  return const_cast<ellis_array_node&>(
+      static_cast<const ellis_node*>(this)->as_array());
 }
 
 
 const ellis_array_node & ellis_node::as_array() const
 {
   TYPE_VERIFY(ARRAY);
+  return *(reinterpret_cast<const ellis_array_node*>(this));
 }
-#endif
 
 
 ellis_map_node & ellis_node::as_map()
