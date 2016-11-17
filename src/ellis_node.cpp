@@ -52,6 +52,10 @@ void ellis_node::_zap_contents(ellis_type t)
     new (&m_str) std::string();
   }
   else if (_is_refcounted()) {
+    /*
+     * Use malloc/free here to make sure we don't accidentally call a union
+     * constructor or similar via new/delete.
+     */
     m_blk = (prize_blk*)malloc(sizeof(*m_blk));
     m_blk->m_refcount = 1;
     switch (ellis_type(m_type)) {
@@ -81,7 +85,7 @@ void ellis_node::_zap_contents(ellis_type t)
 
 /** Grab state from other node, assuming no prior state.
  *
- * If the node already has contents, caller should call release_contents()
+ * If the node already has contents, caller should call _release_contents()
  * before calling this function.
  */
 void ellis_node::_grab_contents(const ellis_node& other)
@@ -140,6 +144,9 @@ void ellis_node::_release_contents()
       m_blk = nullptr;
     }
   }
+  /*
+   * Set to NIL so that we don't do a string destruction or decref twice.
+   */
   m_type = (int)ellis_type::NIL;
 }
 
@@ -265,6 +272,9 @@ ellis_node::operator double() const
 {
   return as_double();
 }
+
+
+/* TODO: add _ versions of the as_* functions that skip type checks. */
 
 
 int64_t ellis_node::as_int64() const
