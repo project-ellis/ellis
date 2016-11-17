@@ -93,7 +93,7 @@ void ellis_array_node::foreach(std::function<void(const ellis_node &)> fn) const
 }
 
 
-ellis_array_node & ellis_array_node::filter(std::function<bool(const ellis_node &)> fn) const
+ellis_array_node ellis_array_node::filter(std::function<bool(const ellis_node &)> fn) const
 {
   ellis_node res_node(ellis_type::ARRAY);
   /* TODO: add unsafe version of as_array and other functions and use it */

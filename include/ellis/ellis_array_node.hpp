@@ -68,7 +68,7 @@ public:
    *
    * The result is a new array (with elements copy on write).
    */
-  ellis_array_node & filter(std::function<bool(const ellis_node &)> fn) const;
+  ellis_array_node filter(std::function<bool(const ellis_node &)> fn) const;
 
   /** Return number of elements in array. */
   size_t length() const;
