@@ -9,6 +9,15 @@
 namespace ellis {
 
 
+/** A convenience macro for throwing an error when type is improper. */
+#define TYPE_VERIFY(typ) \
+  do { \
+    if (get_type() != ellis_type::typ) { \
+      throw MAKE_ELLIS_ERR(ellis_err_code::WRONG_TYPE, "not " #typ); \
+    } \
+  } while (0)
+
+
 /** Initialize contents to pristine state, assuming no prior contents.
  *
  * If m_type indicates a pointer in the union, it will be set up;
@@ -244,7 +253,7 @@ ellis_type ellis_node::get_type() const
 
 ellis_node::operator int64_t() const
 {
-  return as_int();
+  return as_int64();
 }
 
 
@@ -254,25 +263,26 @@ ellis_node::operator double() const
 }
 
 
-int64_t ellis_node::as_int() const
+int64_t ellis_node::as_int64() const
 {
-  // TODO: check type
+  TYPE_VERIFY(INT64);
   return m_int;
 }
 
 
 int64_t ellis_node::as_double() const
 {
-  // TODO: check type
+  TYPE_VERIFY(DOUBLE);
   return m_dbl;
 }
 
 
 const std::string & ellis_node::as_u8str() const
 {
-  // TODO: check type
+  TYPE_VERIFY(U8STR);
   return m_str;
 }
+
 
 #if 0
 ellis_array_node & ellis_node::as_array()
@@ -282,6 +292,7 @@ ellis_array_node & ellis_node::as_array()
 
 const ellis_array_node & ellis_node::as_array() const
 {
+  TYPE_VERIFY(ARRAY);
 }
 #endif
 
@@ -296,10 +307,7 @@ ellis_map_node & ellis_node::as_map()
 
 const ellis_map_node & ellis_node::as_map() const
 {
-  // TODO
-  //if (get_type() != ellis_type::MAP) {
-  //  throw MAKE_ELLIS_ERR(ellis_err_code::WRONG_TYPE, "not a map");
-  //}
+  TYPE_VERIFY(MAP);
   return *(reinterpret_cast<const ellis_map_node*>(this));
 }
 
@@ -314,10 +322,7 @@ uint8_t* ellis_node::as_binary(size_t *size)
 
 const uint8_t* ellis_node::as_binary(size_t *size) const
 {
-  // TODO
-  //if (get_type() != ellis_type::BINARY) {
-  //  throw MAKE_ELLIS_ERR(ellis_err_code::WRONG_TYPE, "not BINARY");
-  //}
+  TYPE_VERIFY(BINARY);
   *size = m_bin->size();
   return m_bin->data();
 }

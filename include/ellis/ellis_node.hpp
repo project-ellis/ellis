@@ -199,7 +199,7 @@ class ellis_node {
    * Will throw WRONG_TYPE error if type is not convertible.
    */
   explicit operator int64_t() const;
-  int64_t as_int() const;
+  int64_t as_int64() const;
 
   /** Get contents as a double.
    *

@@ -3,9 +3,6 @@
 #include <ellis/ellis_node.hpp>
 #include <ellis/private/using.hpp>
 
-// TODO: rid
-#include <stdio.h>
-
 
 namespace ellis {
 
@@ -14,9 +11,6 @@ ellis_node & ellis_map_node::operator[](const std::string &key)
 {
   auto it = m_node.m_map->find(key);
   return it->second;
-
-  //return (*(m_node.m_map))[key];
-  //return m_node.m_map->[key];
 }
 
 

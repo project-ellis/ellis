@@ -4,7 +4,7 @@ cxx    = g++
 cflags = -std=gnu99
 cxxflags = -std=c++11
 ccflags = -Wall -Wextra -Werror -g -O0 -fPIC -pthread -Iinclude
-ldflags = -pthread -shared
+ldflags = -pthread
 builddir = build
 
 rule cxxcompile
@@ -17,13 +17,20 @@ rule cccompile
   command = $cc -MMD -MF $out.d $cflags $ccflags -c $in -o $out
   description = CC $out
 
-rule link
-  command = $cxx $ldflags -o $out $in
-  description = LINK $out
+rule lib
+  command = $cxx $ldflags -shared -o $out $in
+  description = LIB $out
+
+rule prog
+  command = $cxx $ldflags -L$builddir -lellis -o $out $in
+  description = PROG $out
 
 build $builddir/ellis_node.o: cxxcompile src/ellis_node.cpp
+build $builddir/ellis_err.o: cxxcompile src/ellis_err.cpp
 build $builddir/ellis_map_node.o: cxxcompile src/ellis_map_node.cpp
-build $builddir/libellis.so: link $builddir/ellis_node.o $builddir/ellis_map_node.o
+build $builddir/libellis.so: lib $builddir/ellis_node.o $builddir/ellis_map_node.o $builddir/ellis_err.o
+build $builddir/ellis_test.o: cxxcompile test/ellis_test.cpp
+build $builddir/ellis_test: prog $builddir/ellis_test.o
 
-build all: phony | $builddir/libellis.so
-default $builddir/libellis.so
+build all: phony | $builddir/libellis.so $builddir/ellis_test
+default all
