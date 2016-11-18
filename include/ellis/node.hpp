@@ -60,6 +60,7 @@ class node {
   };
   unsigned m_type;
 
+  /* Private methods--see implementation for description. */
   void _zap_contents(type t);
   void _grab_contents(const node &other);
   void _release_contents();

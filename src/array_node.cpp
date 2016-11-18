@@ -6,7 +6,6 @@
 namespace ellis {
 
 
-#define MIGHTALTER() m_node._prep_for_write()
 #define GETARR m_node.m_blk->m_arr
 
 
@@ -22,7 +21,6 @@ array_node::~array_node()
 
 node& array_node::operator[](size_t index)
 {
-  MIGHTALTER();
   return GETARR[index];
 }
 
@@ -41,21 +39,18 @@ bool array_node::operator==(const array_node &o) const
 
 void array_node::append(const node &node)
 {
-  MIGHTALTER();
   GETARR.push_back(node);
 }
 
 
 void array_node::append(node &&node)
 {
-  MIGHTALTER();
   GETARR.push_back(node);
 }
 
 
 void array_node::extend(const array_node &other)
 {
-  MIGHTALTER();
   GETARR.insert(
     GETARR.cend(),
     other.GETARR.cbegin(),
@@ -65,7 +60,6 @@ void array_node::extend(const array_node &other)
 
 void array_node::extend(array_node &&other)
 {
-  MIGHTALTER();
   GETARR.insert(
     GETARR.end(),
     other.GETARR.begin(),
@@ -75,35 +69,30 @@ void array_node::extend(array_node &&other)
 
 void array_node::insert(size_t pos, const node &other)
 {
-  MIGHTALTER();
   GETARR.insert(GETARR.cbegin() + pos, other);
 }
 
 
 void array_node::insert(size_t pos, node &&other)
 {
-  MIGHTALTER();
   GETARR.insert(GETARR.begin() + pos, other);
 }
 
 
 void array_node::erase(size_t pos)
 {
-  MIGHTALTER();
   GETARR.erase(GETARR.begin() + pos);
 }
 
 
 void array_node::reserve(size_t n)
 {
-  MIGHTALTER();
   GETARR.reserve(n);
 }
 
 
 void array_node::foreach(std::function<void(node &)> fn)
 {
-  MIGHTALTER();
   for (node &node : GETARR) {
     fn(node);
   }
@@ -146,7 +135,6 @@ bool array_node::empty() const
 
 void array_node::clear()
 {
-  MIGHTALTER();
   GETARR.clear();
 }
 

@@ -8,7 +8,6 @@
 namespace ellis {
 
 
-#define MIGHTALTER() m_node._prep_for_write()
 #define GETMAP m_node.m_blk->m_map
 
 
@@ -24,7 +23,6 @@ map_node::~map_node()
 
 node & map_node::operator[](const std::string &key)
 {
-  MIGHTALTER();
   return const_cast<node&>(
       (*(static_cast<const map_node*>(this)))[key]);
 }
@@ -50,21 +48,18 @@ bool map_node::operator==(const map_node &o) const
 
 void map_node::insert(const std::string &key, const node &val)
 {
-  MIGHTALTER();
   GETMAP.emplace(key, val);
 }
 
 
 void map_node::insert(const std::string &key, node &&val)
 {
-  MIGHTALTER();
   GETMAP.emplace(key, std::move(val));
 }
 
 
 void map_node::merge(const map_node &other, const merge_policy &policy)
 {
-  MIGHTALTER();
   for (const auto &it : other.m_node.m_blk->m_map) {
     bool exists = GETMAP.count(it.first);
     bool q_replace = exists && policy.key_exists_copy;
@@ -88,7 +83,6 @@ void map_node::merge(const map_node &other, const merge_policy &policy)
 
 void map_node::erase(const std::string &key)
 {
-  MIGHTALTER();
   GETMAP.erase(key);
 }
 
@@ -111,7 +105,6 @@ std::vector<std::string> map_node::keys() const
 
 void map_node::foreach(std::function<void(const std::string &, node &)> fn)
 {
-  MIGHTALTER();
   for (auto &it : GETMAP) {
     fn(it.first, it.second);
   }
@@ -155,7 +148,6 @@ bool map_node::empty() const
 
 void map_node::clear()
 {
-  MIGHTALTER();
   GETMAP.clear();
 }
 

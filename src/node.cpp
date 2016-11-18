@@ -11,6 +11,10 @@
 namespace ellis {
 
 
+/** A convenience macro for preparing for a non-const operation. */
+#define MIGHTALTER() _prep_for_write()
+
+
 /** A convenience macro for throwing an error when type is improper. */
 #define TYPE_VERIFY(typ) \
   do { \
@@ -154,6 +158,9 @@ void node::_release_contents()
 }
 
 
+/** Make sure that it is safe to write (that is, copy if necessary in
+ * support of COW (copy on write) behavior.
+ */
 void node::_prep_for_write()
 {
   if (!_is_refcounted(m_type)) {
@@ -167,6 +174,78 @@ void node::_prep_for_write()
   }
   /* This is a shared node.  Copy before writing. */
   deep_copy(*this);
+}
+
+
+/** Unchecked version of similarly named public function. */
+int64_t node::_as_int64() const
+{
+  return m_int;
+}
+
+
+/** Unchecked version of similarly named public function. */
+double node::_as_double() const
+{
+  return m_dbl;
+}
+
+
+/** Unchecked version of similarly named public function. */
+const std::string & node::_as_u8str() const
+{
+  return m_str;
+}
+
+
+/** Unchecked version of similarly named public function. */
+array_node & node::_as_array()
+{
+  MIGHTALTER();
+  /* Re-use code from const version. */
+  return const_cast<array_node&>(
+      static_cast<const node*>(this)->_as_array());
+}
+
+
+/** Unchecked version of similarly named public function. */
+const array_node & node::_as_array() const
+{
+  return *(reinterpret_cast<const array_node*>(this));
+}
+
+
+/** Unchecked version of similarly named public function. */
+map_node & node::_as_map()
+{
+  MIGHTALTER();
+  /* Re-use code from const version. */
+  return const_cast<map_node&>(
+      static_cast<const node*>(this)->_as_map());
+}
+
+
+/** Unchecked version of similarly named public function. */
+const map_node & node::_as_map() const
+{
+  return *(reinterpret_cast<const map_node*>(this));
+}
+
+
+/** Unchecked version of similarly named public function. */
+binary_node & node::_as_binary()
+{
+  MIGHTALTER();
+  /* Re-use code from const version. */
+  return const_cast<binary_node&>(
+      static_cast<const node*>(this)->_as_binary());
+}
+
+
+/** Unchecked version of similarly named public function. */
+const binary_node & node::_as_binary() const
+{
+  return *(reinterpret_cast<const binary_node*>(this));
 }
 
 
@@ -344,66 +423,6 @@ type node::get_type() const
 }
 
 
-int64_t node::_as_int64() const
-{
-  return m_int;
-}
-
-
-double node::_as_double() const
-{
-  return m_dbl;
-}
-
-
-const std::string & node::_as_u8str() const
-{
-  return m_str;
-}
-
-
-array_node & node::_as_array()
-{
-  /* Re-use code from const version. */
-  return const_cast<array_node&>(
-      static_cast<const node*>(this)->_as_array());
-}
-
-
-const array_node & node::_as_array() const
-{
-  return *(reinterpret_cast<const array_node*>(this));
-}
-
-
-map_node & node::_as_map()
-{
-  /* Re-use code from const version. */
-  return const_cast<map_node&>(
-      static_cast<const node*>(this)->_as_map());
-}
-
-
-const map_node & node::_as_map() const
-{
-  return *(reinterpret_cast<const map_node*>(this));
-}
-
-
-binary_node & node::_as_binary()
-{
-  /* Re-use code from const version. */
-  return const_cast<binary_node&>(
-      static_cast<const node*>(this)->_as_binary());
-}
-
-
-const binary_node & node::_as_binary() const
-{
-  return *(reinterpret_cast<const binary_node*>(this));
-}
-
-
 node::operator int64_t() const
 {
   return as_int64();
@@ -481,6 +500,7 @@ const binary_node & node::as_binary() const
 #if 0
 node & node::get_path(const std::string &path)
 {
+  MIGHTALTER();
 }
 
 

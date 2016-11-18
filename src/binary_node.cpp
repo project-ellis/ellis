@@ -6,7 +6,6 @@
 namespace ellis {
 
 
-#define MIGHTALTER() m_node._prep_for_write()
 #define GETBIN m_node.m_blk->m_bin
 
 
@@ -22,7 +21,6 @@ binary_node::~binary_node()
 
 uint8_t& binary_node::operator[](size_t index)
 {
-  MIGHTALTER();
   return GETBIN[index];
 }
 
@@ -41,21 +39,18 @@ bool binary_node::operator==(const binary_node &o) const
 
 void binary_node::append(const uint8_t *data, size_t len)
 {
-  MIGHTALTER();
   GETBIN.insert(GETBIN.end(), data, data+len);
 }
 
 
 void binary_node::resize(size_t n)
 {
-  MIGHTALTER();
   GETBIN.resize(n);
 }
 
 
 uint8_t * binary_node::data()
 {
-  MIGHTALTER();
   return GETBIN.data();
 }
 
@@ -80,7 +75,6 @@ bool binary_node::empty() const
 
 void binary_node::clear()
 {
-  MIGHTALTER();
   GETBIN.clear();
 }
 

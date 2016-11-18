@@ -13,6 +13,7 @@
 * Prefer short names, but long enough to be clear over realm used.
 * Single letter variables OK in short blocks like loops.
 * `g_foo` for global
+* `k_foo` for constant
 * `m_foo` for member
 * `s_foo` for static
 * `t_foo` for thread-local
@@ -27,6 +28,12 @@
 * C++ headers: `.hpp` suffix.
 * C implementation: `.c` suffix.
 * C++ implementation: `.cpp` suffix.
+
+## Documentation
+
+* Doxygen style descriptions of functions.
+  * Public functions documented in public header file.
+  * Internal/private functions documented in implementation file.
 
 ## Bug Avoidance Practices
 
