@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <ellis/array_node.hpp>
 #include <ellis/binary_node.hpp>
+#include <ellis/err.hpp>
 #include <ellis/map_node.hpp>
 #include <ellis/node.hpp>
 #include <string.h>
@@ -94,11 +95,43 @@ void maptest()
   assert(en.as_map()[foo.as_u8str()].as_int64() == four.as_int64());
 }
 
+void pathtest()
+{
+  using namespace ellis;
+  node a(type::ARRAY);
+  a.as_array().append(node((int64_t)4));
+  a.as_array().append(node(std::string("hi")));
+  node r(type::MAP);
+  r.as_map().insert("foo", a);
+  assert(r.path("{foo}[0]").as_int64() == 4);
+  assert(r.path("{foo}[1]").as_u8str() == "hi");
+  auto chkFail = [&r](const char *path)
+  {
+    bool threw = false;
+    try {
+      r.path(path);
+    } catch(err e) {
+      threw = true;
+    }
+    assert(threw);
+  };
+  chkFail("?");
+  chkFail("{foo");
+  chkFail("{bar}");
+  chkFail("[x]");
+  chkFail("[0]");
+  chkFail("{foo}{bar}");
+  chkFail("{foo}[2]");
+  chkFail("{foo}[0][1]");
+  chkFail("{foo}[0]{1}");
+}
+
 int main()
 {
   arraytest();
   binarytest();
   maptest();
+  pathtest();
   printf("all tests completed.\n");
   return 0;
 }

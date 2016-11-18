@@ -5,6 +5,7 @@
 #include <ellis/err.hpp>
 #include <ellis/map_node.hpp>
 #include <ellis/private/using.hpp>
+#include <sstream>
 #include <stddef.h>
 #include <string.h>
 
@@ -497,17 +498,123 @@ const binary_node & node::as_binary() const
   return _as_binary();
 }
 
-#if 0
-node & node::get_path(const std::string &path)
+
+node & node::path(const std::string &path)
 {
   MIGHTALTER();
+  /* Re-use code from const version. */
+  return const_cast<node&>(
+      static_cast<const node*>(this)->path(path));
 }
 
 
-const node & node::get_path(const std::string &path) const
+const node & node::path(const std::string &path) const
 {
+  enum class parse_state {
+    NEED_SELECTOR,
+    NEED_INDEX,
+    IN_INDEX,
+    IN_KEY,
+  };
+
+#define BOOM(msg) \
+  do { \
+    std::ostringstream os; \
+    os << "path access failure at position " << (curr - path_start) \
+       << " of path " << path << ": " << msg; \
+    throw MAKE_ELLIS_ERR(err_code::PATH_ERROR, os.str()); \
+  } while (0)
+
+  const node *v = this;
+  parse_state state = parse_state::NEED_SELECTOR;
+  const char *path_start = path.c_str();
+  const char *curr = path_start;
+  const char *keyStart = nullptr;  /* init val irrelevant due to state graph. */
+  size_t index = 0;  /* init val irrelevant due to state graph. */
+
+  for (; *curr; curr++) {
+    char c = *curr;
+
+    switch (state) {
+
+      case parse_state::NEED_SELECTOR:
+        if (isspace(c)) {
+          /* Do nothing: ignore spaces between selectors. */
+        }
+        else if (c == '{') {
+          if (! v->is_type(type::MAP)) {
+            BOOM("key selector applied to non-map");
+          }
+          keyStart = curr + 1;
+          state = parse_state::IN_KEY;
+        }
+        else if (c == '[') {
+          if (! v->is_type(type::ARRAY)) {
+            BOOM("index selector applied to non-array");
+          }
+          state = parse_state::NEED_INDEX;
+        }
+        else {
+          BOOM("need [ or . selector");
+        }
+        break;
+
+      case parse_state::NEED_INDEX:
+        if (isdigit(c)) {
+          index = c - '0';
+          state = parse_state::IN_INDEX;
+        }
+        else {
+          BOOM("need a number for index");
+        }
+        break;
+
+      case parse_state::IN_INDEX:
+        if (isdigit(c)) {
+          index = index * 10 + c - '0';
+        }
+        else if (c == ']') {
+          if (! v->is_type(type::ARRAY)) {
+            BOOM("internal error--somehow we have non-array");
+          }
+          if (index >= v->_as_array().length()) {
+            BOOM("index out of range");
+          }
+          v = &(v->_as_array()[index]);
+          state = parse_state::NEED_SELECTOR;
+        }
+        else {
+          BOOM("not a digit");
+        }
+        break;
+
+      case parse_state::IN_KEY:
+        if (c == '}') {
+          if (! v->is_type(type::MAP)) {
+            BOOM("internal error--somehow we have non-map");
+          }
+          string key(keyStart, curr - keyStart);
+          if (! v->_as_map().has_key(key)) {
+            BOOM("key not found in map");
+          }
+          v = &(v->_as_map()[key]);
+          state = parse_state::NEED_SELECTOR;
+        }
+        else { /* A character in the key. */
+          /* Do nothing: we have a pointer to start of key; wait for end. */
+        }
+        break;
+
+    }  // switch(state)
+
+  }  // for
+
+  if (state != parse_state::NEED_SELECTOR) {
+    BOOM("unexpected path termination");
+  }
+
+  return *v;
 }
 
 
-#endif
 }  /* namespace ellis */

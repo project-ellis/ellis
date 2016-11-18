@@ -22,6 +22,7 @@ enum class err_code {
   WRONG_TYPE = 4096,
   PARSING_ERROR = 4097,
   NOT_MERGED = 4098,
+  PATH_ERROR = 4099,
 };
 
 

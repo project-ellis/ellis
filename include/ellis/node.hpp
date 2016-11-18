@@ -137,10 +137,10 @@ class node {
 
   void swap(node &other);
 
-  /** Do a deep copy of the other node--new objects, new reference counts,
+  /** Do a deep copy of the other node--new objects, new reference counter,
    * no sharing.
    *
-   * The "other" node is allowed to be this very node; copy-on-write uses this.
+   * The "other" node is allowed to be this very node; copy-on-write does this.
    */
   void deep_copy(const node &other);
 
@@ -260,12 +260,9 @@ class node {
   const binary_node & as_binary() const;
 
   /** Get value from tree at given path (e.g. "{log}{handlers}[0]{sync}").
-   *
-   * If successful, will cause reference counts to increment for the relevant
-   * subtree rooted at that path.
    */
-  node & get_path(const std::string &path);
-  const node & get_path(const std::string &path) const;
+  node & path(const std::string &path);
+  const node & path(const std::string &path) const;
 
   friend class array_node;
   friend class binary_node;
