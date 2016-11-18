@@ -60,7 +60,6 @@ class node {
   };
   unsigned m_type;
 
-  bool _is_refcounted();
   void _zap_contents(type t);
   void _grab_contents(const node &other);
   void _release_contents();

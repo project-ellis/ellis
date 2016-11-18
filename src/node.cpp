@@ -18,24 +18,24 @@ namespace ellis {
   } while (0)
 
 
-bool node::_is_refcounted()
-{
-  switch (type(m_type)) {
-    case type::BOOL:
-    case type::DOUBLE:
-    case type::INT64:
-    case type::NIL:
-    case type::U8STR:
-      return false;
+/** The lowest numerical enum value of any type for which refcount is used. */
+static const int k_lowest_rc = 5;
 
-    case type::ARRAY:
-    case type::BINARY:
-    case type::MAP:
-      return true;
-  }
-  /* Never reached. */
-  assert(0);
-  return false;
+static_assert((int)type::BOOL   <  k_lowest_rc, "refcount check broken");
+static_assert((int)type::NIL    <  k_lowest_rc, "refcount check broken");
+static_assert((int)type::BOOL   <  k_lowest_rc, "refcount check broken");
+static_assert((int)type::INT64  <  k_lowest_rc, "refcount check broken");
+static_assert((int)type::DOUBLE <  k_lowest_rc, "refcount check broken");
+static_assert((int)type::U8STR  <  k_lowest_rc, "refcount check broken");
+static_assert((int)type::ARRAY  >= k_lowest_rc, "refcount check broken");
+static_assert((int)type::BINARY >= k_lowest_rc, "refcount check broken");
+static_assert((int)type::MAP    >= k_lowest_rc, "refcount check broken");
+
+
+/** Does this type enum value represent a type for which refcount is used? */
+static inline bool _is_refcounted(int t)
+{
+  return t >= k_lowest_rc;
 }
 
 
@@ -52,7 +52,7 @@ void node::_zap_contents(type t)
   if (type(m_type) == type::U8STR) {
     new (&m_str) std::string();
   }
-  else if (_is_refcounted()) {
+  else if (_is_refcounted(m_type)) {
     /*
      * Use malloc/free here to make sure we don't accidentally call a union
      * constructor or similar via new/delete.
@@ -96,7 +96,7 @@ void node::_grab_contents(const node& other)
     /* In-place string copy constructor. */
     new (&m_str) std::string(other.m_str);
   }
-  else if (_is_refcounted()) {
+  else if (_is_refcounted(m_type)) {
     m_blk = other.m_blk;
     m_blk->m_refcount++;
   }
@@ -120,7 +120,7 @@ void node::_release_contents()
   if (type(m_type) == type::U8STR) {
     m_str.~basic_string<char>();
   }
-  else if (_is_refcounted()) {
+  else if (_is_refcounted(m_type)) {
     m_blk->m_refcount--;
     if (m_blk->m_refcount == 0) {
       switch (type(m_type)) {
@@ -154,7 +154,7 @@ void node::_release_contents()
 
 void node::_prep_for_write()
 {
-  if (!_is_refcounted()) {
+  if (!_is_refcounted(m_type)) {
     /* Nothing to do for a leaf node. */
     return;
   }
@@ -245,7 +245,7 @@ void node::deep_copy(const node &o)
   /* Release, zap, and copy from tmp. */
   _release_contents();
   _zap_contents(tmp.get_type());
-  if (_is_refcounted()) {
+  if (_is_refcounted(m_type)) {
     switch (type(m_type)) {
       case type::ARRAY:
         m_blk->m_arr = o.m_blk->m_arr;
