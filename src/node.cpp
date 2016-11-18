@@ -179,14 +179,28 @@ void node::_prep_for_write()
 
 
 /** Unchecked version of similarly named public function. */
-int64_t node::_as_int64() const
+int64_t & node::_as_int64()
 {
   return m_int;
 }
 
 
 /** Unchecked version of similarly named public function. */
-double node::_as_double() const
+const int64_t & node::_as_int64() const
+{
+  return m_int;
+}
+
+
+/** Unchecked version of similarly named public function. */
+double & node::_as_double()
+{
+  return m_dbl;
+}
+
+
+/** Unchecked version of similarly named public function. */
+const double & node::_as_double() const
 {
   return m_dbl;
 }
@@ -436,14 +450,28 @@ node::operator double() const
 }
 
 
-int64_t node::as_int64() const
+int64_t & node::as_int64()
 {
   TYPE_VERIFY(INT64);
   return _as_int64();
 }
 
 
-double node::as_double() const
+const int64_t & node::as_int64() const
+{
+  TYPE_VERIFY(INT64);
+  return _as_int64();
+}
+
+
+double & node::as_double()
+{
+  TYPE_VERIFY(DOUBLE);
+  return _as_double();
+}
+
+
+const double & node::as_double() const
 {
   TYPE_VERIFY(DOUBLE);
   return _as_double();

@@ -65,15 +65,15 @@ class node {
   void _grab_contents(const node &other);
   void _release_contents();
   void _prep_for_write();
-  int64_t _as_int64() const;
-  double _as_double() const;
+  int64_t & _as_int64();
+  const int64_t & _as_int64() const;
+  double & _as_double();
+  const double & _as_double() const;
   const std::string & _as_u8str() const;
   array_node & _as_array();
   const array_node & _as_array() const;
   map_node & _as_map();
   const map_node & _as_map() const;
-  uint8_t* _as_binary(size_t *size);
-  const uint8_t* _as_binary(size_t *size) const;
   binary_node & _as_binary();
   const binary_node & _as_binary() const;
 
@@ -217,14 +217,16 @@ class node {
    * Will throw WRONG_TYPE error if type is not convertible.
    */
   explicit operator int64_t() const;
-  int64_t as_int64() const;
+  int64_t & as_int64();
+  const int64_t & as_int64() const;
 
   /** Get contents as a double.
    *
    * Will throw WRONG_TYPE error if type is not convertible.
    */
   explicit operator double() const;
-  double as_double() const;
+  double & as_double();
+  const double & as_double() const;
 
   /** Provide access to UTF-8 string contents.
    *
