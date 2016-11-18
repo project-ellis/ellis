@@ -1,6 +1,6 @@
-#include <ellis/ellis_node.hpp>
+#include <ellis/node.hpp>
 
-#include <ellis/ellis_err.hpp>
+#include <ellis/err.hpp>
 #include <ellis/private/using.hpp>
 #include <stddef.h>
 #include <string.h>

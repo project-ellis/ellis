@@ -9,7 +9,7 @@
 #ifndef ELLIS_NODE_HPP_
 #define ELLIS_NODE_HPP_
 
-#include <ellis/ellis_type.hpp>
+#include <ellis/type.hpp>
 #include <memory>
 #include <string>
 #include <unordered_map>

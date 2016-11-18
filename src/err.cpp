@@ -1,4 +1,4 @@
-#include <ellis/ellis_err.hpp>
+#include <ellis/err.hpp>
 
 #include <ellis/private/using.hpp>
 

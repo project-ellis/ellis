@@ -1,13 +1,17 @@
-#include <ellis/ellis_array_node.hpp>
+#include <ellis/array_node.hpp>
 
-#include <ellis/ellis_node.hpp>
+#include <ellis/node.hpp>
 #include <ellis/private/using.hpp>
 
 namespace ellis {
 
 array_node::~array_node()
 {
-  /* Do nothing; destruction is handled by node. */
+  assert(0);
+  /* This function will never be called; array_node is a type safety wrapper
+   * over node, and destruction is to be handled by node.  The user should
+   * only ever see array_node by reference, and only ever be able to destroy
+   * a node. */
 }
 
 
@@ -93,7 +97,7 @@ void array_node::foreach(std::function<void(const node &)> fn) const
 }
 
 
-array_node array_node::filter(std::function<bool(const node &)> fn) const
+node array_node::filter(std::function<bool(const node &)> fn) const
 {
   node res_node(type::ARRAY);
   array_node &res_arr = res_node._as_array();
@@ -103,7 +107,7 @@ array_node array_node::filter(std::function<bool(const node &)> fn) const
     }
   }
 
-  return res_arr;
+  return res_node;
 }
 
 

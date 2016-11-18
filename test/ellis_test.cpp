@@ -1,9 +1,9 @@
 #undef NDEBUG
 #include <assert.h>
 #include <stdio.h>
-#include <ellis/ellis_array_node.hpp>
-#include <ellis/ellis_map_node.hpp>
-#include <ellis/ellis_node.hpp>
+#include <ellis/array_node.hpp>
+#include <ellis/map_node.hpp>
+#include <ellis/node.hpp>
 
 void arraytest()
 {

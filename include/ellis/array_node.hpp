@@ -9,8 +9,8 @@
 #ifndef ELLIS_ARRAY_NODE_HPP_
 #define ELLIS_ARRAY_NODE_HPP_
 
-#include <ellis/ellis_node.hpp>
-#include <ellis/ellis_type.hpp>
+#include <ellis/node.hpp>
+#include <ellis/type.hpp>
 
 namespace ellis {
 
@@ -68,7 +68,7 @@ public:
    *
    * The result is a new array (with elements copy on write).
    */
-  array_node filter(std::function<bool(const node &)> fn) const;
+  node filter(std::function<bool(const node &)> fn) const;
 
   /** Return number of elements in array. */
   size_t length() const;

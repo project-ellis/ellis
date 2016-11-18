@@ -11,15 +11,15 @@
 
 #include <string>
 #include <vector>
-#include <ellis/ellis_node.hpp>
+#include <ellis/node.hpp>
 
 namespace ellis {
 
 
 struct merge_policy {
-  bool key_exists_hit;
-  bool key_missing_hit;
-  bool abort_on_miss;
+  bool key_exists_copy;
+  bool key_missing_copy;
+  bool abort_on_not_copy;
 };
 
 
@@ -75,7 +75,7 @@ public:
    *
    * The result is a new map (with entries copy on write).
    */
-  map_node filter(std::function<
+  node filter(std::function<
       bool(const std::string &, const node &)> fn) const;
 
   /** Return number of keys in map. */

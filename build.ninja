@@ -25,11 +25,11 @@ rule prog
   command = $cxx $ldflags -L$builddir -lellis -o $out $in
   description = PROG $out
 
-build $builddir/ellis_node.o: cxxcompile src/ellis_node.cpp
-build $builddir/ellis_err.o: cxxcompile src/ellis_err.cpp
-build $builddir/ellis_map_node.o: cxxcompile src/ellis_map_node.cpp
-build $builddir/ellis_array_node.o: cxxcompile src/ellis_array_node.cpp
-build $builddir/libellis.so: lib $builddir/ellis_node.o $builddir/ellis_map_node.o $builddir/ellis_array_node.o $builddir/ellis_err.o
+build $builddir/node.o: cxxcompile src/node.cpp
+build $builddir/err.o: cxxcompile src/err.cpp
+build $builddir/map_node.o: cxxcompile src/map_node.cpp
+build $builddir/array_node.o: cxxcompile src/array_node.cpp
+build $builddir/libellis.so: lib $builddir/node.o $builddir/map_node.o $builddir/array_node.o $builddir/err.o
 build $builddir/ellis_test.o: cxxcompile test/ellis_test.cpp
 build $builddir/ellis_test: prog $builddir/ellis_test.o $builddir/libellis.so
 
