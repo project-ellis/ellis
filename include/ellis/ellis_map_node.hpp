@@ -75,7 +75,7 @@ public:
    *
    * The result is a new map (with entries copy on write).
    */
-  map_node & filter(std::function<
+  map_node filter(std::function<
       bool(const std::string &, const node &)> fn) const;
 
   /** Return number of keys in map. */
