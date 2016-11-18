@@ -29,7 +29,8 @@ build $builddir/node.o: cxxcompile src/node.cpp
 build $builddir/err.o: cxxcompile src/err.cpp
 build $builddir/map_node.o: cxxcompile src/map_node.cpp
 build $builddir/array_node.o: cxxcompile src/array_node.cpp
-build $builddir/libellis.so: lib $builddir/node.o $builddir/map_node.o $builddir/array_node.o $builddir/err.o
+build $builddir/binary_node.o: cxxcompile src/binary_node.cpp
+build $builddir/libellis.so: lib $builddir/node.o $builddir/map_node.o $builddir/array_node.o $builddir/binary_node.o $builddir/err.o
 build $builddir/ellis_test.o: cxxcompile test/ellis_test.cpp
 build $builddir/ellis_test: prog $builddir/ellis_test.o $builddir/libellis.so
 

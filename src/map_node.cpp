@@ -8,7 +8,8 @@
 namespace ellis {
 
 
-#define MYMAP m_node.m_blk->m_map
+#define MIGHTALTER() m_node._prep_for_write()
+#define GETMAP m_node.m_blk->m_map
 
 
 map_node::~map_node()
@@ -23,6 +24,7 @@ map_node::~map_node()
 
 node & map_node::operator[](const std::string &key)
 {
+  MIGHTALTER();
   return const_cast<node&>(
       (*(static_cast<const map_node*>(this)))[key]);
 }
@@ -30,9 +32,9 @@ node & map_node::operator[](const std::string &key)
 
 const node & map_node::operator[](const std::string &key) const
 {
-  const auto it = MYMAP.find(key);
-  if (it == MYMAP.end()) {
-    auto added = MYMAP.emplace(key, node(type::NIL));
+  const auto it = GETMAP.find(key);
+  if (it == GETMAP.end()) {
+    auto added = GETMAP.emplace(key, node(type::NIL));
     assert(added.second == true);
     return added.first->second;
   }
@@ -42,20 +44,23 @@ const node & map_node::operator[](const std::string &key) const
 
 void map_node::insert(const std::string &key, const node &val)
 {
-  MYMAP.emplace(key, val);
+  MIGHTALTER();
+  GETMAP.emplace(key, val);
 }
 
 
 void map_node::insert(const std::string &key, node &&val)
 {
-  MYMAP.emplace(key, std::move(val));
+  MIGHTALTER();
+  GETMAP.emplace(key, std::move(val));
 }
 
 
 void map_node::merge(const map_node &other, const merge_policy &policy)
 {
+  MIGHTALTER();
   for (const auto &it : other.m_node.m_blk->m_map) {
-    bool exists = MYMAP.count(it.first);
+    bool exists = GETMAP.count(it.first);
     bool q_replace = exists && policy.key_exists_copy;
     bool q_insert = (not exists) && policy.key_missing_copy;
     /* q_replace and q_insert can not both be set. */
@@ -77,20 +82,21 @@ void map_node::merge(const map_node &other, const merge_policy &policy)
 
 void map_node::erase(const std::string &key)
 {
-  MYMAP.erase(key);
+  MIGHTALTER();
+  GETMAP.erase(key);
 }
 
 
 bool map_node::has_key(const std::string &key) const
 {
-  return MYMAP.count(key) > 0;
+  return GETMAP.count(key) > 0;
 }
 
 
 std::vector<std::string> map_node::keys() const
 {
   vector<string> rv;
-  for (const auto &it : MYMAP) {
+  for (const auto &it : GETMAP) {
     rv.push_back(it.first);
   }
   return rv;
@@ -99,7 +105,8 @@ std::vector<std::string> map_node::keys() const
 
 void map_node::foreach(std::function<void(const std::string &, node &)> fn)
 {
-  for (auto &it : MYMAP) {
+  MIGHTALTER();
+  for (auto &it : GETMAP) {
     fn(it.first, it.second);
   }
 }
@@ -108,7 +115,7 @@ void map_node::foreach(std::function<void(const std::string &, node &)> fn)
 void map_node::foreach(std::function<
     void(const std::string &, const node &)> fn) const
 {
-  for (const auto &it : MYMAP) {
+  for (const auto &it : GETMAP) {
     fn(it.first, it.second);
   }
 }
@@ -119,7 +126,7 @@ node map_node::filter(std::function<
 {
   node res_node(type::MAP);
   auto &res_map = res_node._as_map();
-  for (const auto &it : MYMAP) {
+  for (const auto &it : GETMAP) {
     if (fn(it.first, it.second)) {
       res_map.insert(it.first, it.second);
     }
@@ -130,19 +137,20 @@ node map_node::filter(std::function<
 
 size_t map_node::length() const
 {
-  return MYMAP.size();
+  return GETMAP.size();
 }
 
 
 bool map_node::empty() const
 {
-  return MYMAP.empty();
+  return GETMAP.empty();
 }
 
 
 void map_node::clear()
 {
-  MYMAP.clear();
+  MIGHTALTER();
+  GETMAP.clear();
 }
 
 

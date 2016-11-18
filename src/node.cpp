@@ -1,5 +1,6 @@
 #include <ellis/node.hpp>
 
+#include <ellis/binary_node.hpp>
 #include <ellis/err.hpp>
 #include <ellis/private/using.hpp>
 #include <stddef.h>
@@ -151,6 +152,22 @@ void node::_release_contents()
 }
 
 
+void node::_prep_for_write()
+{
+  if (!_is_refcounted()) {
+    /* Nothing to do for a leaf node. */
+    return;
+  }
+  assert(m_blk->m_refcount > 0);
+  if (m_blk->m_refcount == 1) {
+    /* Nothing to do, this is the only copy, so go ahead and write. */
+    return;
+  }
+  /* This is a shared node.  Copy before writing. */
+  deep_copy(*this);
+}
+
+
 node::node(type t)
 {
   _zap_contents(t);
@@ -220,6 +237,40 @@ void node::swap(node &other)
 }
 
 
+void node::deep_copy(const node &o)
+{
+  /* Make a tmp copy to preserve contents in case &o == this. */
+  node tmp(o);
+
+  /* Release, zap, and copy from tmp. */
+  _release_contents();
+  _zap_contents(tmp.get_type());
+  if (_is_refcounted()) {
+    switch (type(m_type)) {
+      case type::ARRAY:
+        m_blk->m_arr = o.m_blk->m_arr;
+        break;
+
+      case type::BINARY:
+        m_blk->m_bin = o.m_blk->m_bin;
+        break;
+
+      case type::MAP:
+        m_blk->m_map = o.m_blk->m_map;
+        break;
+
+      default:
+        /* Never hit, due to _is_refcounted. */
+        assert(0);
+        break;
+    }
+  }
+  else {
+    memcpy(m_pad, tmp.m_pad, sizeof(pad_t));
+  }
+}
+
+
 node& node::operator=(const node& rhs)
 {
   _release_contents();
@@ -237,17 +288,48 @@ node& node::operator=(node&& rhs)
 }
 
 
-#if 0
-bool node::operator==(const node &) const
+bool node::operator==(const node &o) const
 {
+  if (m_type != o.m_type) {
+    return false;
+  }
+  switch (type(m_type)) {
+    case type::BOOL:
+      return m_boo == o.m_boo;
+
+    case type::DOUBLE:
+      return m_dbl == o.m_dbl;
+
+    case type::INT64:
+      return m_int == o.m_int;
+
+    case type::NIL:
+      return true;  /* Both nil, nothing more to say. */
+
+    case type::U8STR:
+      return m_str == o.m_str;
+
+    case type::ARRAY:
+      return true;  // TODO
+      // return _as_array() == o._as_array();
+      
+    case type::BINARY:
+      return _as_binary() == o._as_binary();
+
+    case type::MAP:
+      return true;  // TODO
+      // return _as_map() == o._as_map();
+  }
+  /* Never reached. */
+  assert(0);
+  return true;
 }
 
 
 bool node::operator!=(const node &o) const
 {
-  return not (*this == o)
+  return not (*this == o);
 }
-#endif
 
 
 bool node::is_type(type t) const
@@ -308,18 +390,17 @@ const map_node & node::_as_map() const
 }
 
 
-uint8_t* node::_as_binary(size_t *size)
+binary_node & node::_as_binary()
 {
   /* Re-use code from const version. */
-  return const_cast<uint8_t*>(
-      static_cast<const node*>(this)->_as_binary(size));
+  return const_cast<binary_node&>(
+      static_cast<const node*>(this)->_as_binary());
 }
 
 
-const uint8_t* node::_as_binary(size_t *size) const
+const binary_node & node::_as_binary() const
 {
-  *size = m_blk->m_bin.size();
-  return m_blk->m_bin.data();
+  return *(reinterpret_cast<const binary_node*>(this));
 }
 
 
@@ -358,9 +439,8 @@ const std::string & node::as_u8str() const
 
 array_node & node::as_array()
 {
-  /* Re-use code from const version. */
-  return const_cast<array_node&>(
-      static_cast<const node*>(this)->as_array());
+  TYPE_VERIFY(ARRAY);
+  return _as_array();
 }
 
 
@@ -373,9 +453,8 @@ const array_node & node::as_array() const
 
 map_node & node::as_map()
 {
-  /* Re-use code from const version. */
-  return const_cast<map_node&>(
-      static_cast<const node*>(this)->as_map());
+  TYPE_VERIFY(MAP);
+  return _as_map();
 }
 
 
@@ -386,18 +465,17 @@ const map_node & node::as_map() const
 }
 
 
-uint8_t* node::as_binary(size_t *size)
+binary_node & node::as_binary()
 {
-  /* Re-use code from const version. */
-  return const_cast<uint8_t*>(
-      static_cast<const node*>(this)->as_binary(size));
+  TYPE_VERIFY(BINARY);
+  return _as_binary();
 }
 
 
-const uint8_t* node::as_binary(size_t *size) const
+const binary_node & node::as_binary() const
 {
   TYPE_VERIFY(BINARY);
-  return _as_binary(size);
+  return _as_binary();
 }
 
 #if 0

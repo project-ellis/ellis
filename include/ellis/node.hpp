@@ -21,6 +21,7 @@ namespace ellis {
 
 /* Forward declaration. */
 class array_node;
+class binary_node;
 class map_node;
 struct prize_blk;
 
@@ -63,48 +64,18 @@ class node {
   void _zap_contents(type t);
   void _grab_contents(const node &other);
   void _release_contents();
-
- private:
-  /** Get contents as an int64_t.
-   *
-   * Will not check type.
-   */
+  void _prep_for_write();
   int64_t _as_int64() const;
-
-  /** Get contents as a double.
-   *
-   * Will not check type.
-   */
   double _as_double() const;
-
-  /** Provide access to UTF-8 string contents.
-   *
-   * Will not check type.
-   */
   const std::string & _as_u8str() const;
-
-  /** Provide access to array functionality.
-   *
-   * Will not check type.
-   */
   array_node & _as_array();
   const array_node & _as_array() const;
-
-  /** Provide access to map functionality.
-   *
-   * Will not check type.
-   */
   map_node & _as_map();
   const map_node & _as_map() const;
-
-  /** Provide access to binary blob contents.
-   *
-   * Fills in the size parameter with the actual size of binary data.
-   * Will not check type.
-   */
   uint8_t* _as_binary(size_t *size);
   const uint8_t* _as_binary(size_t *size) const;
-
+  binary_node & _as_binary();
+  const binary_node & _as_binary() const;
 
  public:
 
@@ -166,6 +137,13 @@ class node {
 
   void swap(node &other);
 
+  /** Do a deep copy of the other node--new objects, new reference counts,
+   * no sharing.
+   *
+   * The "other" node is allowed to be this very node; copy-on-write uses this.
+   */
+  void deep_copy(const node &other);
+
 
   /*   ___                       _
    *  / _ \ _ __   ___ _ __ __ _| |_ ___  _ __ ___
@@ -206,7 +184,7 @@ class node {
    *
    * Same as (not (a==b)).
    */
-  bool operator!=(const node &o) const { return not (*this == o); }
+  bool operator!=(const node &o) const;
 
 
   /*  _____
@@ -256,12 +234,16 @@ class node {
 
   /** Provide access to array functionality.
    *
+   * See array_node.hpp for more information.
+   *
    * Will throw WRONG_TYPE error if type is not ARRAY.
    */
   array_node & as_array();
   const array_node & as_array() const;
 
   /** Provide access to map functionality.
+   *
+   * See map_node.hpp for more information.
    *
    * Will throw WRONG_TYPE error if type is not MAP.
    */
@@ -270,12 +252,12 @@ class node {
 
   /** Provide access to binary blob contents.
    *
-   * Fills in the size parameter with the actual size of binary data.
+   * See binary_node.hpp for more information.
+   *
    * Will throw WRONG_TYPE error if type is not BINARY.
    */
-  uint8_t* as_binary(size_t *size);
-  const uint8_t* as_binary(size_t *size) const;
-
+  binary_node & as_binary();
+  const binary_node & as_binary() const;
 
   /** Get value from tree at given path (e.g. "{log}{handlers}[0]{sync}").
    *
@@ -286,6 +268,7 @@ class node {
   const node & get_path(const std::string &path) const;
 
   friend class array_node;
+  friend class binary_node;
   friend class map_node;
 };
 
