@@ -32,7 +32,7 @@ typedef struct err err;
 /**
  * Gets the error code associated with a given error. This code will be in the
  * form -errno, with errno values coming from either the standard errno.h or
- * ellis/errno.h.
+ * this file.
  *
  * @param[out] err an error object
  *
