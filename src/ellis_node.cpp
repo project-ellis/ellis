@@ -268,7 +268,7 @@ int64_t node::_as_int64() const
 }
 
 
-int64_t node::_as_double() const
+double node::_as_double() const
 {
   return m_dbl;
 }
@@ -342,7 +342,7 @@ int64_t node::as_int64() const
 }
 
 
-int64_t node::as_double() const
+double node::as_double() const
 {
   TYPE_VERIFY(DOUBLE);
   return _as_double();

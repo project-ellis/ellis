@@ -9,15 +9,17 @@ void arraytest()
 {
   using namespace ellis;
   node en(type::ARRAY);
+  auto &a = en.as_array();
 
-  node foo(std::string("foo"));
-  en.as_array().append(foo);
+  a.append(node(std::string("foo")));
+  a.append(node((int64_t)4));
+  a.append(node((double)4.4));
 
-  node four((int64_t)4);
-  en.as_array().append(four);
+  assert(a.length() == 3);
 
-  assert(en.as_array()[0].as_u8str() == foo.as_u8str());
-  assert(en.as_array()[1].as_int64() == four.as_int64());
+  assert(a[0].as_u8str() == "foo");
+  assert(a[1].as_int64() == 4);
+  assert(a[2].as_double() == 4.4);
 }
 
 void maptest()

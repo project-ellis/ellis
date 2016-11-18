@@ -75,7 +75,7 @@ class node {
    *
    * Will not check type.
    */
-  int64_t _as_double() const;
+  double _as_double() const;
 
   /** Provide access to UTF-8 string contents.
    *
@@ -246,7 +246,7 @@ class node {
    * Will throw WRONG_TYPE error if type is not convertible.
    */
   explicit operator double() const;
-  int64_t as_double() const;
+  double as_double() const;
 
   /** Provide access to UTF-8 string contents.
    *
