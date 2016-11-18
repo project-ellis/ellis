@@ -1,7 +1,9 @@
 #include <ellis/node.hpp>
 
+#include <ellis/array_node.hpp>
 #include <ellis/binary_node.hpp>
 #include <ellis/err.hpp>
+#include <ellis/map_node.hpp>
 #include <ellis/private/using.hpp>
 #include <stddef.h>
 #include <string.h>
@@ -310,15 +312,13 @@ bool node::operator==(const node &o) const
       return m_str == o.m_str;
 
     case type::ARRAY:
-      return true;  // TODO
-      // return _as_array() == o._as_array();
+      return _as_array() == o._as_array();
       
     case type::BINARY:
       return _as_binary() == o._as_binary();
 
     case type::MAP:
-      return true;  // TODO
-      // return _as_map() == o._as_map();
+      return _as_map() == o._as_map();
   }
   /* Never reached. */
   assert(0);

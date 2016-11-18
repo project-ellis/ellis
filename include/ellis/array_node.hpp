@@ -39,6 +39,9 @@ public:
   node& operator[](size_t index);
   const node& operator[](size_t index) const;
 
+  /** Return true iff lengths same and corresponding elements same. */
+  bool operator==(const array_node &) const;
+
   /** Append a node to the end of the array.
    */
   void append(const node &node);

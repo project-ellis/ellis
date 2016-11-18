@@ -42,6 +42,12 @@ const node & map_node::operator[](const std::string &key) const
 }
 
 
+bool map_node::operator==(const map_node &o) const
+{
+  return GETMAP == o.GETMAP;
+}
+
+
 void map_node::insert(const std::string &key, const node &val)
 {
   MIGHTALTER();

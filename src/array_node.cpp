@@ -33,6 +33,12 @@ const node& array_node::operator[](size_t index) const
 }
 
 
+bool array_node::operator==(const array_node &o) const
+{
+  return GETARR == o.GETARR;
+}
+
+
 void array_node::append(const node &node)
 {
   MIGHTALTER();

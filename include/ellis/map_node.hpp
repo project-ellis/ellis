@@ -47,6 +47,9 @@ public:
   node & operator[](const std::string &);
   const node & operator[](const std::string &) const;
 
+  /** Map contents comparison.  Same keys, same values. */
+  bool operator==(const map_node &) const;
+
   /** Add a new value with the given key name. */
   void insert(const std::string &, const node &);
   void insert(const std::string &, node &&);
