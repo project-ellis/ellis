@@ -14,15 +14,18 @@ void arraytest()
   node en(type::ARRAY);
   auto &a = en.as_array();
 
-  a.append(node(std::string("foo")));
-  a.append(node((int64_t)4));
-  a.append(node((double)4.4));
+  a.append(node("foo"));
+  a.append(node(4));
+  a.append(node(4.4));
+  a.append(node(true));
 
-  assert(a.length() == 3);
+  assert(a.length() == 4);
 
   assert(a[0].as_u8str() == "foo");
+  assert(a[0] == "foo");
   assert(a[1].as_int64() == 4);
   assert(a[2].as_double() == 4.4);
+  assert(a[3].as_bool() == true);
 }
 
 void binarytest()
@@ -89,23 +92,21 @@ void maptest()
 {
   using namespace ellis;
   node en(type::MAP);
-  node foo(std::string("foo"));
-  node four((int64_t)4);
-  en.as_map().insert(foo.as_u8str(), four);
-  assert(en.as_map()[foo.as_u8str()].as_int64() == four.as_int64());
+  en.as_map().insert("foo", 4);
+  assert(en.as_map()["foo"].as_int64() == 4);
 }
 
 void pathtest()
 {
   using namespace ellis;
   node a(type::ARRAY);
-  a.as_array().append(node((int64_t)4));
-  a.as_array().append(node(std::string("hi")));
+  a.as_array().append(4);
+  a.as_array().append("hi");
   node r(type::MAP);
   r.as_map().insert("foo", a);
   assert(r.path("{foo}[0]").as_int64() == 4);
   assert(r.path("{foo}[1]").as_u8str() == "hi");
-  auto chkFail = [&r](const char *path)
+  auto chk_fail = [&r](const char *path)
   {
     bool threw = false;
     try {
@@ -115,15 +116,15 @@ void pathtest()
     }
     assert(threw);
   };
-  chkFail("?");
-  chkFail("{foo");
-  chkFail("{bar}");
-  chkFail("[x]");
-  chkFail("[0]");
-  chkFail("{foo}{bar}");
-  chkFail("{foo}[2]");
-  chkFail("{foo}[0][1]");
-  chkFail("{foo}[0]{1}");
+  chk_fail("?");
+  chk_fail("{foo");
+  chk_fail("{bar}");
+  chk_fail("[x]");
+  chk_fail("[0]");
+  chk_fail("{foo}{bar}");
+  chk_fail("{foo}[2]");
+  chk_fail("{foo}[0][1]");
+  chk_fail("{foo}[0]{1}");
 }
 
 int main()

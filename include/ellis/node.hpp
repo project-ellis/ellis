@@ -65,6 +65,8 @@ class node {
   void _grab_contents(const node &other);
   void _release_contents();
   void _prep_for_write();
+  bool & _as_bool();
+  const bool & _as_bool() const;
   int64_t & _as_int64();
   const int64_t & _as_int64() const;
   double & _as_double();
@@ -90,25 +92,34 @@ class node {
   // TODO: experiment re safety w/o explicit constructors
 
   /** Construct an ARRAY, MAP, or NIL node. */
-  explicit node(type);
+  node(type);
 
   /** Construct a BINARY node. */
-  explicit node(const uint8_t *mem, size_t bytes);
+  node(const uint8_t *mem, size_t bytes);
 
   /** Construct a BOOL node. */
-  explicit node(bool);
-
-  /** Construct a U8STR node. */
-  explicit node(const std::string&);
-
-  /** Construct a U8STR node with move sementics. */
-  explicit node(std::string&);
+  node(bool);
 
   /** Construct an INT64 node. */
-  explicit node(int64_t);
+  node(int);
+
+  /** Construct an INT64 node. */
+  node(int64_t);
+
+  /** Construct an INT64 node. */
+  node(unsigned int);
+
+  /** Construct an INT64 node. */
+  node(uint64_t);
 
   /** Construct a DOUBLE node. */
-  explicit node(double);
+  node(double);
+
+  /** Construct a U8STR node. */
+  node(const std::string&);
+
+  /** Construct a U8STR node. */
+  node(const char *);
 
   /** Copy constructor.
    *
@@ -211,6 +222,14 @@ class node {
    *
    */
 
+
+  /** Get contents as an bool.
+   *
+   * Will throw WRONG_TYPE error if type is not convertible.
+   */
+  explicit operator bool() const;
+  bool & as_bool();
+  const bool & as_bool() const;
 
   /** Get contents as an int64_t.
    *

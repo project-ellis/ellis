@@ -178,6 +178,23 @@ void node::_prep_for_write()
 }
 
 
+// TODO: macro it
+
+
+/** Unchecked version of similarly named public function. */
+bool & node::_as_bool()
+{
+  return m_boo;
+}
+
+
+/** Unchecked version of similarly named public function. */
+const bool & node::_as_bool() const
+{
+  return m_boo;
+}
+
+
 /** Unchecked version of similarly named public function. */
 int64_t & node::_as_int64()
 {
@@ -285,10 +302,10 @@ node::node(bool b)
 }
 
 
-node::node(const std::string& s)
+node::node(int i)
 {
-  _zap_contents(type::U8STR);
-  m_str = s;
+  _zap_contents(type::INT64);
+  m_int = i;
 }
 
 
@@ -299,10 +316,41 @@ node::node(int64_t i)
 }
 
 
+node::node(unsigned int i)
+{
+  _zap_contents(type::INT64);
+  m_int = i;
+}
+
+
+node::node(uint64_t i)
+{
+  if (i > INT64_MAX) {
+    throw std::out_of_range("64 bit unsigned integer too large");
+  }
+  _zap_contents(type::INT64);
+  m_int = i;
+}
+
+
 node::node(double d)
 {
   _zap_contents(type::DOUBLE);
   m_dbl = d;
+}
+
+
+node::node(const std::string& s)
+{
+  _zap_contents(type::U8STR);
+  m_str = s;
+}
+
+
+node::node(const char *s)
+{
+  _zap_contents(type::U8STR);
+  m_str = s;
 }
 
 
@@ -450,6 +498,20 @@ node::operator double() const
 }
 
 
+bool & node::as_bool()
+{
+  TYPE_VERIFY(BOOL);
+  return _as_bool();
+}
+
+
+const bool & node::as_bool() const
+{
+  TYPE_VERIFY(BOOL);
+  return _as_bool();
+}
+
+
 int64_t & node::as_int64()
 {
   TYPE_VERIFY(INT64);
@@ -557,7 +619,7 @@ const node & node::path(const std::string &path) const
   parse_state state = parse_state::NEED_SELECTOR;
   const char *path_start = path.c_str();
   const char *curr = path_start;
-  const char *keyStart = nullptr;  /* init val irrelevant due to state graph. */
+  const char *key_start = nullptr;  /* init val irrelevant due to state graph */
   size_t index = 0;  /* init val irrelevant due to state graph. */
 
   for (; *curr; curr++) {
@@ -573,7 +635,7 @@ const node & node::path(const std::string &path) const
           if (! v->is_type(type::MAP)) {
             BOOM("key selector applied to non-map");
           }
-          keyStart = curr + 1;
+          key_start = curr + 1;
           state = parse_state::IN_KEY;
         }
         else if (c == '[') {
@@ -621,7 +683,7 @@ const node & node::path(const std::string &path) const
           if (! v->is_type(type::MAP)) {
             BOOM("internal error--somehow we have non-map");
           }
-          string key(keyStart, curr - keyStart);
+          string key(key_start, curr - key_start);
           if (! v->_as_map().has_key(key)) {
             BOOM("key not found in map");
           }
