@@ -14,6 +14,18 @@ add_global_arguments(args, language: 'cpp')
 
 # Includes.
 inc = include_directories('include')
+install_headers(
+ ['include/ellis/array_node.hpp',
+  'include/ellis/binary_node.hpp',
+  'include/ellis/ellis.h',
+  'include/ellis/err.h',
+  'include/ellis/err.hpp',
+  'include/ellis/flow.h',
+  'include/ellis/map_node.hpp',
+  'include/ellis/node.hpp',
+  'include/ellis/type.h',
+  'include/ellis/type.hpp'],
+  subdir: 'ellis')
 
 # libellis.
 src = [
