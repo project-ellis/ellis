@@ -20,7 +20,6 @@ M:OBD decoder.
 ## Initial sanity cleanup
 
 * Doxygen consistency.
-M:Polish the meson build.
 * Moving of comments from C to C++.
 
 ## Probably need real soon
