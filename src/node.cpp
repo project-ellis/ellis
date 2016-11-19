@@ -392,15 +392,15 @@ void node::deep_copy(const node &o)
   if (_is_refcounted(m_type)) {
     switch (type(m_type)) {
       case type::ARRAY:
-        m_blk->m_arr = o.m_blk->m_arr;
+        m_blk->m_arr = tmp.m_blk->m_arr;
         break;
 
       case type::BINARY:
-        m_blk->m_bin = o.m_blk->m_bin;
+        m_blk->m_bin = tmp.m_blk->m_bin;
         break;
 
       case type::MAP:
-        m_blk->m_map = o.m_blk->m_map;
+        m_blk->m_map = tmp.m_blk->m_map;
         break;
 
       default:

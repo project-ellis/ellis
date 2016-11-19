@@ -14,18 +14,20 @@ void arraytest()
   node en(type::ARRAY);
   auto &a = en.as_array();
 
-  a.append(node("foo"));
-  a.append(node(4));
-  a.append(node(4.4));
-  a.append(node(true));
+  a.append("foo");
+  a.append(4);
+  a.append(4.4);
+  a.append(true);
+  a.append(type::NIL);
 
-  assert(a.length() == 4);
+  assert(a.length() == 5);
 
   assert(a[0].as_u8str() == "foo");
   assert(a[0] == "foo");
   assert(a[1].as_int64() == 4);
   assert(a[2].as_double() == 4.4);
   assert(a[3].as_bool() == true);
+  assert(a[4].get_type() == type::NIL);
 }
 
 void binarytest()
@@ -48,7 +50,9 @@ void binarytest()
   b4.as_binary().resize(sdlen);
   /* Node b5 starts out equal to b1 but is extended with a zero. */
   node b5(b1);
+  // TODO: cas_binary(). assert(b5.as_binary().data() == b1.as_binary().data());
   b5.as_binary().resize(sdlen+1);
+  //assert(b5.as_binary().data() != b1.as_binary().data());
 
   auto fn = [&b1, &b4, &b5, &somedata, &sdlen](const node &n)
   {
