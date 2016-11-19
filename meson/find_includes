@@ -1,0 +1,3 @@
+#!/bin/sh
+
+find include -maxdepth 2 -name '*.h' -o -name '*.hpp'

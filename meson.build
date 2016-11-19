@@ -14,18 +14,8 @@ thread_deps = dependency('threads')
 
 # Includes.
 inc = include_directories('include')
-install_headers(
- ['include/ellis/array_node.hpp',
-  'include/ellis/binary_node.hpp',
-  'include/ellis/ellis.h',
-  'include/ellis/err.h',
-  'include/ellis/err.hpp',
-  'include/ellis/flow.h',
-  'include/ellis/map_node.hpp',
-  'include/ellis/node.hpp',
-  'include/ellis/type.h',
-  'include/ellis/type.hpp'],
-  subdir: 'ellis')
+public_headers = run_command('meson/find_includes').stdout().strip().split('\n')
+install_headers(public_headers, subdir: 'ellis')
 
 # libellis.
 src = [
