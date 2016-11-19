@@ -31,6 +31,7 @@ M:Cross-build for at least ARM.
 
 ## Maturation
 
+M Make it easier to install ninja
 * Decide whether to keep std::string.
 * Write at least one simple perf test.
 * Do a perf run to see if there are any major blunders.
