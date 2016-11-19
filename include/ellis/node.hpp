@@ -174,6 +174,8 @@ class node {
   node& operator=(const node& rhs);
   node& operator=(const bool o);
   node& operator=(const double o);
+  node& operator=(const int o);
+  node& operator=(const unsigned int o);
   node& operator=(const int64_t o);
   node& operator=(const char *o);
   node& operator=(const std::string &o);
@@ -198,6 +200,8 @@ class node {
   bool operator==(const node &) const;
   bool operator==(const bool o) const;
   bool operator==(const double o) const;
+  bool operator==(const int o) const;
+  bool operator==(const unsigned int o) const;
   bool operator==(const int64_t o) const;
   bool operator==(const char *o) const;
   bool operator==(const std::string &o) const;
@@ -210,6 +214,8 @@ class node {
   bool operator!=(const node &o) const;
   bool operator!=(const bool o) const;
   bool operator!=(const double o) const;
+  bool operator!=(const int o) const;
+  bool operator!=(const unsigned int o) const;
   bool operator!=(const int64_t o) const;
   bool operator!=(const char *o) const;
   bool operator!=(const std::string &o) const;
@@ -252,6 +258,8 @@ class node {
    *
    * Will throw WRONG_TYPE error if type is not convertible.
    */
+  explicit operator int() const;
+  explicit operator unsigned int() const;
   explicit operator int64_t() const;
   int64_t & as_int64();
   const int64_t & as_int64() const;

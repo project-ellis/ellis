@@ -269,23 +269,32 @@ void node::_prep_for_write()
 
 TYPE_FUNC_EQ(bool, BOOL, boo)
 TYPE_FUNC_EQ(double, DOUBLE, dbl)
+TYPE_FUNC_EQ(int, INT64, int)
+TYPE_FUNC_EQ(unsigned int, INT64, int)
 TYPE_FUNC_EQ(int64_t, INT64, int)
 TYPE_FUNC_EQ(char *, U8STR, str)
 TYPE_FUNC_EQ(std::string &, U8STR, str)
+/* TODO: how should we handle uint64_t? */
 
 
 TYPE_FUNC_NEQ(bool)
 TYPE_FUNC_NEQ(double)
+TYPE_FUNC_NEQ(int)
+TYPE_FUNC_NEQ(unsigned int)
 TYPE_FUNC_NEQ(int64_t)
 TYPE_FUNC_NEQ(char *)
 TYPE_FUNC_NEQ(std::string &)
+/* TODO: how should we handle uint64_t? */
 
 
 TYPE_FUNC_ASSIGN(bool, boo)
 TYPE_FUNC_ASSIGN(double, dbl)
+TYPE_FUNC_ASSIGN(int, int)
+TYPE_FUNC_ASSIGN(unsigned int, int)
 TYPE_FUNC_ASSIGN(int64_t, int)
 TYPE_FUNC_ASSIGN(char *, str)
 TYPE_FUNC_ASSIGN(std::string &, str)
+/* TODO: how should we handle uint64_t? */
 
 
 TYPE_FUNC_AS_PRIMITIVE(bool, bool, BOOL, boo)
@@ -312,7 +321,10 @@ TYPE_FUNC_AS_CONTAINER_CONST(binary, binary_node)
 
 TYPE_FUNC_CAST(bool, bool)
 TYPE_FUNC_CAST(double, double)
+TYPE_FUNC_CAST(int, int64)
+TYPE_FUNC_CAST(unsigned int, int64)
 TYPE_FUNC_CAST(int64_t, int64)
+/* TODO: how should we handle uint64_t? */
 
 
 node::node(type t)
