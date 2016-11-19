@@ -18,12 +18,7 @@ public_headers = run_command('meson/find_includes').stdout().strip().split('\n')
 install_headers(public_headers, subdir: 'ellis')
 
 # libellis.
-src = [
-  'src/array_node.cpp',
-  'src/binary_node.cpp',
-  'src/err.cpp',
-  'src/map_node.cpp',
-  'src/node.cpp']
+src = run_command('meson/find_srcs').stdout().strip().split('\n')
 lib = shared_library(
   'ellis',
   src,
@@ -36,5 +31,6 @@ test_exe = executable(
   'ellis_test',
   'test/ellis_test.cpp',
   include_directories: inc,
-  link_with: lib)
+  link_with: lib,
+  dependencies: thread_deps)
 test('ellis_test', test_exe)
