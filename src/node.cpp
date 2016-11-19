@@ -25,6 +25,95 @@ namespace ellis {
   } while (0)
 
 
+#define TYPE_FUNC_EQ(typ, caps_typ, short_typ) \
+bool node::operator==(const typ o) const \
+{ \
+  if (type(m_type) != type::caps_typ) { \
+    return false; \
+  } \
+\
+  return m_##short_typ == o; \
+}
+
+
+#define TYPE_FUNC_NEQ(typ) \
+bool node::operator!=(const typ o) const \
+{ \
+  return not (*this == o); \
+}
+
+
+#define TYPE_FUNC_ASSIGN(typ, short_typ) \
+node& node::operator=(const typ o) \
+{ \
+  _release_contents(); \
+  m_##short_typ = o; \
+  return *this; \
+}
+
+
+#define _TYPE_FUNC_AS_PRIMITIVE(typ, f_typ, caps_typ, short_typ, const_kw) \
+/** Unchecked version of similary named public function. */ \
+const_kw typ & node::_as_##f_typ() const_kw \
+{ \
+  return m_##short_typ; \
+} \
+\
+\
+const_kw typ & node::as_##f_typ() const_kw \
+{ \
+  TYPE_VERIFY(caps_typ); \
+  return _as_##f_typ(); \
+}
+
+
+#define TYPE_FUNC_AS_PRIMITIVE(typ, f_typ, caps_typ, short_typ) \
+  _TYPE_FUNC_AS_PRIMITIVE(typ, f_typ, caps_typ, short_typ,)
+
+#define TYPE_FUNC_AS_PRIMITIVE_CONST(typ, f_typ, caps_typ, short_typ) \
+  _TYPE_FUNC_AS_PRIMITIVE(typ, f_typ, caps_typ, short_typ, const)
+
+
+#define TYPE_FUNC_AS_CONTAINER(typ, full_typ) \
+/** Unchecked version of similary named public function. */ \
+full_typ & node::_as_##typ() \
+{ \
+  return *(reinterpret_cast<full_typ*>(this)); \
+} \
+\
+\
+full_typ & node::as_##typ() \
+{ \
+  MIGHTALTER(); \
+  /* Re-use code from private version. */ \
+  return const_cast<full_typ&>( \
+    static_cast<const node*>(this)->_as_##typ()); \
+}
+
+
+#define TYPE_FUNC_AS_CONTAINER_CONST(typ, full_typ) \
+/** Unchecked version of similary named public function. */ \
+const full_typ & node::_as_##typ() const \
+{ \
+  return *(reinterpret_cast<const full_typ*>(this)); \
+} \
+\
+\
+const full_typ & node::as_##typ() const \
+{ \
+  /* Re-use code from private version. */ \
+  return const_cast<full_typ&>( \
+    static_cast<const node*>(this)->_as_##typ()); \
+}
+
+
+#define TYPE_FUNC_CAST(typ, f_typ) \
+node::operator typ() const \
+{ \
+  return as_##f_typ(); \
+}
+
+
 /** The lowest numerical enum value of any type for which refcount is used. */
 static const int k_lowest_rc = 5;
 
@@ -178,107 +267,52 @@ void node::_prep_for_write()
 }
 
 
-// TODO: macro it
+TYPE_FUNC_EQ(bool, BOOL, boo)
+TYPE_FUNC_EQ(double, DOUBLE, dbl)
+TYPE_FUNC_EQ(int64_t, INT64, int)
+TYPE_FUNC_EQ(char *, U8STR, str)
+TYPE_FUNC_EQ(std::string &, U8STR, str)
 
 
-/** Unchecked version of similarly named public function. */
-bool & node::_as_bool()
-{
-  return m_boo;
-}
+TYPE_FUNC_NEQ(bool)
+TYPE_FUNC_NEQ(double)
+TYPE_FUNC_NEQ(int64_t)
+TYPE_FUNC_NEQ(char *)
+TYPE_FUNC_NEQ(std::string &)
 
 
-/** Unchecked version of similarly named public function. */
-const bool & node::_as_bool() const
-{
-  return m_boo;
-}
+TYPE_FUNC_ASSIGN(bool, boo)
+TYPE_FUNC_ASSIGN(double, dbl)
+TYPE_FUNC_ASSIGN(int64_t, int)
+TYPE_FUNC_ASSIGN(char *, str)
+TYPE_FUNC_ASSIGN(std::string &, str)
 
 
-/** Unchecked version of similarly named public function. */
-int64_t & node::_as_int64()
-{
-  return m_int;
-}
+TYPE_FUNC_AS_PRIMITIVE(bool, bool, BOOL, boo)
+TYPE_FUNC_AS_PRIMITIVE_CONST(bool, bool, BOOL, boo)
+
+TYPE_FUNC_AS_PRIMITIVE(double, double, DOUBLE, dbl)
+TYPE_FUNC_AS_PRIMITIVE_CONST(double, double, DOUBLE, dbl)
+
+TYPE_FUNC_AS_PRIMITIVE(int64_t, int64, INT64, int)
+TYPE_FUNC_AS_PRIMITIVE_CONST(int64_t, int64, INT64, int)
+
+TYPE_FUNC_AS_PRIMITIVE_CONST(std::string, u8str, U8STR, str)
 
 
-/** Unchecked version of similarly named public function. */
-const int64_t & node::_as_int64() const
-{
-  return m_int;
-}
+TYPE_FUNC_AS_CONTAINER(array, array_node)
+TYPE_FUNC_AS_CONTAINER_CONST(array, array_node)
+
+TYPE_FUNC_AS_CONTAINER(map, map_node)
+TYPE_FUNC_AS_CONTAINER_CONST(map, map_node)
+
+TYPE_FUNC_AS_CONTAINER(binary, binary_node)
+TYPE_FUNC_AS_CONTAINER_CONST(binary, binary_node)
 
 
-/** Unchecked version of similarly named public function. */
-double & node::_as_double()
-{
-  return m_dbl;
-}
-
-
-/** Unchecked version of similarly named public function. */
-const double & node::_as_double() const
-{
-  return m_dbl;
-}
-
-
-/** Unchecked version of similarly named public function. */
-const std::string & node::_as_u8str() const
-{
-  return m_str;
-}
-
-
-/** Unchecked version of similarly named public function. */
-array_node & node::_as_array()
-{
-  MIGHTALTER();
-  /* Re-use code from const version. */
-  return const_cast<array_node&>(
-      static_cast<const node*>(this)->_as_array());
-}
-
-
-/** Unchecked version of similarly named public function. */
-const array_node & node::_as_array() const
-{
-  return *(reinterpret_cast<const array_node*>(this));
-}
-
-
-/** Unchecked version of similarly named public function. */
-map_node & node::_as_map()
-{
-  MIGHTALTER();
-  /* Re-use code from const version. */
-  return const_cast<map_node&>(
-      static_cast<const node*>(this)->_as_map());
-}
-
-
-/** Unchecked version of similarly named public function. */
-const map_node & node::_as_map() const
-{
-  return *(reinterpret_cast<const map_node*>(this));
-}
-
-
-/** Unchecked version of similarly named public function. */
-binary_node & node::_as_binary()
-{
-  MIGHTALTER();
-  /* Re-use code from const version. */
-  return const_cast<binary_node&>(
-      static_cast<const node*>(this)->_as_binary());
-}
-
-
-/** Unchecked version of similarly named public function. */
-const binary_node & node::_as_binary() const
-{
-  return *(reinterpret_cast<const binary_node*>(this));
-}
+TYPE_FUNC_CAST(bool, bool)
+TYPE_FUNC_CAST(double, double)
+TYPE_FUNC_CAST(int64_t, int64)
 
 
 node::node(type t)
@@ -483,109 +517,6 @@ bool node::is_type(type t) const
 type node::get_type() const
 {
   return (type)m_type;
-}
-
-
-node::operator int64_t() const
-{
-  return as_int64();
-}
-
-
-node::operator double() const
-{
-  return as_double();
-}
-
-
-bool & node::as_bool()
-{
-  TYPE_VERIFY(BOOL);
-  return _as_bool();
-}
-
-
-const bool & node::as_bool() const
-{
-  TYPE_VERIFY(BOOL);
-  return _as_bool();
-}
-
-
-int64_t & node::as_int64()
-{
-  TYPE_VERIFY(INT64);
-  return _as_int64();
-}
-
-
-const int64_t & node::as_int64() const
-{
-  TYPE_VERIFY(INT64);
-  return _as_int64();
-}
-
-
-double & node::as_double()
-{
-  TYPE_VERIFY(DOUBLE);
-  return _as_double();
-}
-
-
-const double & node::as_double() const
-{
-  TYPE_VERIFY(DOUBLE);
-  return _as_double();
-}
-
-
-const std::string & node::as_u8str() const
-{
-  TYPE_VERIFY(U8STR);
-  return _as_u8str();
-}
-
-
-array_node & node::as_array()
-{
-  TYPE_VERIFY(ARRAY);
-  return _as_array();
-}
-
-
-const array_node & node::as_array() const
-{
-  TYPE_VERIFY(ARRAY);
-  return _as_array();
-}
-
-
-map_node & node::as_map()
-{
-  TYPE_VERIFY(MAP);
-  return _as_map();
-}
-
-
-const map_node & node::as_map() const
-{
-  TYPE_VERIFY(MAP);
-  return _as_map();
-}
-
-
-binary_node & node::as_binary()
-{
-  TYPE_VERIFY(BINARY);
-  return _as_binary();
-}
-
-
-const binary_node & node::as_binary() const
-{
-  TYPE_VERIFY(BINARY);
-  return _as_binary();
 }
 
 

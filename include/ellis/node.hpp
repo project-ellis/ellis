@@ -16,6 +16,7 @@
 #include <vector>
 #include <vector>
 
+
 namespace ellis {
 
 
@@ -58,7 +59,7 @@ class node {
     prize_blk *m_blk;
     pad_t m_pad;
   };
-  unsigned m_type;
+  unsigned int m_type;
 
   /* Private methods--see implementation for description. */
   void _zap_contents(type t);
@@ -171,6 +172,11 @@ class node {
    * Any prior contents of this node are lost (refcount decremented).
    */
   node& operator=(const node& rhs);
+  node& operator=(const bool o);
+  node& operator=(const double o);
+  node& operator=(const int64_t o);
+  node& operator=(const char *o);
+  node& operator=(const std::string &o);
 
   /** Move assignment operator.
    *
@@ -190,12 +196,23 @@ class node {
    * at this time.
    */
   bool operator==(const node &) const;
+  bool operator==(const bool o) const;
+  bool operator==(const double o) const;
+  bool operator==(const int64_t o) const;
+  bool operator==(const char *o) const;
+  bool operator==(const std::string &o) const;
+
 
   /** Inequality operator.
    *
    * Same as (not (a==b)).
    */
   bool operator!=(const node &o) const;
+  bool operator!=(const bool o) const;
+  bool operator!=(const double o) const;
+  bool operator!=(const int64_t o) const;
+  bool operator!=(const char *o) const;
+  bool operator!=(const std::string &o) const;
 
 
   /*  _____

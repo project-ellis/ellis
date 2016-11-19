@@ -2,7 +2,6 @@
 
 ## Getting system off the ground--basic flight test
 
-B:Resolve implicit vs explicit constructors.
 J:Schema archetypal happy case test code.
 B:Schema API
 * Schema C++ code
