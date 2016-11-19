@@ -2,15 +2,15 @@
 project('ellis', 'cpp',
   version: '0.1',
   license: 'proprietary',
-  default_options: ['c_std=c99', 'cpp_std=c++11'])
+  default_options: [
+    'c_std=c99',
+    'cpp_std=c++11',
+    'buildtype=debug',
+    'warning_level=3',
+    'werror=true'])
 
 # Enable threads.
 thread_deps = dependency('threads')
-
-# Paranoid compile.
-args = ['-Wall', '-Wextra', '-Wpedantic', '-Werror', '-fPIC']
-add_global_arguments(args, language: 'c')
-add_global_arguments(args, language: 'cpp')
 
 # Includes.
 inc = include_directories('include')
