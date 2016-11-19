@@ -165,7 +165,7 @@ void node::_release_contents()
 void node::_prep_for_write()
 {
   if (!_is_refcounted(m_type)) {
-    /* Nothing to do for a leaf node. */
+    /* Nothing to do for a primitive type. */
     return;
   }
   assert(m_blk->m_refcount > 0);
@@ -455,7 +455,7 @@ bool node::operator==(const node &o) const
 
     case type::ARRAY:
       return _as_array() == o._as_array();
-      
+
     case type::BINARY:
       return _as_binary() == o._as_binary();
 
