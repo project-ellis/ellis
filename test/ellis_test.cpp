@@ -22,12 +22,12 @@ void arraytest()
 
   assert(a.length() == 5);
 
-  assert(a[0].as_u8str() == "foo");
   assert(a[0] == "foo");
-  assert(a[1].as_int64() == 4);
-  assert(a[2].as_double() == 4.4);
-  assert(a[3].as_bool() == true);
-  assert(a[4].get_type() == type::NIL);
+  assert(a[0] == "foo");
+  assert(a[1] == 4);
+  assert(a[2] == 4.4);
+  assert(a[3] == true);
+  assert(a[4] == type::NIL);
 }
 
 void binarytest()
@@ -97,7 +97,7 @@ void maptest()
   using namespace ellis;
   node en(type::MAP);
   en.as_map().insert("foo", 4);
-  assert(en.as_map()["foo"].as_int64() == 4);
+  assert(en.as_map()["foo"] == 4);
 }
 
 void pathtest()
@@ -108,8 +108,8 @@ void pathtest()
   a.as_array().append("hi");
   node r(type::MAP);
   r.as_map().insert("foo", a);
-  assert(r.path("{foo}[0]").as_int64() == 4);
-  assert(r.path("{foo}[1]").as_u8str() == "hi");
+  assert(r.path("{foo}[0]") == 4);
+  assert(r.path("{foo}[1]") == "hi");
   auto chk_fail = [&r](const char *path)
   {
     bool threw = false;
