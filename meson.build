@@ -9,6 +9,8 @@ project('ellis', 'cpp',
     'warning_level=3',
     'werror=true'])
 
+pkg = import('pkgconfig')
+
 # Enable threads.
 thread_deps = dependency('threads')
 
@@ -25,6 +27,12 @@ lib = shared_library(
   include_directories: inc,
   install: true,
   dependencies: thread_deps)
+pkg.generate(
+  name: 'ellis',
+  description: 'A library implementing a common, interoperable data framework',
+  libraries: [lib],
+  subdirs: 'ellis',
+  version: '0.1')
 
 # Tests.
 test_exe = executable(
