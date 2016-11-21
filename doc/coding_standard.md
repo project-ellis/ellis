@@ -70,7 +70,8 @@
 * Use *extra parentheses* when unclear order of evaluation raises questions.
 * Macros are allowed, but always *prefer inline*, or even a template if clean.
 * *One variable declaration per line*, near where they are first used.
-* Mark unused variables with UNUSED.
+* In C, mark unused variables with UNUSED. In C++, just leave off the parameter
+  name.
 
 ## Portability and Independence Practices
 
