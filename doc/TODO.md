@@ -7,7 +7,7 @@ B:Schema API
 * Schema C++ code
 * Schema C wrappers
 * Schema tests
-M:map-node correctness tests.
+M(active):map-node correctness tests.
 J:array-node correctness tests.
 M:C wrappers.
 J:Zero copy I/O interface.
