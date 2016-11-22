@@ -35,4 +35,4 @@ enum type {
 } /* extern "C" */
 #endif
 
-#endif /* ELLIS_TYPE_H_ */
+#endif  /* ELLIS_TYPE_H_ */

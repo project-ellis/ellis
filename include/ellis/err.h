@@ -69,4 +69,4 @@ void err_free(const err *err);
 } /* extern "C" */
 #endif
 
-#endif /* ELLIS_ERR_H_ */
+#endif  /* ELLIS_ERR_H_ */

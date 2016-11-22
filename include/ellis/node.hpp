@@ -356,4 +356,4 @@ std::istream & operator>>(std::istream & is, node & v);
 }  /* namespace ellis */
 
 
-#endif /* ELLIS_NODE_HPP_ */
+#endif  /* ELLIS_NODE_HPP_ */

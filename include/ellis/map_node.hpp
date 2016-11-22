@@ -94,4 +94,4 @@ public:
 
 }  /* namespace ellis */
 
-#endif /* ELLIS_MAP_NODE_HPP_ */
+#endif  /* ELLIS_MAP_NODE_HPP_ */

@@ -586,4 +586,4 @@ const char *u8str_value(const node *node, err **err);
 } /* extern "C" */
 #endif
 
-#endif /* ELLIS_H_ */
+#endif  /* ELLIS_H_ */

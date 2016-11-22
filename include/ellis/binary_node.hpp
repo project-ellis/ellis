@@ -68,4 +68,4 @@ public:
 
 }  /* namespace ellis */
 
-#endif /* ELLIS_BINARY_NODE_HPP_ */
+#endif  /* ELLIS_BINARY_NODE_HPP_ */

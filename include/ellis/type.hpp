@@ -30,4 +30,4 @@ enum class type {
 
 }  /* namespace ellis */
 
-#endif /* ELLIS_TYPE_HPP_ */
+#endif  /* ELLIS_TYPE_HPP_ */

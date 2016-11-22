@@ -154,4 +154,4 @@ uint8_t *encoder_encode(
 } /* extern "C" */
 #endif
 
-#endif /* ELLIS_FLOW_H_ */
+#endif  /* ELLIS_FLOW_H_ */
