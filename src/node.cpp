@@ -43,11 +43,23 @@ bool node::operator!=(const typ o) const \
 }
 
 
-#define TYPE_FUNC_ASSIGN(typ, short_typ) \
+#define TYPE_FUNC_ASSIGN(typ, short_typ, e_typ) \
 node& node::operator=(const typ o) \
 { \
   _release_contents(); \
+  m_type = (int)type::e_typ; \
   m_##short_typ = o; \
+  return *this; \
+}
+
+
+/* Sadly, string is special-cased because of its COW semantics. */
+#define TYPE_FUNC_ASSIGN_STR(typ) \
+node& node::operator=(const typ o) \
+{ \
+  _release_contents(); \
+  m_type = (int)type::U8STR; \
+  new (&m_str) std::string(o); \
   return *this; \
 }
 
@@ -287,13 +299,13 @@ TYPE_FUNC_NEQ(std::string &)
 /* TODO: how should we handle uint64_t? */
 
 
-TYPE_FUNC_ASSIGN(bool, boo)
-TYPE_FUNC_ASSIGN(double, dbl)
-TYPE_FUNC_ASSIGN(int, int)
-TYPE_FUNC_ASSIGN(unsigned int, int)
-TYPE_FUNC_ASSIGN(int64_t, int)
-TYPE_FUNC_ASSIGN(char *, str)
-TYPE_FUNC_ASSIGN(std::string &, str)
+TYPE_FUNC_ASSIGN(bool, boo, BOOL)
+TYPE_FUNC_ASSIGN(double, dbl, DOUBLE)
+TYPE_FUNC_ASSIGN(int, int, INT64)
+TYPE_FUNC_ASSIGN(unsigned int, int, INT64)
+TYPE_FUNC_ASSIGN(int64_t, int, INT64)
+TYPE_FUNC_ASSIGN_STR(char *)
+TYPE_FUNC_ASSIGN_STR(std::string &)
 /* TODO: how should we handle uint64_t? */
 
 
