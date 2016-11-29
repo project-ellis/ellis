@@ -17,7 +17,7 @@ namespace ellis {
 
 
 /** A convenience macro for throwing an error when type is improper. */
-#define TYPE_VERIFY(typ) \
+#define VERIFY_TYPE(typ) \
   do { \
     if (get_type() != type::typ) { \
       throw MAKE_ELLIS_ERR(err_code::WRONG_TYPE, "not " #typ); \
@@ -25,10 +25,10 @@ namespace ellis {
   } while (0)
 
 
-#define TYPE_FUNC_EQ(typ, caps_typ, short_typ) \
-bool node::operator==(const typ o) const \
+#define OPFUNC_EQ_TYP(typ, e_typ, short_typ) \
+bool node::operator==(typ o) const \
 { \
-  if (type(m_type) != type::caps_typ) { \
+  if (type(m_type) != type::e_typ) { \
     return false; \
   } \
 \
@@ -36,15 +36,15 @@ bool node::operator==(const typ o) const \
 }
 
 
-#define TYPE_FUNC_NEQ(typ) \
-bool node::operator!=(const typ o) const \
+#define OPFUNC_NEQ_TYP(typ) \
+bool node::operator!=(typ o) const \
 { \
   return not (*this == o); \
 }
 
 
-#define TYPE_FUNC_ASSIGN(typ, short_typ, e_typ) \
-node& node::operator=(const typ o) \
+#define OPFUNC_ASSIGN_TYP(typ, short_typ, e_typ) \
+node& node::operator=(typ o) \
 { \
   _release_contents(); \
   m_type = (int)type::e_typ; \
@@ -54,8 +54,8 @@ node& node::operator=(const typ o) \
 
 
 /* Sadly, string is special-cased because of its COW semantics. */
-#define TYPE_FUNC_ASSIGN_STR(typ) \
-node& node::operator=(const typ o) \
+#define OPFUNC_ASSIGN_STR(typ) \
+node& node::operator=(typ o) \
 { \
   _release_contents(); \
   m_type = (int)type::U8STR; \
@@ -64,65 +64,73 @@ node& node::operator=(const typ o) \
 }
 
 
-#define _TYPE_FUNC_AS_PRIMITIVE(typ, f_typ, caps_typ, short_typ, const_kw) \
+#define _ASFUNCS_PRIMITIVE(typ, f_typ, e_typ, short_typ, const_kw) \
 /** Unchecked version of similary named public function. */ \
 const_kw typ & node::_as_##f_typ() const_kw \
 { \
   return m_##short_typ; \
 } \
 \
-\
 const_kw typ & node::as_##f_typ() const_kw \
 { \
-  TYPE_VERIFY(caps_typ); \
+  VERIFY_TYPE(e_typ); \
   return _as_##f_typ(); \
 }
+/* End of _ASFUNCS_PRIMITIVE macro. */
 
 
-#define TYPE_FUNC_AS_PRIMITIVE(typ, f_typ, caps_typ, short_typ) \
-  _TYPE_FUNC_AS_PRIMITIVE(typ, f_typ, caps_typ, short_typ,)
-
-#define TYPE_FUNC_AS_PRIMITIVE_CONST(typ, f_typ, caps_typ, short_typ) \
-  _TYPE_FUNC_AS_PRIMITIVE(typ, f_typ, caps_typ, short_typ, const)
+#define ASFUNCS_PRIMITIVE(typ, f_typ, e_typ, short_typ) \
+  _ASFUNCS_PRIMITIVE(typ, f_typ, e_typ, short_typ,) \
+  _ASFUNCS_PRIMITIVE(typ, f_typ, e_typ, short_typ, const)
 
 
-#define TYPE_FUNC_AS_CONTAINER(typ, full_typ) \
-/** Unchecked version of similary named public function. */ \
-full_typ & node::_as_##typ() \
-{ \
-  return *(reinterpret_cast<full_typ*>(this)); \
-} \
-\
-\
-full_typ & node::as_##typ() \
+#define ASFUNCS_CONTAINER(typ, ret_typ, e_typ) \
+ret_typ & node::_as_##typ() \
 { \
   MIGHTALTER(); \
-  /* Re-use code from private version. */ \
-  return const_cast<full_typ&>( \
-    static_cast<const node*>(this)->_as_##typ()); \
-}
-
-
-#define TYPE_FUNC_AS_CONTAINER_CONST(typ, full_typ) \
-/** Unchecked version of similary named public function. */ \
-const full_typ & node::_as_##typ() const \
-{ \
-  return *(reinterpret_cast<const full_typ*>(this)); \
+  return *(reinterpret_cast<ret_typ*>(this)); \
 } \
 \
-\
-const full_typ & node::as_##typ() const \
+ret_typ & node::as_##typ() \
 { \
-  /* Re-use code from private version. */ \
-  return const_cast<full_typ&>( \
-    static_cast<const node*>(this)->_as_##typ()); \
-}
+  VERIFY_TYPE(e_typ); \
+  MIGHTALTER(); \
+  return *(reinterpret_cast<ret_typ*>(this)); \
+} \
+\
+const ret_typ & node::_as_##typ() const \
+{ \
+  return *(reinterpret_cast<const ret_typ*>(this)); \
+} \
+\
+const ret_typ & node::as_##typ() const \
+{ \
+  VERIFY_TYPE(e_typ); \
+  return *(reinterpret_cast<const ret_typ*>(this)); \
+} \
+/* End of ASFUNCS_CONTAINER macro. */
 
 
-#define TYPE_FUNC_CAST(typ, f_typ) \
+/** Convenience macro for typecast operators on primitive types.
+ *
+ * Not for uint64_t, for which see below.
+ */
+#define OPFUNC_CAST_TYP(typ, f_typ) \
 node::operator typ() const \
 { \
   return as_##f_typ(); \
+}
+
+
+/** Typecast operator for uint64_t.
+ *
+ * The uint64_t case--we do a silent reinterpret cast.
+ * See design notes re uint64_t handling.
+ */
+#define OPFUNC_CAST_UINT64() \
+node::operator uint64_t() const \
+{ \
+  return (uint64_t)as_int64(); \
 }
 
 
@@ -279,64 +287,53 @@ void node::_prep_for_write()
 }
 
 
-TYPE_FUNC_EQ(bool, BOOL, boo)
-TYPE_FUNC_EQ(double, DOUBLE, dbl)
-TYPE_FUNC_EQ(int, INT64, int)
-TYPE_FUNC_EQ(unsigned int, INT64, int)
-TYPE_FUNC_EQ(int64_t, INT64, int)
-TYPE_FUNC_EQ(char *, U8STR, str)
-TYPE_FUNC_EQ(std::string &, U8STR, str)
+OPFUNC_EQ_TYP(bool, BOOL, boo)
+OPFUNC_EQ_TYP(double, DOUBLE, dbl)
+OPFUNC_EQ_TYP(int, INT64, int)
+OPFUNC_EQ_TYP(unsigned int, INT64, int)
+OPFUNC_EQ_TYP(int64_t, INT64, int)
+OPFUNC_EQ_TYP(const char *, U8STR, str)
+OPFUNC_EQ_TYP(const std::string &, U8STR, str)
 /* TODO: how should we handle uint64_t? */
 
 
-TYPE_FUNC_NEQ(bool)
-TYPE_FUNC_NEQ(double)
-TYPE_FUNC_NEQ(int)
-TYPE_FUNC_NEQ(unsigned int)
-TYPE_FUNC_NEQ(int64_t)
-TYPE_FUNC_NEQ(char *)
-TYPE_FUNC_NEQ(std::string &)
+OPFUNC_NEQ_TYP(bool)
+OPFUNC_NEQ_TYP(double)
+OPFUNC_NEQ_TYP(int)
+OPFUNC_NEQ_TYP(unsigned int)
+OPFUNC_NEQ_TYP(int64_t)
+OPFUNC_NEQ_TYP(const char *)
+OPFUNC_NEQ_TYP(const std::string &)
 /* TODO: how should we handle uint64_t? */
 
 
-TYPE_FUNC_ASSIGN(bool, boo, BOOL)
-TYPE_FUNC_ASSIGN(double, dbl, DOUBLE)
-TYPE_FUNC_ASSIGN(int, int, INT64)
-TYPE_FUNC_ASSIGN(unsigned int, int, INT64)
-TYPE_FUNC_ASSIGN(int64_t, int, INT64)
-TYPE_FUNC_ASSIGN_STR(char *)
-TYPE_FUNC_ASSIGN_STR(std::string &)
+OPFUNC_ASSIGN_TYP(bool, boo, BOOL)
+OPFUNC_ASSIGN_TYP(double, dbl, DOUBLE)
+OPFUNC_ASSIGN_TYP(int, int, INT64)
+OPFUNC_ASSIGN_TYP(unsigned int, int, INT64)
+OPFUNC_ASSIGN_TYP(int64_t, int, INT64)
+OPFUNC_ASSIGN_STR(const char *)
+OPFUNC_ASSIGN_STR(const std::string &)
 /* TODO: how should we handle uint64_t? */
 
 
-TYPE_FUNC_AS_PRIMITIVE(bool, bool, BOOL, boo)
-TYPE_FUNC_AS_PRIMITIVE_CONST(bool, bool, BOOL, boo)
-
-TYPE_FUNC_AS_PRIMITIVE(double, double, DOUBLE, dbl)
-TYPE_FUNC_AS_PRIMITIVE_CONST(double, double, DOUBLE, dbl)
-
-TYPE_FUNC_AS_PRIMITIVE(int64_t, int64, INT64, int)
-TYPE_FUNC_AS_PRIMITIVE_CONST(int64_t, int64, INT64, int)
-
-TYPE_FUNC_AS_PRIMITIVE_CONST(std::string, u8str, U8STR, str)
+ASFUNCS_PRIMITIVE(bool, bool, BOOL, boo)
+ASFUNCS_PRIMITIVE(double, double, DOUBLE, dbl)
+ASFUNCS_PRIMITIVE(int64_t, int64, INT64, int)
+ASFUNCS_PRIMITIVE(std::string, u8str, U8STR, str)
 
 
-TYPE_FUNC_AS_CONTAINER(array, array_node)
-TYPE_FUNC_AS_CONTAINER_CONST(array, array_node)
-
-TYPE_FUNC_AS_CONTAINER(map, map_node)
-TYPE_FUNC_AS_CONTAINER_CONST(map, map_node)
-
-TYPE_FUNC_AS_CONTAINER(binary, binary_node)
-TYPE_FUNC_AS_CONTAINER_CONST(binary, binary_node)
+ASFUNCS_CONTAINER(array, array_node, ARRAY)
+ASFUNCS_CONTAINER(map, map_node, MAP)
+ASFUNCS_CONTAINER(binary, binary_node, BINARY)
 
 
-TYPE_FUNC_CAST(bool, bool)
-TYPE_FUNC_CAST(double, double)
-TYPE_FUNC_CAST(int, int64)
-TYPE_FUNC_CAST(unsigned int, int64)
-TYPE_FUNC_CAST(int64_t, int64)
-/* TODO: how should we handle uint64_t? */
+OPFUNC_CAST_TYP(bool, bool)
+OPFUNC_CAST_TYP(double, double)
+OPFUNC_CAST_TYP(int, int64)
+OPFUNC_CAST_TYP(unsigned int, int64)
+OPFUNC_CAST_TYP(int64_t, int64)
+OPFUNC_CAST_UINT64()
 
 
 node::node(type t)

@@ -71,7 +71,9 @@ class node {
   int64_t & _as_int64();
   const int64_t & _as_int64() const;
   double & _as_double();
+  // TODO: remove this const as well? no! but still, rename for _const_as.
   const double & _as_double() const;
+  std::string & _as_u8str();
   const std::string & _as_u8str() const;
   array_node & _as_array();
   const array_node & _as_array() const;
@@ -172,11 +174,11 @@ class node {
    * Any prior contents of this node are lost (refcount decremented).
    */
   node& operator=(const node& rhs);
-  node& operator=(const bool o);
-  node& operator=(const double o);
-  node& operator=(const int o);
-  node& operator=(const unsigned int o);
-  node& operator=(const int64_t o);
+  node& operator=(bool o);
+  node& operator=(double o);
+  node& operator=(int o);
+  node& operator=(unsigned int o);
+  node& operator=(int64_t o);
   node& operator=(const char *o);
   node& operator=(const std::string &o);
 
@@ -198,11 +200,11 @@ class node {
    * at this time.
    */
   bool operator==(const node &) const;
-  bool operator==(const bool o) const;
-  bool operator==(const double o) const;
-  bool operator==(const int o) const;
-  bool operator==(const unsigned int o) const;
-  bool operator==(const int64_t o) const;
+  bool operator==(bool o) const;
+  bool operator==(double o) const;
+  bool operator==(int o) const;
+  bool operator==(unsigned int o) const;
+  bool operator==(int64_t o) const;
   bool operator==(const char *o) const;
   bool operator==(const std::string &o) const;
 
@@ -212,11 +214,11 @@ class node {
    * Same as (not (a==b)).
    */
   bool operator!=(const node &o) const;
-  bool operator!=(const bool o) const;
-  bool operator!=(const double o) const;
-  bool operator!=(const int o) const;
-  bool operator!=(const unsigned int o) const;
-  bool operator!=(const int64_t o) const;
+  bool operator!=(bool o) const;
+  bool operator!=(double o) const;
+  bool operator!=(int o) const;
+  bool operator!=(unsigned int o) const;
+  bool operator!=(int64_t o) const;
   bool operator!=(const char *o) const;
   bool operator!=(const std::string &o) const;
 
@@ -261,6 +263,7 @@ class node {
   explicit operator int() const;
   explicit operator unsigned int() const;
   explicit operator int64_t() const;
+  explicit operator uint64_t() const;
   int64_t & as_int64();
   const int64_t & as_int64() const;
 
@@ -276,6 +279,7 @@ class node {
    *
    * Will throw WRONG_TYPE error if type is not U8STR.
    */
+  std::string & as_u8str();
   const std::string & as_u8str() const;
 
   /** Provide access to array functionality.
