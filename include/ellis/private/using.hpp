@@ -1,15 +1,13 @@
 /*
  * @file private/using.hpp
  *
- * @brief Ellis public C header.
+ * @brief common types and headers for C++.
  *
- * This is the C header for Ellis, which implements the standalone Ellis data
- * interaction routines.
  */
 
 #pragma once
-#ifndef ELLIS_PRIVATE_USING_H_
-#define ELLIS_PRIVATE_USING_H_
+#ifndef ELLIS_PRIVATE_USING_HPP_
+#define ELLIS_PRIVATE_USING_HPP_
 
 
 #include <algorithm>
@@ -41,4 +39,4 @@ using std::unordered_map;
 using std::vector;
 
 
-#endif /* ELLIS_PRIVATE_USING_H_ */
+#endif /* ELLIS_PRIVATE_USING_HPP_ */

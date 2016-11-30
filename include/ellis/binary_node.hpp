@@ -9,8 +9,6 @@
 #ifndef ELLIS_BINARY_NODE_HPP_
 #define ELLIS_BINARY_NODE_HPP_
 
-#include <string>
-#include <vector>
 #include <ellis/node.hpp>
 
 namespace ellis {

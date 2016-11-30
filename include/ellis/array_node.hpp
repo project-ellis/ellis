@@ -10,7 +10,7 @@
 #define ELLIS_ARRAY_NODE_HPP_
 
 #include <ellis/node.hpp>
-#include <ellis/type.hpp>
+#include <functional>
 
 namespace ellis {
 
@@ -59,7 +59,7 @@ public:
   /** Remove element at the given position. */
   void erase(size_t pos);
 
-  /** Reserve space for n elements in the vector, without actually changing
+  /** Reserve space for n elements in the array, without actually changing
    * the length.  Has no effect if n is less than or equal to current length. */
   void reserve(size_t n);
 

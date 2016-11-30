@@ -2,6 +2,7 @@
 
 #include <ellis/err.hpp>
 #include <ellis/node.hpp>
+#include <ellis/private/payload.hpp>
 #include <ellis/private/using.hpp>
 
 

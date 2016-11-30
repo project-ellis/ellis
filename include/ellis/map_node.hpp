@@ -9,9 +9,10 @@
 #ifndef ELLIS_MAP_NODE_HPP_
 #define ELLIS_MAP_NODE_HPP_
 
+#include <ellis/node.hpp>
+#include <functional>
 #include <string>
 #include <vector>
-#include <ellis/node.hpp>
 
 namespace ellis {
 

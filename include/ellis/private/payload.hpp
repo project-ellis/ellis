@@ -1,0 +1,41 @@
+/*
+ * @file private/payload.hpp
+ *
+ * @brief payload -- refcounted payload for ellis nodes.
+ *
+ */
+
+#pragma once
+#ifndef ELLIS_PRIVATE_PAYLOAD_HPP_
+#define ELLIS_PRIVATE_PAYLOAD_HPP_
+
+#include <ellis/node.hpp>
+#include <stdint.h>
+#include <string>
+#include <unordered_map>
+#include <vector>
+
+namespace ellis {
+
+
+namespace payload_types {
+  using arr_t = std::vector<node>;
+  using map_t = std::unordered_map<std::string, node>;
+  using bin_t = std::vector<uint8_t>;
+  using refcount_t = unsigned;
+}
+
+
+struct payload {
+  payload_types::refcount_t m_refcount;
+  union {
+    payload_types::arr_t m_arr;
+    payload_types::map_t m_map;
+    payload_types::bin_t m_bin;
+  };
+};
+
+
+}  /* namespace ellis */
+
+#endif  /* ELLIS_PRIVATE_PAYLOAD_HPP_ */

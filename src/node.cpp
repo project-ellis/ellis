@@ -4,6 +4,7 @@
 #include <ellis/binary_node.hpp>
 #include <ellis/err.hpp>
 #include <ellis/map_node.hpp>
+#include <ellis/private/payload.hpp>
 #include <ellis/private/using.hpp>
 #include <sstream>
 #include <stddef.h>

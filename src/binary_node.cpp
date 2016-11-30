@@ -1,6 +1,7 @@
 #include <ellis/binary_node.hpp>
 
 #include <ellis/node.hpp>
+#include <ellis/private/payload.hpp>
 #include <ellis/private/using.hpp>
 
 namespace ellis {

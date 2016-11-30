@@ -10,11 +10,7 @@
 #define ELLIS_NODE_HPP_
 
 #include <ellis/type.hpp>
-#include <memory>
 #include <string>
-#include <unordered_map>
-#include <vector>
-#include <vector>
 
 
 namespace ellis {
@@ -364,24 +360,6 @@ class node {
   friend class array_node;
   friend class binary_node;
   friend class map_node;
-};
-
-
-namespace payload_types {
-  using arr_t = std::vector<node>;
-  using map_t = std::unordered_map<std::string, node>;
-  using bin_t = std::vector<uint8_t>;
-  using refcount_t = unsigned;
-}
-
-
-struct payload {
-  payload_types::refcount_t m_refcount;
-  union {
-    payload_types::arr_t m_arr;
-    payload_types::map_t m_map;
-    payload_types::bin_t m_bin;
-  };
 };
 
 
