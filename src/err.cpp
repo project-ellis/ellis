@@ -7,14 +7,14 @@ namespace ellis {
 
 
 err::err(
-    int code,
-    const std::string &file,
-    int line,
-    const std::string &msg) :
-  runtime_error(msg),
-  m_code(code),
-  m_file(file),
-  m_line(line)
+    int c,
+    const std::string &f,
+    int l,
+    const std::string &m) :
+  runtime_error(m),
+  m_code(c),
+  m_file(f),
+  m_line(l)
 {
 }
 

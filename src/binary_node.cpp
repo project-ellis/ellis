@@ -38,9 +38,9 @@ bool binary_node::operator==(const binary_node &o) const
 }
 
 
-void binary_node::append(const uint8_t *data, size_t len)
+void binary_node::append(const uint8_t *srcdata, size_t len)
 {
-  GETBIN.insert(GETBIN.end(), data, data+len);
+  GETBIN.insert(GETBIN.end(), srcdata, srcdata+len);
 }
 
 

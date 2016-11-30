@@ -9,6 +9,10 @@ project('ellis', 'cpp',
     'warning_level=3',
     'werror=true'])
 
+extra_gcc_flags = ['-Wshadow']
+add_project_arguments(extra_gcc_flags, language: 'cpp')
+add_project_arguments(extra_gcc_flags, language: 'c')
+
 pkg = import('pkgconfig')
 
 # Enable threads.

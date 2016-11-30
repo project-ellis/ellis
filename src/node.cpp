@@ -322,7 +322,7 @@ node::operator uint64_t() const
 {
   int64_t rv = as_int64();
   if (rv < 0) {
-    throw MAKE_ELLIS_ERR(ERANGE, "negative int64 value");
+    throw MAKE_ELLIS_ERR(ERANGE, "negative int64 value converted to unsigned");
   }
   return (uint64_t)rv;
 }
