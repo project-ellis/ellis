@@ -9,6 +9,61 @@
 #include <ellis/private/using.hpp>
 #include <string.h>
 
+void primitivetest()
+{
+  using namespace ellis;
+  node v1(2.1);
+  assert(v1.as_double() == 2.1);
+  double d1 = (double)v1;
+  assert(d1 == 2.1);
+}
+
+void strtest()
+{
+  using namespace ellis;
+  node n1("hello");
+  node n2(n1);
+  assert(n1 == "hello");
+  string s1 = (string)n1;
+  assert(s1 == "hello");
+  const char *cp1 = (const char *)n1;
+  const char *cp2 = (const char *)n1;
+  assert(cp1 == cp2);
+  assert(strcmp(cp1, "hello") == 0);
+  n1.as_mutable_u8str().append(" world");
+  assert(n1 == "hello world");
+  assert(n2 != "hello world");
+}
+
+void uint64test()
+{
+  using namespace ellis;
+  auto range_fail = [](std::function<void()> fn)
+  {
+    bool threw = false;
+    try {
+      fn();
+    } catch(err e) {
+      if (e.code() == ERANGE) {
+        threw = true;
+      }
+    }
+    assert(threw);
+  };
+  node neg(-1);
+  node n1a(42UL);
+  range_fail([]() { node n1b(UINT64_MAX); });
+  uint64_t u1a = (uint64_t)n1a;
+  assert(u1a == 42);
+  range_fail([&neg]()
+      {
+        uint64_t u1b = 4.4;
+        u1b = (uint64_t)neg;
+        /* Never gets here. */
+        assert(u1b == 4.4);
+      });
+}
+
 void arraytest()
 {
   using namespace ellis;
@@ -270,6 +325,9 @@ void pathtest()
 int main()
 {
   /* TODO: generic nodetest */
+  primitivetest();
+  strtest();
+  uint64test();
   arraytest();
   binarytest();
   maptest();

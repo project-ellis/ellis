@@ -25,7 +25,7 @@ namespace ellis {
   } while (0)
 
 
-#define OPFUNC_EQ_TYP(typ, e_typ, short_typ) \
+#define OPFUNCS_EQ_PRIMITIVE(typ, e_typ, short_typ) \
 bool node::operator==(typ o) const \
 { \
   if (type(m_type) != type::e_typ) { \
@@ -33,17 +33,15 @@ bool node::operator==(typ o) const \
   } \
 \
   return m_##short_typ == o; \
-}
-
-
-#define OPFUNC_NEQ_TYP(typ) \
+} \
+\
 bool node::operator!=(typ o) const \
 { \
   return not (*this == o); \
 }
 
 
-#define OPFUNC_ASSIGN_TYP(typ, short_typ, e_typ) \
+#define OPFUNC_ASSIGN_PRIMITIVE(typ, short_typ, e_typ) \
 node& node::operator=(typ o) \
 { \
   _release_contents(); \
@@ -122,22 +120,10 @@ const ret_typ & node::as_##typ() const \
  *
  * Not for uint64_t, for which see below.
  */
-#define OPFUNC_CAST_TYP(typ, f_typ) \
+#define OPFUNC_CAST_PRIMITIVE(typ, f_typ) \
 node::operator typ() const \
 { \
   return as_##f_typ(); \
-}
-
-
-/** Typecast operator for uint64_t.
- *
- * The uint64_t case--we do a silent reinterpret cast.
- * See design notes re uint64_t handling.
- */
-#define OPFUNC_CAST_UINT64() \
-node::operator uint64_t() const \
-{ \
-  return (uint64_t)as_int64(); \
 }
 
 
@@ -294,31 +280,21 @@ void node::_prep_for_write()
 }
 
 
-OPFUNC_EQ_TYP(bool, BOOL, boo)
-OPFUNC_EQ_TYP(double, DOUBLE, dbl)
-OPFUNC_EQ_TYP(int, INT64, int)
-OPFUNC_EQ_TYP(unsigned int, INT64, int)
-OPFUNC_EQ_TYP(int64_t, INT64, int)
-OPFUNC_EQ_TYP(const char *, U8STR, str)
-OPFUNC_EQ_TYP(const std::string &, U8STR, str)
+OPFUNCS_EQ_PRIMITIVE(bool, BOOL, boo)
+OPFUNCS_EQ_PRIMITIVE(double, DOUBLE, dbl)
+OPFUNCS_EQ_PRIMITIVE(int, INT64, int)
+OPFUNCS_EQ_PRIMITIVE(unsigned int, INT64, int)
+OPFUNCS_EQ_PRIMITIVE(int64_t, INT64, int)
+OPFUNCS_EQ_PRIMITIVE(const char *, U8STR, str)
+OPFUNCS_EQ_PRIMITIVE(const std::string &, U8STR, str)
 /* TODO: how should we handle uint64_t? */
 
 
-OPFUNC_NEQ_TYP(bool)
-OPFUNC_NEQ_TYP(double)
-OPFUNC_NEQ_TYP(int)
-OPFUNC_NEQ_TYP(unsigned int)
-OPFUNC_NEQ_TYP(int64_t)
-OPFUNC_NEQ_TYP(const char *)
-OPFUNC_NEQ_TYP(const std::string &)
-/* TODO: how should we handle uint64_t? */
-
-
-OPFUNC_ASSIGN_TYP(bool, boo, BOOL)
-OPFUNC_ASSIGN_TYP(double, dbl, DOUBLE)
-OPFUNC_ASSIGN_TYP(int, int, INT64)
-OPFUNC_ASSIGN_TYP(unsigned int, int, INT64)
-OPFUNC_ASSIGN_TYP(int64_t, int, INT64)
+OPFUNC_ASSIGN_PRIMITIVE(bool, boo, BOOL)
+OPFUNC_ASSIGN_PRIMITIVE(double, dbl, DOUBLE)
+OPFUNC_ASSIGN_PRIMITIVE(int, int, INT64)
+OPFUNC_ASSIGN_PRIMITIVE(unsigned int, int, INT64)
+OPFUNC_ASSIGN_PRIMITIVE(int64_t, int, INT64)
 OPFUNC_ASSIGN_STR(const char *)
 OPFUNC_ASSIGN_STR(const std::string &)
 /* TODO: how should we handle uint64_t? */
@@ -334,12 +310,27 @@ ASFUNCS_CONTAINER(map, map_node, MAP)
 ASFUNCS_CONTAINER(binary, binary_node, BINARY)
 
 
-OPFUNC_CAST_TYP(bool, bool)
-OPFUNC_CAST_TYP(double, double)
-OPFUNC_CAST_TYP(int, int64)
-OPFUNC_CAST_TYP(unsigned int, int64)
-OPFUNC_CAST_TYP(int64_t, int64)
-OPFUNC_CAST_UINT64()
+OPFUNC_CAST_PRIMITIVE(bool, bool)
+OPFUNC_CAST_PRIMITIVE(double, double)
+OPFUNC_CAST_PRIMITIVE(int, int64)
+OPFUNC_CAST_PRIMITIVE(unsigned int, int64)
+OPFUNC_CAST_PRIMITIVE(int64_t, int64)
+OPFUNC_CAST_PRIMITIVE(std::string, u8str)
+
+node::operator uint64_t() const
+{
+  int64_t rv = as_int64();
+  if (rv < 0) {
+    throw MAKE_ELLIS_ERR(ERANGE, "negative int64 value");
+  }
+  return (uint64_t)rv;
+}
+
+node::operator const char *() const
+{
+  const auto & s = as_u8str();
+  return s.c_str();
+}
 
 
 node::node(type t)
@@ -387,7 +378,7 @@ node::node(unsigned int i)
 node::node(uint64_t i)
 {
   if (i > INT64_MAX) {
-    throw std::out_of_range("64 bit unsigned integer too large");
+    throw MAKE_ELLIS_ERR(ERANGE, "64 bit unsigned integer too large");
   }
   _zap_contents(type::INT64);
   m_int = i;
