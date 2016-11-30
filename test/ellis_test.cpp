@@ -242,13 +242,13 @@ void pathtest()
   a.as_mutable_array().append("hi");
   node r(type::MAP);
   r.as_mutable_map().insert("foo", a);
-  assert(r.path("{foo}[0]") == 4);
-  assert(r.path("{foo}[1]") == "hi");
+  assert(r.at_path("{foo}[0]") == 4);
+  assert(r.at_path("{foo}[1]") == "hi");
   auto chk_fail = [&r](const char *path)
   {
     bool threw = false;
     try {
-      r.path(path);
+      r.at_path(path);
     } catch(err e) {
       threw = true;
     }
@@ -263,6 +263,8 @@ void pathtest()
   chk_fail("{foo}[2]");
   chk_fail("{foo}[0][1]");
   chk_fail("{foo}[0]{1}");
+  r.at_path_mutable("{foo}[0]") = 5;
+  assert(r.at_path("{foo}[0]") == 5);
 }
 
 int main()

@@ -311,8 +311,8 @@ class node {
 
   /** Get value from tree at given path (e.g. "{log}{handlers}[0]{sync}").
    */
-  node & path(const std::string &path);
-  const node & path(const std::string &path) const;
+  node & at_path_mutable(const std::string &path);
+  const node & at_path(const std::string &path) const;
 
   friend class array_node;
   friend class binary_node;
