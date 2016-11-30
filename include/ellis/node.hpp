@@ -66,21 +66,20 @@ class node {
   void _grab_contents(const node &other);
   void _release_contents();
   void _prep_for_write();
-  bool & _as_mutable_bool();
-  const bool & _as_bool() const;
-  int64_t & _as_mutable_int64();
-  const int64_t & _as_int64() const;
-  double & _as_mutable_double();
-  // TODO: remove this const as well? no! but still, rename for _const_as.
-  const double & _as_double() const;
-  std::string & _as_mutable_u8str();
+  const bool        & _as_bool() const;
+  const int64_t     & _as_int64() const;
+  const double      & _as_double() const;
   const std::string & _as_u8str() const;
-  array_node & _as_mutable_array();
-  const array_node & _as_array() const;
-  map_node & _as_mutable_map();
-  const map_node & _as_map() const;
-  binary_node & _as_mutable_binary();
+  const array_node  & _as_array() const;
+  const map_node    & _as_map() const;
   const binary_node & _as_binary() const;
+  bool        & _as_mutable_bool();
+  int64_t     & _as_mutable_int64();
+  double      & _as_mutable_double();
+  std::string & _as_mutable_u8str();
+  array_node  & _as_mutable_array();
+  map_node    & _as_mutable_map();
+  binary_node & _as_mutable_binary();
 
  public:
 
@@ -145,16 +144,21 @@ class node {
    *
    */
 
+  /** TODO: is this supposed to be related to _release_contents() and if
+   * so why public?  Unimplemented.  Remove unless there is a purpose. */
   void release();
+
   ~node();
 
 
+  /** Swap the contents of this node and the other. */
   void swap(node &other);
 
   /** Do a deep copy of the other node--new objects, new reference counter,
    * no sharing.
    *
-   * The "other" node is allowed to be this very node; copy-on-write does this.
+   * The "other" node is allowed to be this very node; copy-on-write uses
+   * this scenario to move self away from the original copy.
    */
   void deep_copy(const node &other);
 
@@ -174,13 +178,6 @@ class node {
    * Any prior contents of this node are lost (refcount decremented).
    */
   node& operator=(const node& rhs);
-  node& operator=(bool o);
-  node& operator=(double o);
-  node& operator=(int o);
-  node& operator=(unsigned int o);
-  node& operator=(int64_t o);
-  node& operator=(const char *o);
-  node& operator=(const std::string &o);
 
   /** Move assignment operator.
    *
@@ -190,16 +187,43 @@ class node {
    */
   node& operator=(node&& rhs);
 
-  /** Equality operator.
+  /** Assignment operators from primitive types.
+   *
+   * Any prior contents of this node are lost (refcount decremented).
+   */
+  node& operator=(bool o);
+  node& operator=(double o);
+  node& operator=(int o);
+  node& operator=(unsigned int o);
+  node& operator=(int64_t o);
+  node& operator=(const char *o);
+  node& operator=(const std::string &o);
+
+  /** Comparison operators for another node.
    *
    * Equality is defined as one might expect--types same, simple values same,
    * array sizes and elements same, map keys and values same.
    *
-   * Note that we also define not equal operator, but we do not define
+   * Note that we define the not equal operator, but we do not define
    * lesser/greater operators since there is not a clear scheme for ordering
    * at this time.
    */
   bool operator==(const node &) const;
+  bool operator!=(const node &o) const;
+
+  /** Comparison operators for primitive types.
+   *
+   * This implicitly verifies the type, e.g.:
+   *
+   *   mynode == 4.5
+   *
+   * Is equivalent to:
+   *
+   *   mynode.as_double() == 4.5
+   *
+   * This means that an exception can be thrown if the type is incorrect,
+   * as is the case with the as_xxx() converter functions.
+   */
   bool operator==(bool o) const;
   bool operator==(double o) const;
   bool operator==(int o) const;
@@ -208,12 +232,10 @@ class node {
   bool operator==(const char *o) const;
   bool operator==(const std::string &o) const;
 
-
-  /** Inequality operator.
+  /** Inequality operators for primitive types.
    *
    * Same as (not (a==b)).
    */
-  bool operator!=(const node &o) const;
   bool operator!=(bool o) const;
   bool operator!=(double o) const;
   bool operator!=(int o) const;
@@ -221,6 +243,28 @@ class node {
   bool operator!=(int64_t o) const;
   bool operator!=(const char *o) const;
   bool operator!=(const std::string &o) const;
+
+  /** Typecasting operators for primitive types.
+   *
+   * These are convenience wrappers.  For example:
+   *
+   *   (bool)mynode
+   *
+   * is equivalent to:
+   *
+   *   mynode.as_bool()
+   *
+   * This means that an exception can be thrown if the type is incorrect,
+   * as is the case with the as_xxx() converter functions.
+   */
+  explicit operator bool() const;
+  explicit operator int() const;
+  explicit operator unsigned int() const;
+  explicit operator int64_t() const;
+  explicit operator uint64_t() const;
+  explicit operator double() const;
+  explicit operator std::string() const;
+  explicit operator const char *() const;
 
 
   /*  _____
@@ -252,35 +296,26 @@ class node {
    *
    * Will throw WRONG_TYPE error if type is not convertible.
    */
-  explicit operator bool() const;
-  bool & as_mutable_bool();
   const bool & as_bool() const;
 
   /** Get contents as an int64_t.
    *
    * Will throw WRONG_TYPE error if type is not convertible.
    */
-  explicit operator int() const;
-  explicit operator unsigned int() const;
-  explicit operator int64_t() const;
-  explicit operator uint64_t() const;
-  int64_t & as_mutable_int64();
   const int64_t & as_int64() const;
 
   /** Get contents as a double.
    *
    * Will throw WRONG_TYPE error if type is not convertible.
    */
-  explicit operator double() const;
-  double & as_mutable_double();
   const double & as_double() const;
 
   /** Provide access to UTF-8 string contents.
    *
    * Will throw WRONG_TYPE error if type is not U8STR.
    */
-  std::string & as_mutable_u8str();
   const std::string & as_u8str() const;
+  const char * as_u8cstr() const;
 
   /** Provide access to array functionality.
    *
@@ -288,7 +323,6 @@ class node {
    *
    * Will throw WRONG_TYPE error if type is not ARRAY.
    */
-  array_node & as_mutable_array();
   const array_node & as_array() const;
 
   /** Provide access to map functionality.
@@ -297,7 +331,6 @@ class node {
    *
    * Will throw WRONG_TYPE error if type is not MAP.
    */
-  map_node & as_mutable_map();
   const map_node & as_map() const;
 
   /** Provide access to binary blob contents.
@@ -306,13 +339,29 @@ class node {
    *
    * Will throw WRONG_TYPE error if type is not BINARY.
    */
-  binary_node & as_mutable_binary();
   const binary_node & as_binary() const;
 
   /** Get value from tree at given path (e.g. "{log}{handlers}[0]{sync}").
    */
-  node & at_path_mutable(const std::string &path);
   const node & at_path(const std::string &path) const;
+
+  /** Mutable access to contents.
+   *
+   * Similar to immutable versions above, including type exceptions,
+   * but the return value can be modified and the node will be updated.
+   *
+   * NOTE: since we don't have an easy hook for when you change the given
+   * double pointer/reference, the copy-on-write logic is initiated as soon
+   * as you request mutable access, even if you don't actually change it.
+   */
+  bool        & as_mutable_bool();
+  int64_t     & as_mutable_int64();
+  double      & as_mutable_double();
+  std::string & as_mutable_u8str();
+  array_node  & as_mutable_array();
+  map_node    & as_mutable_map();
+  binary_node & as_mutable_binary();
+  node & at_path_mutable(const std::string &path);
 
   friend class array_node;
   friend class binary_node;
