@@ -13,7 +13,7 @@ void arraytest()
 {
   using namespace ellis;
   node en(type::ARRAY);
-  auto &a = en.as_array();
+  auto &a = en.as_mutable_array();
 
   a.append("foo");
   a.append(4);
@@ -45,14 +45,14 @@ void binarytest()
   node b2(b1);
   /* Node b3 is built up by appending. */
   node b3(type::BINARY);
-  b3.as_binary().append(somedata, sdlen);
+  b3.as_mutable_binary().append(somedata, sdlen);
   /* Node b4 has same length but is not equal. */
   node b4(type::BINARY);
-  b4.as_binary().resize(sdlen);
+  b4.as_mutable_binary().resize(sdlen);
   /* Node b5 starts out equal to b1 but is extended with a zero. */
   node b5(b1);
   // TODO: cas_binary(). assert(b5.as_binary().data() == b1.as_binary().data());
-  b5.as_binary().resize(sdlen+1);
+  b5.as_mutable_binary().resize(sdlen+1);
   //assert(b5.as_binary().data() != b1.as_binary().data());
 
   auto fn = [&b1, &b4, &b5, &somedata, &sdlen](const node &n)
@@ -75,7 +75,7 @@ void binarytest()
   fn(b3);
 
   size_t big = 1024;
-  b4.as_binary().resize(big);
+  b4.as_mutable_binary().resize(big);
 
   auto zchk = [](const node &n, size_t len)
   {
@@ -89,7 +89,7 @@ void binarytest()
   };
 
   zchk(b4, big);
-  b4.as_binary().resize(big - 1);
+  b4.as_mutable_binary().resize(big - 1);
   zchk(b4, big - 1);
 }
 
@@ -97,19 +97,19 @@ void maptest()
 {
   using namespace ellis;
   node en(type::MAP);
-  en.as_map().insert("foo", 4);
+  en.as_mutable_map().insert("foo", 4);
   assert(en.as_map()["foo"] == 4);
   assert(en.as_map().length() == 1);
 
   node bar(type::MAP);
-  en.as_map().insert("bar", bar);
+  en.as_mutable_map().insert("bar", bar);
   assert(en.as_map().has_key("bar"));
   assert(en.as_map()["bar"].get_type() == type::MAP);
   assert(en.as_map()["bar"].is_type(type::MAP));
   assert(en.as_map()["bar"] == bar);
 
   /* Make sure COW works correctly. */
-  bar.as_map().insert("somekey", true);
+  bar.as_mutable_map().insert("somekey", true);
   assert(bar.as_map()["somekey"] == true);
   assert(! en.as_map()["bar"].as_map().has_key("somekey"));
 
@@ -155,16 +155,16 @@ void maptest()
   node other(type::MAP);
   node child(type::MAP);
   merge_policy policy;
-  child.as_map().insert("val", 17);
-  other.as_map().insert("foo", "clobbered");
-  other.as_map().insert("child", child);
+  child.as_mutable_map().insert("val", 17);
+  other.as_mutable_map().insert("foo", "clobbered");
+  other.as_mutable_map().insert("child", child);
 
   /* No-op merge. */
   en = before;
   policy.key_exists_copy = false;
   policy.key_missing_copy = false;
   policy.abort_on_not_copy = false;
-  en.as_map().merge(other.as_map(), policy);
+  en.as_mutable_map().merge(other.as_map(), policy);
   assert(before == en);
 
   /* Exception merge. */
@@ -173,7 +173,7 @@ void maptest()
   policy.abort_on_not_copy = true;
   bool raised = false;
   try {
-    en.as_map().merge(other.as_map(), policy);
+    en.as_mutable_map().merge(other.as_map(), policy);
   }
   catch (err e) {
     raised = true;
@@ -185,7 +185,7 @@ void maptest()
   policy.key_exists_copy = false;
   policy.key_missing_copy = true;
   policy.abort_on_not_copy = false;
-  en.as_map().merge(other.as_map(), policy);
+  en.as_mutable_map().merge(other.as_map(), policy);
   assert(en.as_map().has_key("child"));
   assert(en.as_map()["child"].as_map().has_key("val"));
   assert(en.as_map()["child"].as_map()["val"] == 17);
@@ -196,7 +196,7 @@ void maptest()
   policy.key_exists_copy = true;
   policy.key_missing_copy = false;
   policy.abort_on_not_copy = false;
-  en.as_map().merge(other.as_map(), policy);
+  en.as_mutable_map().merge(other.as_map(), policy);
   assert(! en.as_map().has_key("child"));
   assert(en.as_map()["foo"] == "clobbered");
 
@@ -205,7 +205,7 @@ void maptest()
   policy.key_exists_copy = true;
   policy.key_missing_copy = true;
   policy.abort_on_not_copy = false;
-  en.as_map().merge(other.as_map(), policy);
+  en.as_mutable_map().merge(other.as_map(), policy);
   assert(en.as_map().has_key("child"));
   assert(en.as_map()["child"].as_map().has_key("val"));
   assert(en.as_map()["child"].as_map()["val"] == 17);
@@ -219,17 +219,17 @@ void maptest()
       v = "fooval";
     }
   };
-  en.as_map().foreach(mut_foo_fn);
+  en.as_mutable_map().foreach(mut_foo_fn);
   node x = en.as_map()["foo"];
   assert(en.as_map()["foo"] == "fooval");
 
   assert(en.as_map().has_key("foo"));
-  en.as_map().erase("foo");
+  en.as_mutable_map().erase("foo");
   assert(! en.as_map().has_key("foo"));
 
   assert(en.as_map().length() > 0);
   assert(! en.as_map().empty());
-  en.as_map().clear();
+  en.as_mutable_map().clear();
   assert(en.as_map().length() == 0);
   assert(en.as_map().empty());
 }
@@ -238,10 +238,10 @@ void pathtest()
 {
   using namespace ellis;
   node a(type::ARRAY);
-  a.as_array().append(4);
-  a.as_array().append("hi");
+  a.as_mutable_array().append(4);
+  a.as_mutable_array().append("hi");
   node r(type::MAP);
-  r.as_map().insert("foo", a);
+  r.as_mutable_map().insert("foo", a);
   assert(r.path("{foo}[0]") == 4);
   assert(r.path("{foo}[1]") == "hi");
   auto chk_fail = [&r](const char *path)

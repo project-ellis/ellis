@@ -110,7 +110,7 @@ void array_node::foreach(std::function<void(const node &)> fn) const
 node array_node::filter(std::function<bool(const node &)> fn) const
 {
   node res_node(type::ARRAY);
-  array_node &res_arr = res_node._as_array();
+  array_node &res_arr = res_node._as_mutable_array();
   for (node &node : GETARR) {
     if (fn(node)) {
       res_arr.append(node);

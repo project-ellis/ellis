@@ -66,20 +66,20 @@ class node {
   void _grab_contents(const node &other);
   void _release_contents();
   void _prep_for_write();
-  bool & _as_bool();
+  bool & _as_mutable_bool();
   const bool & _as_bool() const;
-  int64_t & _as_int64();
+  int64_t & _as_mutable_int64();
   const int64_t & _as_int64() const;
-  double & _as_double();
+  double & _as_mutable_double();
   // TODO: remove this const as well? no! but still, rename for _const_as.
   const double & _as_double() const;
-  std::string & _as_u8str();
+  std::string & _as_mutable_u8str();
   const std::string & _as_u8str() const;
-  array_node & _as_array();
+  array_node & _as_mutable_array();
   const array_node & _as_array() const;
-  map_node & _as_map();
+  map_node & _as_mutable_map();
   const map_node & _as_map() const;
-  binary_node & _as_binary();
+  binary_node & _as_mutable_binary();
   const binary_node & _as_binary() const;
 
  public:
@@ -253,7 +253,7 @@ class node {
    * Will throw WRONG_TYPE error if type is not convertible.
    */
   explicit operator bool() const;
-  bool & as_bool();
+  bool & as_mutable_bool();
   const bool & as_bool() const;
 
   /** Get contents as an int64_t.
@@ -264,7 +264,7 @@ class node {
   explicit operator unsigned int() const;
   explicit operator int64_t() const;
   explicit operator uint64_t() const;
-  int64_t & as_int64();
+  int64_t & as_mutable_int64();
   const int64_t & as_int64() const;
 
   /** Get contents as a double.
@@ -272,14 +272,14 @@ class node {
    * Will throw WRONG_TYPE error if type is not convertible.
    */
   explicit operator double() const;
-  double & as_double();
+  double & as_mutable_double();
   const double & as_double() const;
 
   /** Provide access to UTF-8 string contents.
    *
    * Will throw WRONG_TYPE error if type is not U8STR.
    */
-  std::string & as_u8str();
+  std::string & as_mutable_u8str();
   const std::string & as_u8str() const;
 
   /** Provide access to array functionality.
@@ -288,7 +288,7 @@ class node {
    *
    * Will throw WRONG_TYPE error if type is not ARRAY.
    */
-  array_node & as_array();
+  array_node & as_mutable_array();
   const array_node & as_array() const;
 
   /** Provide access to map functionality.
@@ -297,7 +297,7 @@ class node {
    *
    * Will throw WRONG_TYPE error if type is not MAP.
    */
-  map_node & as_map();
+  map_node & as_mutable_map();
   const map_node & as_map() const;
 
   /** Provide access to binary blob contents.
@@ -306,7 +306,7 @@ class node {
    *
    * Will throw WRONG_TYPE error if type is not BINARY.
    */
-  binary_node & as_binary();
+  binary_node & as_mutable_binary();
   const binary_node & as_binary() const;
 
   /** Get value from tree at given path (e.g. "{log}{handlers}[0]{sync}").

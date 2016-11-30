@@ -64,34 +64,41 @@ node& node::operator=(typ o) \
 }
 
 
-#define _ASFUNCS_PRIMITIVE(typ, f_typ, e_typ, short_typ, const_kw) \
-/** Unchecked version of similary named public function. */ \
-const_kw typ & node::_as_##f_typ() const_kw \
+#define ASFUNCS_PRIMITIVE(typ, f_typ, e_typ, short_typ) \
+typ & node::_as_mutable_##f_typ() \
+{ \
+  MIGHTALTER(); \
+  return m_##short_typ; \
+} \
+\
+typ & node::as_mutable_##f_typ() \
+{ \
+  VERIFY_TYPE(e_typ); \
+  MIGHTALTER(); \
+  return m_##short_typ; \
+} \
+\
+const typ & node::_as_##f_typ() const \
 { \
   return m_##short_typ; \
 } \
 \
-const_kw typ & node::as_##f_typ() const_kw \
+const typ & node::as_##f_typ() const \
 { \
   VERIFY_TYPE(e_typ); \
-  return _as_##f_typ(); \
+  return m_##short_typ; \
 }
-/* End of _ASFUNCS_PRIMITIVE macro. */
-
-
-#define ASFUNCS_PRIMITIVE(typ, f_typ, e_typ, short_typ) \
-  _ASFUNCS_PRIMITIVE(typ, f_typ, e_typ, short_typ,) \
-  _ASFUNCS_PRIMITIVE(typ, f_typ, e_typ, short_typ, const)
+/* End of ASFUNCS_PRIMITIVE macro. */
 
 
 #define ASFUNCS_CONTAINER(typ, ret_typ, e_typ) \
-ret_typ & node::_as_##typ() \
+ret_typ & node::_as_mutable_##typ() \
 { \
   MIGHTALTER(); \
   return *(reinterpret_cast<ret_typ*>(this)); \
 } \
 \
-ret_typ & node::as_##typ() \
+ret_typ & node::as_mutable_##typ() \
 { \
   VERIFY_TYPE(e_typ); \
   MIGHTALTER(); \
@@ -321,7 +328,6 @@ ASFUNCS_PRIMITIVE(bool, bool, BOOL, boo)
 ASFUNCS_PRIMITIVE(double, double, DOUBLE, dbl)
 ASFUNCS_PRIMITIVE(int64_t, int64, INT64, int)
 ASFUNCS_PRIMITIVE(std::string, u8str, U8STR, str)
-
 
 ASFUNCS_CONTAINER(array, array_node, ARRAY)
 ASFUNCS_CONTAINER(map, map_node, MAP)

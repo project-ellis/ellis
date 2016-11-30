@@ -124,7 +124,7 @@ node map_node::filter(std::function<
     bool(const std::string &, const node &)> fn) const
 {
   node res_node(type::MAP);
-  auto &res_map = res_node._as_map();
+  auto &res_map = res_node._as_mutable_map();
   for (const auto &it : GETMAP) {
     if (fn(it.first, it.second)) {
       res_map.insert(it.first, it.second);
