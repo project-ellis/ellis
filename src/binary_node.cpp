@@ -68,7 +68,7 @@ size_t binary_node::length() const
 }
 
 
-bool binary_node::empty() const
+bool binary_node::is_empty() const
 {
   return GETBIN.empty();
 }

@@ -113,7 +113,7 @@ void binarytest()
   auto fn = [&b1, &b4, &b5, &somedata, &sdlen](const node &n)
   {
     const auto &b = n.as_binary();
-    assert(! b.empty());
+    assert(! b.is_empty());
     assert(b.length() == sdlen);
     assert(b.data() != nullptr);
     assert(b.data() != somedata);
@@ -283,10 +283,10 @@ void maptest()
   assert(! en.as_map().has_key("foo"));
 
   assert(en.as_map().length() > 0);
-  assert(! en.as_map().empty());
+  assert(! en.as_map().is_empty());
   en.as_mutable_map().clear();
   assert(en.as_map().length() == 0);
-  assert(en.as_map().empty());
+  assert(en.as_map().is_empty());
 }
 
 void pathtest()

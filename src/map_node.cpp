@@ -141,7 +141,7 @@ size_t map_node::length() const
 }
 
 
-bool map_node::empty() const
+bool map_node::is_empty() const
 {
   return GETMAP.empty();
 }

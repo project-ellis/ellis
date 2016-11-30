@@ -128,7 +128,7 @@ size_t array_node::length() const
 }
 
 
-bool array_node::empty() const
+bool array_node::is_empty() const
 {
   return GETARR.empty();
 }

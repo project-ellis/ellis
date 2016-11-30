@@ -77,7 +77,7 @@ public:
   size_t length() const;
 
   /** Return true iff there are no elements in the array (length==0). */
-  bool empty() const;
+  bool is_empty() const;
 
   /** Remove all elements from the array. */
   void clear();

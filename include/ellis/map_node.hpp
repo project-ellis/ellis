@@ -86,7 +86,7 @@ public:
   size_t length() const;
 
   /** Return true iff there are no entries in the map. */
-  bool empty() const;
+  bool is_empty() const;
 
   /** Remove all entries in the map. */
   void clear();
