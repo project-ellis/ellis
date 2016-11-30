@@ -38,6 +38,9 @@ pkg.generate(
   subdirs: 'ellis',
   version: '0.1')
 
+# Static analysis.
+run_target('cppcheck', command: 'meson/cppcheck')
+
 # Tests.
 test_exe = executable(
   'ellis_test',

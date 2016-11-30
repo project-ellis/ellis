@@ -24,7 +24,6 @@ M:OBD decoder.
 
 J:Simple arena tests.
 J:Cython wrappers or SWIG.
-M:What does meson's static analysis etc do?  Arrange for cppcheck?
 M:Cross-build for at least ARM.
 
 ## Maturation

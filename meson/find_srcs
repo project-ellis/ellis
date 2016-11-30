@@ -1,3 +1,3 @@
 #!/bin/sh
 
-find src -maxdepth 2 -name '*.cpp'
+exec find src -maxdepth 2 -name '*.cpp'
