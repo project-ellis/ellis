@@ -155,7 +155,7 @@ static inline bool _is_refcounted(int t)
  */
 void node::_zap_contents(type t)
 {
-  using namespace ::ellis::prize_types;
+  using namespace ::ellis::payload_types;
 
   m_type = (int)t;
   if (type(m_type) == type::U8STR) {
@@ -166,19 +166,19 @@ void node::_zap_contents(type t)
      * Use malloc/free here to make sure we don't accidentally call a union
      * constructor or similar via new/delete.
      */
-    m_blk = (prize_blk*)malloc(sizeof(*m_blk));
-    m_blk->m_refcount = 1;
+    m_pay = (payload*)malloc(sizeof(*m_pay));
+    m_pay->m_refcount = 1;
     switch (type(m_type)) {
       case type::ARRAY:
-        new (&(m_blk->m_arr)) arr_t();
+        new (&(m_pay->m_arr)) arr_t();
         break;
 
       case type::BINARY:
-        new (&(m_blk->m_bin)) bin_t();
+        new (&(m_pay->m_bin)) bin_t();
         break;
 
       case type::MAP:
-        new (&(m_blk->m_map)) map_t();
+        new (&(m_pay->m_map)) map_t();
         break;
 
       default:
@@ -188,7 +188,7 @@ void node::_zap_contents(type t)
     }
   }
   else {
-    m_blk = nullptr;
+    m_pay = nullptr;
   }
 }
 
@@ -206,8 +206,8 @@ void node::_grab_contents(const node& other)
     new (&m_str) std::string(other.m_str);
   }
   else if (_is_refcounted(m_type)) {
-    m_blk = other.m_blk;
-    m_blk->m_refcount++;
+    m_pay = other.m_pay;
+    m_pay->m_refcount++;
   }
   else {
     static_assert(
@@ -225,24 +225,24 @@ void node::_grab_contents(const node& other)
  */
 void node::_release_contents()
 {
-  using namespace ::ellis::prize_types;
+  using namespace ::ellis::payload_types;
   if (type(m_type) == type::U8STR) {
     m_str.~basic_string<char>();
   }
   else if (_is_refcounted(m_type)) {
-    m_blk->m_refcount--;
-    if (m_blk->m_refcount == 0) {
+    m_pay->m_refcount--;
+    if (m_pay->m_refcount == 0) {
       switch (type(m_type)) {
         case type::ARRAY:
-          m_blk->m_arr.~arr_t();
+          m_pay->m_arr.~arr_t();
           break;
 
         case type::BINARY:
-          m_blk->m_bin.~bin_t();
+          m_pay->m_bin.~bin_t();
           break;
 
         case type::MAP:
-          m_blk->m_map.~map_t();
+          m_pay->m_map.~map_t();
           break;
 
         default:
@@ -250,8 +250,8 @@ void node::_release_contents()
           assert(0);
           break;
       }
-      free(m_blk);
-      m_blk = nullptr;
+      free(m_pay);
+      m_pay = nullptr;
     }
   }
   /*
@@ -270,8 +270,8 @@ void node::_prep_for_write()
     /* Nothing to do for a primitive type. */
     return;
   }
-  assert(m_blk->m_refcount > 0);
-  if (m_blk->m_refcount == 1) {
+  assert(m_pay->m_refcount > 0);
+  if (m_pay->m_refcount == 1) {
     /* Nothing to do, this is the only copy, so go ahead and write. */
     return;
   }
@@ -342,8 +342,8 @@ node::node(type t)
 node::node(const uint8_t *mem, size_t bytes)
 {
   _zap_contents(type::BINARY);
-  m_blk->m_bin.resize(bytes);
-  memcpy(m_blk->m_bin.data(), mem, bytes);
+  m_pay->m_bin.resize(bytes);
+  memcpy(m_pay->m_bin.data(), mem, bytes);
 }
 
 
@@ -444,15 +444,15 @@ void node::deep_copy(const node &o)
   if (_is_refcounted(m_type)) {
     switch (type(m_type)) {
       case type::ARRAY:
-        m_blk->m_arr = tmp.m_blk->m_arr;
+        m_pay->m_arr = tmp.m_pay->m_arr;
         break;
 
       case type::BINARY:
-        m_blk->m_bin = tmp.m_blk->m_bin;
+        m_pay->m_bin = tmp.m_pay->m_bin;
         break;
 
       case type::MAP:
-        m_blk->m_map = tmp.m_blk->m_map;
+        m_pay->m_map = tmp.m_pay->m_map;
         break;
 
       default:

@@ -24,7 +24,7 @@ namespace ellis {
 class array_node;
 class binary_node;
 class map_node;
-struct prize_blk;
+struct payload;
 
 
 /* TODO: steal/adapt doxygen documentation from the C headers */
@@ -56,7 +56,7 @@ class node {
     double m_dbl;
     int64_t m_int;
     std::string m_str;
-    prize_blk *m_blk;
+    payload *m_pay;
     pad_t m_pad;
   };
   unsigned int m_type;
@@ -219,10 +219,8 @@ class node {
    *
    * Is equivalent to:
    *
-   *   mynode.as_double() == 4.5
+   *   mynode.is_type(type::DOUBLE) && mynode.as_double() == 4.5
    *
-   * This means that an exception can be thrown if the type is incorrect,
-   * as is the case with the as_xxx() converter functions.
    */
   bool operator==(bool o) const;
   bool operator==(double o) const;
@@ -369,7 +367,7 @@ class node {
 };
 
 
-namespace prize_types {
+namespace payload_types {
   using arr_t = std::vector<node>;
   using map_t = std::unordered_map<std::string, node>;
   using bin_t = std::vector<uint8_t>;
@@ -377,12 +375,12 @@ namespace prize_types {
 }
 
 
-struct prize_blk {
-  prize_types::refcount_t m_refcount;
+struct payload {
+  payload_types::refcount_t m_refcount;
   union {
-    prize_types::arr_t m_arr;
-    prize_types::map_t m_map;
-    prize_types::bin_t m_bin;
+    payload_types::arr_t m_arr;
+    payload_types::map_t m_map;
+    payload_types::bin_t m_bin;
   };
 };
 

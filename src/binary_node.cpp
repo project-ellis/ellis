@@ -6,7 +6,7 @@
 namespace ellis {
 
 
-#define GETBIN m_node.m_blk->m_bin
+#define GETBIN m_node.m_pay->m_bin
 
 
 binary_node::~binary_node()

@@ -6,7 +6,7 @@
 namespace ellis {
 
 
-#define GETARR m_node.m_blk->m_arr
+#define GETARR m_node.m_pay->m_arr
 
 
 array_node::~array_node()

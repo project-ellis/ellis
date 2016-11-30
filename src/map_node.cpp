@@ -8,7 +8,7 @@
 namespace ellis {
 
 
-#define GETMAP m_node.m_blk->m_map
+#define GETMAP m_node.m_pay->m_map
 
 
 map_node::~map_node()
@@ -60,7 +60,7 @@ void map_node::insert(const std::string &key, node &&val)
 
 void map_node::merge(const map_node &other, const merge_policy &policy)
 {
-  for (const auto &it : other.m_node.m_blk->m_map) {
+  for (const auto &it : other.m_node.m_pay->m_map) {
     bool exists = GETMAP.count(it.first);
     bool q_replace = exists && policy.key_exists_copy;
     bool q_insert = (not exists) && policy.key_missing_copy;
