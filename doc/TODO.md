@@ -4,6 +4,7 @@
 
 J:Schema archetypal happy case test code.
 B:Schema API
+* Add arithmetic operators for arithmetic types
 * Schema C++ code
 * Schema C wrappers
 * Schema tests
