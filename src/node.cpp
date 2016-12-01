@@ -6,6 +6,7 @@
 #include <ellis/map_node.hpp>
 #include <ellis/private/payload.hpp>
 #include <ellis/private/using.hpp>
+#include <ellis/type.hpp>
 #include <sstream>
 #include <stddef.h>
 #include <string.h>
@@ -32,7 +33,6 @@ bool node::operator==(typ o) const \
   if (type(m_type) != type::e_typ) { \
     return false; \
   } \
-\
   return m_##short_typ == o; \
 } \
 \
@@ -40,6 +40,20 @@ bool node::operator!=(typ o) const \
 { \
   return not (*this == o); \
 }
+
+
+/* TODO: finish <, >, <=, >= */
+#if 0
+#define OPFUNCS_CMP_PRIMITIVE(typ, e_typ, short_typ) \
+bool node::operator<(const node &o) const \
+{ \
+  if (type(m_type) < type::e_typ) { \
+    return false; \
+  } \
+\
+  return m_##short_typ == o; \
+}
+#endif
 
 
 #define OPFUNC_ASSIGN_PRIMITIVE(typ, short_typ, e_typ) \
@@ -64,12 +78,12 @@ node& node::operator=(typ o) \
 
 
 #define ASFUNCS_PRIMITIVE(typ, f_typ, e_typ, short_typ) \
+\
 typ & node::_as_mutable_##f_typ() \
 { \
   MIGHTALTER(); \
   return m_##short_typ; \
 } \
-\
 typ & node::as_mutable_##f_typ() \
 { \
   VERIFY_TYPE(e_typ); \
@@ -88,6 +102,60 @@ const typ & node::as_##f_typ() const \
   return m_##short_typ; \
 }
 /* End of ASFUNCS_PRIMITIVE macro. */
+
+
+#define _OPFUNC_NODE_ARITHMETIC(op, verb) \
+node operator op(const node &a, const node &b) \
+{ \
+  type a_type = a.get_type(); \
+  type b_type = b.get_type(); \
+\
+  if (a_type == type::INT64 && b_type == type::INT64) { \
+    return node(a.as_int64() op b.as_int64()); \
+  } \
+  else if (a_type == type::DOUBLE && b_type == type::DOUBLE) { \
+    return node(a.as_double() op b.as_double()); \
+  } \
+  else { \
+    ostringstream msg; \
+    msg << "types " << type_str(a_type) << " and " << type_str(b_type) << "can't be " "added"; \
+    throw MAKE_ELLIS_ERR( err_code::TYPE_MISMATCH, msg.str()); \
+  } \
+}
+
+
+#define OPFUNC_NODE_ARITHMETIC \
+  _OPFUNC_NODE_ARITHMETIC(+, added) \
+  _OPFUNC_NODE_ARITHMETIC(-, subtracted) \
+  _OPFUNC_NODE_ARITHMETIC(*, multiplied) \
+  _OPFUNC_NODE_ARITHMETIC(/, divided)
+/* End of ASFUNCS_NODE_OPS macro. */
+
+
+#define _OPFUNC_ARITHMETIC(op, typ, f_typ, e_typ, short_typ) \
+node operator op(const node &a, typ b) \
+{ \
+  return node(a.as_##f_typ() op b); \
+} \
+typ operator op(typ a, const node &b) \
+{ \
+  return a op b.as_##f_typ(); \
+ \
+} \
+node node::operator op##=(typ o) \
+{ \
+  VERIFY_TYPE(e_typ); \
+  m_##short_typ op##= o; \
+  return *this; \
+}
+
+
+#define OPFUNCS_ARITHMETIC(typ, f_typ, e_typ, short_typ) \
+  _OPFUNC_ARITHMETIC(+, typ, f_typ, e_typ, short_typ) \
+  _OPFUNC_ARITHMETIC(-, typ, f_typ, e_typ, short_typ) \
+  _OPFUNC_ARITHMETIC(*, typ, f_typ, e_typ, short_typ) \
+  _OPFUNC_ARITHMETIC(/, typ, f_typ, e_typ, short_typ)
+/* End of ASFUNCS_ARITHMETIC macro. */
 
 
 #define ASFUNCS_CONTAINER(typ, ret_typ, e_typ) \
@@ -118,8 +186,6 @@ const ret_typ & node::as_##typ() const \
 
 
 /** Convenience macro for typecast operators on primitive types.
- *
- * Not for uint64_t, for which see below.
  */
 #define OPFUNC_CAST_PRIMITIVE(typ, f_typ) \
 node::operator typ() const \
@@ -288,7 +354,6 @@ OPFUNCS_EQ_PRIMITIVE(unsigned int, INT64, int)
 OPFUNCS_EQ_PRIMITIVE(int64_t, INT64, int)
 OPFUNCS_EQ_PRIMITIVE(const char *, U8STR, str)
 OPFUNCS_EQ_PRIMITIVE(const std::string &, U8STR, str)
-/* TODO: how should we handle uint64_t? */
 
 
 OPFUNC_ASSIGN_PRIMITIVE(bool, boo, BOOL)
@@ -298,8 +363,6 @@ OPFUNC_ASSIGN_PRIMITIVE(unsigned int, int, INT64)
 OPFUNC_ASSIGN_PRIMITIVE(int64_t, int, INT64)
 OPFUNC_ASSIGN_STR(const char *)
 OPFUNC_ASSIGN_STR(const std::string &)
-/* TODO: how should we handle uint64_t? */
-
 
 ASFUNCS_PRIMITIVE(bool, bool, BOOL, boo)
 ASFUNCS_PRIMITIVE(double, double, DOUBLE, dbl)
@@ -317,15 +380,6 @@ OPFUNC_CAST_PRIMITIVE(int, int64)
 OPFUNC_CAST_PRIMITIVE(unsigned int, int64)
 OPFUNC_CAST_PRIMITIVE(int64_t, int64)
 OPFUNC_CAST_PRIMITIVE(std::string, u8str)
-
-node::operator uint64_t() const
-{
-  int64_t rv = as_int64();
-  if (rv < 0) {
-    throw MAKE_ELLIS_ERR(ERANGE, "negative int64 value converted to unsigned");
-  }
-  return (uint64_t)rv;
-}
 
 node::operator const char *() const
 {
@@ -371,16 +425,6 @@ node::node(int64_t i)
 
 node::node(unsigned int i)
 {
-  _zap_contents(type::INT64);
-  m_int = i;
-}
-
-
-node::node(uint64_t i)
-{
-  if (i > INT64_MAX) {
-    throw MAKE_ELLIS_ERR(ERANGE, "64 bit unsigned integer too large");
-  }
   _zap_contents(type::INT64);
   m_int = i;
 }
@@ -655,6 +699,15 @@ const node & node::at_path(const std::string &path) const
 
   return *v;
 }
+
+
+OPFUNC_NODE_ARITHMETIC
+
+OPFUNCS_ARITHMETIC(int, int64, INT64, int)
+OPFUNCS_ARITHMETIC(unsigned int, int64, INT64, int)
+OPFUNCS_ARITHMETIC(int64_t, int64, INT64, int)
+
+OPFUNCS_ARITHMETIC(double, double, DOUBLE, dbl)
 
 
 }  /* namespace ellis */

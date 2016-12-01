@@ -107,9 +107,6 @@ class node {
   /** Construct an INT64 node. */
   node(unsigned int);
 
-  /** Construct an INT64 node. */
-  node(uint64_t);
-
   /** Construct a DOUBLE node. */
   node(double);
 
@@ -195,6 +192,37 @@ class node {
   node& operator=(const char *o);
   node& operator=(const std::string &o);
 
+
+  /** Arithmetic operators for arithmetic types.
+   *
+   * Arithmetic operations are valid only between the same types, so doing
+   * arithmetic between an int64 and a double is not allowed.
+   */
+  node operator+=(const node &);
+  node operator-=(const node &);
+  node operator*=(const node &);
+  node operator/=(const node &);
+
+  node operator+=(int);
+  node operator-=(int);
+  node operator*=(int);
+  node operator/=(int);
+
+  node operator+=(unsigned int);
+  node operator-=(unsigned int);
+  node operator*=(unsigned int);
+  node operator/=(unsigned int);
+
+  node operator+=(int64_t);
+  node operator-=(int64_t);
+  node operator*=(int64_t);
+  node operator/=(int64_t);
+
+  node operator+=(double);
+  node operator-=(double);
+  node operator*=(double);
+  node operator/=(double);
+
   /** Comparison operators for another node.
    *
    * Equality is defined as one might expect--types same, simple values same,
@@ -251,12 +279,11 @@ class node {
    * This means that an exception can be thrown if the type is incorrect,
    * as is the case with the as_xxx() converter functions.
    */
-  explicit operator bool() const;
-  explicit operator int() const;
-  explicit operator unsigned int() const;
-  explicit operator int64_t() const;
-  explicit operator uint64_t() const;
-  explicit operator double() const;
+  operator bool() const;
+  operator int() const;
+  operator unsigned int() const;
+  operator int64_t() const;
+  operator double() const;
   explicit operator std::string() const;
   explicit operator const char *() const;
 
@@ -363,6 +390,67 @@ class node {
 };
 
 
+/*
+ *     _         _ _   _                    _   _
+ *    / \   _ __(_) |_| |__  _ __ ___   ___| |_(_) ___
+ *   / _ \ | '__| | __| '_ \| '_ ` _ \ / _ \ __| |/ __|
+ *  / ___ \| |  | | |_| | | | | | | | |  __/ |_| | (__
+ * /_/   \_\_|  |_|\__|_| |_|_| |_| |_|\___|\__|_|\___|
+ *
+ *   ___                       _
+ *  / _ \ _ __   ___ _ __ __ _| |_ ___  _ __ ___
+ * | | | | '_ \ / _ \ '__/ _` | __/ _ \| '__/ __|
+ * | |_| | |_) |  __/ | | (_| | || (_) | |  \__ \
+ *  \___/| .__/ \___|_|  \__,_|\__\___/|_|  |___/
+ *       |_|
+ *
+ */
+node operator+(const node &, const node &);
+node operator-(const node &, const node &);
+node operator*(const node &, const node &);
+node operator/(const node &, const node &);
+
+node operator/(const node &, int);
+node operator+(const node &, int);
+node operator-(const node &, int);
+node operator*(const node &, int);
+
+int operator/(int, const node &);
+int operator+(int, const node &);
+int operator-(int, const node &);
+int operator*(int, const node &);
+
+node operator/(const node &, unsigned int);
+node operator+(const node &, unsigned int);
+node operator-(const node &, unsigned int);
+node operator*(const node &, unsigned int);
+
+unsigned int operator/(unsigned int, const node &);
+unsigned int operator+(unsigned int, const node &);
+unsigned int operator-(unsigned int, const node &);
+unsigned int operator*(unsigned int, const node &);
+
+node operator/(const node &, int64_t);
+node operator+(const node &, int64_t);
+node operator-(const node &, int64_t);
+node operator*(const node &, int64_t);
+
+int64_t operator+(int64_t, const node &);
+int64_t operator-(int64_t, const node &);
+int64_t operator*(int64_t, const node &);
+int64_t operator/(int64_t, const node &);
+
+node operator/(const node &, double);
+node operator+(const node &, double);
+node operator-(const node &, double);
+node operator*(const node &, double);
+
+double operator/(double, const node &);
+double operator+(double, const node &);
+double operator-(double, const node &);
+double operator*(double, const node &);
+
+
 /*  ___          _
  * |_ _|___  ___| |_ _ __ ___  __ _ _ __ ___
  *  | |/ _ \/ __| __| '__/ _ \/ _` | '_ ` _ \
@@ -380,7 +468,6 @@ class node {
 
 std::ostream & operator<<(std::ostream & os, const node & v);
 std::istream & operator>>(std::istream & is, node & v);
-
 
 }  /* namespace ellis */
 

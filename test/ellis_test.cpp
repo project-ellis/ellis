@@ -1,12 +1,13 @@
 #undef NDEBUG
 #include <assert.h>
-#include <stdio.h>
+#include <cfloat>
 #include <ellis/array_node.hpp>
 #include <ellis/binary_node.hpp>
 #include <ellis/err.hpp>
 #include <ellis/map_node.hpp>
 #include <ellis/node.hpp>
 #include <ellis/private/using.hpp>
+#include <stdio.h>
 #include <string.h>
 
 static const uint8_t k_somedata[] = {
@@ -21,6 +22,84 @@ void primitivetest()
   assert(v1.as_double() == 2.1);
   double d1 = (double)v1;
   assert(d1 == 2.1);
+
+  /* Arithmetic. */
+  v1 = 2;
+  assert(v1 == 2);
+  assert(v1 + 1 == 3);
+  assert(1 + v1 == 3);
+  assert(v1 - 1 == 1);
+  assert(1 - v1 == -1);
+  assert(v1 * 2 == 4);
+  assert(2 * v1 == 4);
+  assert(v1 / 2 == 1);
+  assert(2 / v1 == 1);
+  v1 += 1;
+  assert(v1 == 3);
+  v1 -= 1;
+  assert(v1 == 2);
+  v1 *= 2;
+  assert(v1 == 4);
+  v1 /= 2;
+  assert(v1 == 2);
+
+  auto dbl_equal = [](double a, double b)
+  {
+    return abs(a - b) <= DBL_EPSILON;
+  };
+
+  v1 = 2.0;
+  assert(v1 == 2.0);
+  assert(dbl_equal(v1 + 1.0, 3.0));
+  assert(dbl_equal(1.0 + v1, 3.0));
+  assert(dbl_equal(v1 - 1.0, 1.0));
+  assert(dbl_equal(1.0 - v1, -1.0));
+  assert(dbl_equal(v1 * 2.0, 4.0));
+  assert(dbl_equal(2.0 * v1, 4.0));
+  assert(dbl_equal(v1 / 2.0, 1.0));
+  assert(dbl_equal(2.0 / v1, 1.0));
+  v1 += 1.0;
+  assert(dbl_equal(v1, 3.0));
+  v1 -= 1.0;
+  assert(dbl_equal(v1, 2.0));
+  v1 *= 2.0;
+  assert(dbl_equal(v1, 4.0));
+  v1 /= 2.0;
+  assert(dbl_equal(v1, 2.0));
+
+  auto type_fail = [](std::function<void()> fn)
+  {
+    bool threw = false;
+    try {
+      fn();
+    } catch(err e) {
+      if (e.code() == (int)err_code::WRONG_TYPE) {
+        threw = true;
+      }
+    }
+    assert(threw);
+  };
+
+  v1 = 1;
+  type_fail([&v1]()
+    {
+      node v2 = v1 + 1.0;
+    });
+  type_fail([&v1]()
+    {
+      v1 += 1.0;
+    });
+  v1 = 1.0;
+  type_fail([&v1]()
+    {
+      node v2 = v1 + 1;
+    });
+  type_fail([&v1]()
+    {
+      v1 += 1;
+    });
+
+  /* TODO: Add <, >, <=, >= tests */
 }
 
 void strtest()
@@ -38,35 +117,6 @@ void strtest()
   n1.as_mutable_u8str().append(" world");
   assert(n1 == "hello world");
   assert(n2 != "hello world");
-}
-
-void uint64test()
-{
-  using namespace ellis;
-  auto range_fail = [](std::function<void()> fn)
-  {
-    bool threw = false;
-    try {
-      fn();
-    } catch(err e) {
-      if (e.code() == ERANGE) {
-        threw = true;
-      }
-    }
-    assert(threw);
-  };
-  node neg(-1);
-  node n1a(42UL);
-  range_fail([]() { node n1b(UINT64_MAX); });
-  uint64_t u1a = (uint64_t)n1a;
-  assert(u1a == 42);
-  range_fail([&neg]()
-      {
-        uint64_t u1b = 4.4;
-        u1b = (uint64_t)neg;
-        /* Never gets here. */
-        assert(u1b == 4.4);
-      });
 }
 
 void arraytest()
@@ -403,7 +453,6 @@ int main()
   /* TODO: generic nodetest */
   primitivetest();
   strtest();
-  uint64test();
   arraytest();
   binarytest();
   maptest();

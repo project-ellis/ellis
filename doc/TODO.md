@@ -4,11 +4,11 @@
 
 J:Schema archetypal happy case test code.
 B:Schema API
-* Add arithmetic operators for arithmetic types
 * Schema C++ code
 * Schema C wrappers
 * Schema tests
 J:array-node correctness tests.
+* Add <, >, <=, >= operators
 M:C wrappers.
 J:Zero copy I/O interface.
 J:Check whether C++ std::allocator types can form backbone of allocators.

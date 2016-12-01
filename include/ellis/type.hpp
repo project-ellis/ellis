@@ -24,8 +24,14 @@ enum class type {
   U8STR = 4,
   ARRAY = 5,
   BINARY = 6,
-  MAP = 7,
+  MAP = 7
 };
+
+
+/**
+ * Get a string description for a given type.
+ */
+const char *type_str(type t);
 
 
 }  /* namespace ellis */

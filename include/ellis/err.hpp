@@ -20,9 +20,10 @@ namespace ellis {
 
 enum class err_code {
   WRONG_TYPE = 4096,
-  PARSING_ERROR = 4097,
-  NOT_MERGED = 4098,
-  PATH_ERROR = 4099,
+  TYPE_MISMATCH = 4097,
+  PARSING_ERROR = 4098,
+  NOT_MERGED = 4099,
+  PATH_ERROR = 4100
 };
 
 
