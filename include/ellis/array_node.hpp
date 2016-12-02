@@ -34,7 +34,7 @@ public:
 
   /** Return a reference to the element at the given index.
    *
-   * Will throw std::out_of_range if key is not present.
+   * Will throw std::out_of_range if index is out of bounds.
    */
   node& operator[](size_t index);
   const node& operator[](size_t index) const;
@@ -60,11 +60,14 @@ public:
   void erase(size_t pos);
 
   /** Reserve space for n elements in the array, without actually changing
-   * the length.  Has no effect if n is less than or equal to current length. */
+   * the length.
+   *
+   * Has no effect if n is less than or equal to current length.
+   */
   void reserve(size_t n);
 
   /** Run the specified function on each element in the array. */
-  void foreach(std::function<void(node &)> fn);
+  void foreach_mutable(std::function<void(node &)> fn);
   void foreach(std::function<void(const node &)> fn) const;
 
   /** Select elements in the array matching given criteria.

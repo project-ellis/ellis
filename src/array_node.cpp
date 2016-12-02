@@ -22,12 +22,18 @@ array_node::~array_node()
 
 node& array_node::operator[](size_t index)
 {
+  if (index >= GETARR.size()) {
+    throw std::out_of_range("array index out of bounds");
+  }
   return GETARR[index];
 }
 
 
 const node& array_node::operator[](size_t index) const
 {
+  if (index >= GETARR.size()) {
+    throw std::out_of_range("array index out of bounds");
+  }
   return GETARR[index];
 }
 
@@ -92,7 +98,7 @@ void array_node::reserve(size_t n)
 }
 
 
-void array_node::foreach(std::function<void(node &)> fn)
+void array_node::foreach_mutable(std::function<void(node &)> fn)
 {
   for (node &node : GETARR) {
     fn(node);

@@ -9,6 +9,11 @@
 #include <ellis/private/using.hpp>
 #include <string.h>
 
+static const uint8_t k_somedata[] = {
+  0x00, 0x81, 0x23, 0xE8,
+  0xD8, 0xAF, 0xF7, 0x00
+};
+
 void primitivetest()
 {
   using namespace ellis;
@@ -68,39 +73,120 @@ void arraytest()
 {
   using namespace ellis;
   node en(type::ARRAY);
-  auto &a = en.as_mutable_array();
+  auto &am = en.as_mutable_array();
+  const auto &a = en.as_array();
 
-  a.append("foo");
-  a.append(4);
-  a.append(4.4);
-  a.append(true);
-  a.append(type::NIL);
+  /* Behavior checks for an empty array. */
+  auto empty_chk = [] (const node &n) {
+    assert(n.is_type(type::ARRAY));
+    const auto &ac = n.as_array();
+    assert(ac.length() == 0);
+    assert(ac.is_empty());
+    bool hit = false;
+    ac.foreach([&hit](const node &){hit = true;});
+    assert(hit == false);
+    auto f = ac.filter([](const node &){return true;});
+    assert(f.as_array().is_empty());
+    try {
+      ac[0];
+    } catch (std::out_of_range) {
+      hit = true;
+    }
+    assert(hit == true);
+    node n2(type::ARRAY);
+    assert(n == n2);
+  };
 
-  assert(a.length() == 5);
+  empty_chk(en);
 
-  assert(a[0] == "foo");
-  assert(a[0] == "foo");
-  assert(a[1] == 4);
-  assert(a[2] == 4.4);
-  assert(a[3] == true);
-  assert(a[4] == type::NIL);
+  am.reserve(7);
+  am.append("foo");
+  am.append("bar");
+  am.erase(1);
+  am.insert(0, "world");
+  am.erase(0);
+  am.insert(1, 4.4);
+  am.append(true);
+  am.append(type::NIL);
+  am.append(type::ARRAY);
+  am.append(type::MAP);
+  am.append(node(k_somedata, sizeof(k_somedata)));
+  am.insert(1, 4);
+
+  /* Behavior checks for the custom array we just built. */
+  auto contents_chk = [] (const node &n) {
+    assert(n.is_type(type::ARRAY));
+    const auto &ac = n.as_array();
+    assert(ac.length() == 8);
+    assert(!ac.is_empty());
+    assert(ac[0] == "foo");
+    assert(ac[0] == "foo");
+    assert(ac[1] == 4);
+    assert(ac[2] == 4.4);
+    assert(ac[3] == true);
+    assert(ac[4] == type::NIL);
+    assert(ac[5].get_type() == type::ARRAY);
+    assert(ac[6].get_type() == type::MAP);
+    assert(ac[7].get_type() == type::BINARY);
+    assert(ac[7].as_binary().length() == sizeof(k_somedata));
+    std::map<type, int> tc;
+    ac.foreach([&tc](const node &x) {
+        tc[x.get_type()]++;
+      });
+    assert(tc.size() == 8);
+    assert(ac.filter([](const node &){return true;}) .as_array().length() == 8);
+    assert(ac.filter([](const node &){return false;}).as_array().length() == 0);
+    for (auto t : { type::NIL , type::BOOL , type::INT64 , type::DOUBLE,
+                    type::U8STR , type::ARRAY , type::BINARY , type::MAP }) {
+      assert(ac.filter(
+            [t](const node &x)
+            {
+              return x.get_type() == t;
+            }).as_array().length() == 1);
+    }
+  };
+
+  /* Copy the newly filled array. */
+  node en2(en);
+  contents_chk(en);
+  contents_chk(en2);
+  /* Clear the original, verify the copy looks right and the original empty. */
+  en.as_mutable_array().clear();
+  empty_chk(en);
+  contents_chk(en2);
+  /* Swap, and verify the other way around. */
+  en.swap(en2);
+  empty_chk(en2);
+  contents_chk(en);
+  /* Reset the copy to original contents, and try deleting from left. */
+  en2 = en;
+  for (int i = 7; i >= 0; i--) {
+    en2.as_mutable_array().erase(0);
+    assert(en2.as_array().length() == (size_t)i);
+  }
+  empty_chk(en2);
+  /* Reset the copy to original contents, and try deleting from right. */
+  en2 = en;
+  for (int i = 7; i >= 0; i--) {
+    en2.as_mutable_array().erase(i);
+    assert(en2.as_array().length() == (size_t)i);
+  }
+  empty_chk(en2);
+  /* Make sure the original is still intact. */
+  contents_chk(en);
 }
 
 void binarytest()
 {
   using namespace ellis;
-  const uint8_t somedata[] = {
-    0x00, 0x81, 0x23, 0xE8,
-    0xD8, 0xAF, 0xF7, 0x00
-  };
-  size_t sdlen = sizeof(somedata);
+  size_t sdlen = sizeof(k_somedata);
   /* Node b1 is constructed directly from the binary data. */
-  node b1(somedata, sdlen);
+  node b1(k_somedata, sdlen);
   /* Node b2 is copy constructed. */
   node b2(b1);
   /* Node b3 is built up by appending. */
   node b3(type::BINARY);
-  b3.as_mutable_binary().append(somedata, sdlen);
+  b3.as_mutable_binary().append(k_somedata, sdlen);
   /* Node b4 has same length but is not equal. */
   node b4(type::BINARY);
   b4.as_mutable_binary().resize(sdlen);
@@ -110,14 +196,14 @@ void binarytest()
   b5.as_mutable_binary().resize(sdlen+1);
   //assert(b5.as_binary().data() != b1.as_binary().data());
 
-  auto fn = [&b1, &b4, &b5, &somedata, &sdlen](const node &n)
+  auto fn = [&b1, &b4, &b5, &sdlen](const node &n)
   {
     const auto &b = n.as_binary();
     assert(! b.is_empty());
     assert(b.length() == sdlen);
     assert(b.data() != nullptr);
-    assert(b.data() != somedata);
-    assert(memcmp(b.data(), somedata, sdlen) == 0);
+    assert(b.data() != k_somedata);
+    assert(memcmp(b.data(), k_somedata, sdlen) == 0);
     assert(n == b1);
     assert(n != b4);
     assert(n != b5);
