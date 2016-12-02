@@ -47,37 +47,59 @@ bool map_node::operator==(const map_node &o) const
 }
 
 
+void map_node::add(
+    const std::string &key,
+    const node &val,
+    add_policy addpol,
+    add_failure_fn *failfn)
+{
+  auto it = GETMAP.find(key);
+  bool exists = not (it == GETMAP.end());
+  bool will_replace = exists && addpol != add_policy::INSERT_ONLY;
+  bool will_insert = (not exists) && addpol != add_policy::REPLACE_ONLY;
+  /* will_replace and will_insert can not both be set. */
+  assert(! (will_replace && will_insert));
+
+  if (will_insert) {
+    GETMAP.emplace(key, val);
+  }
+  else if (will_replace) {
+    GETMAP.erase(it->first);
+    GETMAP.emplace(key, val);
+  }
+  else {
+    if (failfn != nullptr) {
+      (*failfn)(key, val);
+    }
+  }
+}
+
+
 void map_node::insert(const std::string &key, const node &val)
 {
-  GETMAP.emplace(key, val);
+  add(key, val, add_policy::INSERT_ONLY, nullptr);
 }
 
 
-void map_node::insert(const std::string &key, node &&val)
+void map_node::replace(const std::string &key, const node &val)
 {
-  GETMAP.emplace(key, std::move(val));
+  add(key, val, add_policy::REPLACE_ONLY, nullptr);
 }
 
 
-void map_node::merge(const map_node &other, const merge_policy &policy)
+void map_node::set(const std::string &key, const node &val)
+{
+  add(key, val, add_policy::INSERT_OR_REPLACE, nullptr);
+}
+
+
+void map_node::merge(
+    const map_node &other,
+    add_policy addpol,
+    add_failure_fn *failfn)
 {
   for (const auto &it : other.m_node.m_pay->m_map) {
-    bool exists = GETMAP.count(it.first);
-    bool q_replace = exists && policy.key_exists_copy;
-    bool q_insert = (not exists) && policy.key_missing_copy;
-    /* q_replace and q_insert can not both be set. */
-    assert(! (q_replace && q_insert));
-    if (q_insert) {
-      insert(it.first, it.second);
-    }
-    if (q_replace) {
-      erase(it.first);
-      insert(it.first, it.second);
-    }
-    if ((!q_insert) && (!q_replace) && policy.abort_on_not_copy) {
-      /* Failed copy criteria; abort because policy says so. */
-      throw MAKE_ELLIS_ERR(err_code::NOT_MERGED, it.first + " not merged");
-    }
+    add(it.first, it.second, addpol, failfn);
   }
 }
 
@@ -104,7 +126,8 @@ std::vector<std::string> map_node::keys() const
 }
 
 
-void map_node::foreach(std::function<void(const std::string &, node &)> fn)
+void map_node::foreach_mutable(std::function<
+    void(const std::string &, node &)> fn)
 {
   for (auto &it : GETMAP) {
     fn(it.first, it.second);

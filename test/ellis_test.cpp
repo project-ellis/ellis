@@ -152,12 +152,16 @@ void maptest()
 {
   using namespace ellis;
   node en(type::MAP);
+  en.as_mutable_map().replace("foo", 5);  // should fail, nothing to replace
+  assert(! en.as_map().has_key("foo"));   // no such key
   en.as_mutable_map().insert("foo", 4);
+  assert(en.as_map().has_key("foo"));     // now the key is there
+  en.as_mutable_map().insert("foo", 72);  // no effect here
   assert(en.as_map()["foo"] == 4);
   assert(en.as_map().length() == 1);
 
   node bar(type::MAP);
-  en.as_mutable_map().insert("bar", bar);
+  en.as_mutable_map().set("bar", bar);
   assert(en.as_map().has_key("bar"));
   assert(en.as_map()["bar"].get_type() == type::MAP);
   assert(en.as_map()["bar"].is_type(type::MAP));
@@ -209,38 +213,28 @@ void maptest()
 
   node other(type::MAP);
   node child(type::MAP);
-  merge_policy policy;
   child.as_mutable_map().insert("val", 17);
   other.as_mutable_map().insert("foo", "clobbered");
   other.as_mutable_map().insert("child", child);
 
-  /* No-op merge. */
+  /* Merge fail function. */
   en = before;
-  policy.key_exists_copy = false;
-  policy.key_missing_copy = false;
-  policy.abort_on_not_copy = false;
-  en.as_mutable_map().merge(other.as_map(), policy);
-  assert(before == en);
+  bool did_fail = false;
+  std::function<void(const std::string &, const node &)> failfn =
+    [&did_fail] (const std::string &, const node &) {
+      did_fail = true;
+    };
+  en.as_mutable_map().merge(other.as_map(), add_policy::INSERT_ONLY, &failfn);
+  assert(did_fail);
+  did_fail = false;
+  en.as_mutable_map().merge(other.as_map(), add_policy::INSERT_OR_REPLACE,
+      &failfn);
+  assert(!did_fail);
 
-  /* Exception merge. */
-  policy.key_exists_copy = false;
-  policy.key_missing_copy = false;
-  policy.abort_on_not_copy = true;
-  bool raised = false;
-  try {
-    en.as_mutable_map().merge(other.as_map(), policy);
-  }
-  catch (err e) {
-    raised = true;
-    assert(e.code() == (int)err_code::NOT_MERGED);
-  }
-  assert(raised);
 
   /* Merge only missing keys. */
-  policy.key_exists_copy = false;
-  policy.key_missing_copy = true;
-  policy.abort_on_not_copy = false;
-  en.as_mutable_map().merge(other.as_map(), policy);
+  en = before;
+  en.as_mutable_map().merge(other.as_map(), add_policy::INSERT_ONLY, nullptr);
   assert(en.as_map().has_key("child"));
   assert(en.as_map()["child"].as_map().has_key("val"));
   assert(en.as_map()["child"].as_map()["val"] == 17);
@@ -248,19 +242,14 @@ void maptest()
 
   /* Merge only existing keys. */
   en = before;
-  policy.key_exists_copy = true;
-  policy.key_missing_copy = false;
-  policy.abort_on_not_copy = false;
-  en.as_mutable_map().merge(other.as_map(), policy);
+  en.as_mutable_map().merge(other.as_map(), add_policy::REPLACE_ONLY, nullptr);
   assert(! en.as_map().has_key("child"));
   assert(en.as_map()["foo"] == "clobbered");
 
   /* Merge all keys. */
   en = before;
-  policy.key_exists_copy = true;
-  policy.key_missing_copy = true;
-  policy.abort_on_not_copy = false;
-  en.as_mutable_map().merge(other.as_map(), policy);
+  en.as_mutable_map().merge(other.as_map(), add_policy::INSERT_OR_REPLACE,
+      nullptr);
   assert(en.as_map().has_key("child"));
   assert(en.as_map()["child"].as_map().has_key("val"));
   assert(en.as_map()["child"].as_map()["val"] == 17);
@@ -274,7 +263,7 @@ void maptest()
       v = "fooval";
     }
   };
-  en.as_mutable_map().foreach(mut_foo_fn);
+  en.as_mutable_map().foreach_mutable(mut_foo_fn);
   node x = en.as_map()["foo"];
   assert(en.as_map()["foo"] == "fooval");
 
