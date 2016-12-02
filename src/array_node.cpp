@@ -50,12 +50,6 @@ void array_node::append(const node &node)
 }
 
 
-void array_node::append(node &&node)
-{
-  GETARR.push_back(node);
-}
-
-
 void array_node::extend(const array_node &other)
 {
   GETARR.insert(
@@ -65,24 +59,9 @@ void array_node::extend(const array_node &other)
 }
 
 
-void array_node::extend(array_node &&other)
-{
-  GETARR.insert(
-    GETARR.end(),
-    other.GETARR.begin(),
-    other.GETARR.end());
-}
-
-
 void array_node::insert(size_t pos, const node &other)
 {
   GETARR.insert(GETARR.cbegin() + pos, other);
-}
-
-
-void array_node::insert(size_t pos, node &&other)
-{
-  GETARR.insert(GETARR.begin() + pos, other);
 }
 
 

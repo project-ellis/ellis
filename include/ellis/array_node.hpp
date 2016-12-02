@@ -45,16 +45,13 @@ public:
   /** Append a node to the end of the array.
    */
   void append(const node &node);
-  void append(node &&node);
 
   /** Extend array by appending the contents of another array.
    */
   void extend(const array_node &other);
-  void extend(array_node &&other);
 
   /** Insert a new element at the given position. */
   void insert(size_t pos, const node &);
-  void insert(size_t pos, node &&);
 
   /** Remove element at the given position. */
   void erase(size_t pos);

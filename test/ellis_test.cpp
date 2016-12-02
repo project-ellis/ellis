@@ -120,7 +120,6 @@ void arraytest()
     assert(ac.length() == 8);
     assert(!ac.is_empty());
     assert(ac[0] == "foo");
-    assert(ac[0] == "foo");
     assert(ac[1] == 4);
     assert(ac[2] == 4.4);
     assert(ac[3] == true);
@@ -148,6 +147,8 @@ void arraytest()
 
   /* Copy the newly filled array. */
   node en2(en);
+  assert(en.as_array()[0].as_u8str().c_str()
+      == en2.as_array()[0].as_u8str().c_str());
   contents_chk(en);
   contents_chk(en2);
   /* Clear the original, verify the copy looks right and the original empty. */
@@ -192,9 +193,9 @@ void binarytest()
   b4.as_mutable_binary().resize(sdlen);
   /* Node b5 starts out equal to b1 but is extended with a zero. */
   node b5(b1);
-  // TODO: cas_binary(). assert(b5.as_binary().data() == b1.as_binary().data());
+  assert(b5.as_binary().data() == b1.as_binary().data());
   b5.as_mutable_binary().resize(sdlen+1);
-  //assert(b5.as_binary().data() != b1.as_binary().data());
+  assert(b5.as_binary().data() != b1.as_binary().data());
 
   auto fn = [&b1, &b4, &b5, &sdlen](const node &n)
   {
