@@ -13,10 +13,10 @@ namespace ellis {
 binary_node::~binary_node()
 {
   assert(0);
-  /* This function will never be called; binary_node is a type safety wrapper
+  /* This function should never be called; binary_node is a type safety wrapper
    * over node, and destruction is to be handled by node.  The user should
-   * only ever see binary_node by reference, and only ever be able to destroy
-   * a node. */
+   * only ever see binary_node by reference, and only be able to destroy
+   * a node, not a binary_node. */
 }
 
 

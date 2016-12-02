@@ -15,10 +15,10 @@ namespace ellis {
 map_node::~map_node()
 {
   assert(0);
-  /* This function will never be called; map_node is a type safety wrapper
+  /* This function should never be called; map_node is a type safety wrapper
    * over node, and destruction is to be handled by node.  The user should
-   * only ever see map_node by reference, and only ever be able to destroy
-   * a node. */
+   * only ever see map_node by reference, and only be able to destroy
+   * a node, not a map_node. */
 }
 
 
