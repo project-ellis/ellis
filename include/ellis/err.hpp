@@ -3,8 +3,7 @@
  *
  * @brief Ellis error public C++ header.
  *
- * This is the C header for Ellis, which implements the standalone Ellis data
- * interaction routines.
+ * This is the C++ header for Ellis errors.
  */
 
 #pragma once
