@@ -26,10 +26,6 @@ enum class err_code {
 };
 
 
-#define MAKE_ELLIS_ERR(CODE, MSG) \
-  err(CODE, __FILE__, __LINE__, (MSG))
-
-
 class err : public std::runtime_error {
 
 public:
