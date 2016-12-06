@@ -43,20 +43,6 @@ bool node::operator!=(typ o) const \
 }
 
 
-/* TODO: finish <, >, <=, >= */
-#if 0
-#define OPFUNCS_CMP_PRIMITIVE(typ, e_typ, short_typ) \
-bool node::operator<(const node &o) const \
-{ \
-  if (type(m_type) < type::e_typ) { \
-    return false; \
-  } \
-\
-  return m_##short_typ == o; \
-}
-#endif
-
-
 #define OPFUNC_ASSIGN_PRIMITIVE(typ, short_typ, e_typ) \
 node& node::operator=(typ o) \
 { \
@@ -105,6 +91,34 @@ const typ & node::as_##f_typ() const \
 /* End of ASFUNCS_PRIMITIVE macro. */
 
 
+#define _OPFUNC_NODE_CMP(op, verb) \
+bool operator op(const node &a, const node &b) \
+{ \
+  type a_type = a.get_type(); \
+  type b_type = b.get_type(); \
+\
+  if (a_type == type::INT64 && b_type == type::INT64) { \
+    return a.as_int64() op b.as_int64(); \
+  } \
+  else if (a_type == type::DOUBLE && b_type == type::DOUBLE) { \
+    return a.as_double() op b.as_double(); \
+  } \
+  else { \
+    ostringstream msg; \
+    msg << "types " << type_str(a_type) << " and " << type_str(b_type) << "can't be " "added"; \
+    throw MAKE_ELLIS_ERR( err_code::TYPE_MISMATCH, msg.str()); \
+  } \
+}
+
+
+#define OPFUNC_NODE_CMP \
+  _OPFUNC_NODE_CMP(<, compared) \
+  _OPFUNC_NODE_CMP(<=, compared) \
+  _OPFUNC_NODE_CMP(>, compared) \
+  _OPFUNC_NODE_CMP(>=, compared)
+/* End of ASFUNCS_NODE_CMP macro. */
+
+
 #define _OPFUNC_NODE_ARITHMETIC(op, verb) \
 node operator op(const node &a, const node &b) \
 { \
@@ -129,8 +143,28 @@ node operator op(const node &a, const node &b) \
   _OPFUNC_NODE_ARITHMETIC(+, added) \
   _OPFUNC_NODE_ARITHMETIC(-, subtracted) \
   _OPFUNC_NODE_ARITHMETIC(*, multiplied) \
-  _OPFUNC_NODE_ARITHMETIC(/, divided)
+  _OPFUNC_NODE_ARITHMETIC(/, divided) \
 /* End of ASFUNCS_NODE_OPS macro. */
+
+
+#define _OPFUNC_CMP(op, typ, f_typ) \
+bool operator op(const node &a, typ b) \
+{ \
+  return a.as_##f_typ() op b; \
+} \
+bool operator op(typ a, const node &b) \
+{ \
+  return a op b.as_##f_typ(); \
+ \
+}
+
+
+#define OPFUNCS_CMP(typ, f_typ) \
+  _OPFUNC_CMP(<, typ, f_typ) \
+  _OPFUNC_CMP(<=, typ, f_typ) \
+  _OPFUNC_CMP(>, typ, f_typ) \
+  _OPFUNC_CMP(>=, typ, f_typ)
+/* End of ASFUNCS_CMP macro. */
 
 
 #define _OPFUNC_ARITHMETIC(op, typ, f_typ, e_typ, short_typ) \
@@ -702,7 +736,14 @@ const node & node::at_path(const std::string &path) const
 }
 
 
+OPFUNC_NODE_CMP
+
 OPFUNC_NODE_ARITHMETIC
+
+OPFUNCS_CMP(int, int64)
+OPFUNCS_CMP(unsigned int, int64)
+OPFUNCS_CMP(int64_t, int64)
+OPFUNCS_CMP(double, double)
 
 OPFUNCS_ARITHMETIC(int, int64, INT64, int)
 OPFUNCS_ARITHMETIC(unsigned int, int64, INT64, int)

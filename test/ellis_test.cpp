@@ -23,6 +23,48 @@ void primitivetest()
   double d1 = (double)v1;
   assert(d1 == 2.1);
 
+  /* Comparison. */
+  v1 = 2;
+  assert(v1 < 3);
+  assert(v1 <= 2);
+  assert(v1 <= 3);
+  assert(v1 > 1);
+  assert(v1 >= 2);
+  assert(v1 >= 1);
+
+  v1 = 2.0;
+  assert(v1 < 3.0);
+  assert(v1 <= 2.0);
+  assert(v1 <= 3.0);
+  assert(v1 > 1.0);
+  assert(v1 >= 2.0);
+  assert(v1 >= 1.0);
+
+  auto type_fail = [](std::function<void()> fn)
+  {
+    bool threw = false;
+    try {
+      fn();
+    } catch(err e) {
+      if (e.code() == err_code::WRONG_TYPE) {
+        threw = true;
+      }
+    }
+    assert(threw);
+  };
+
+  v1 = 1;
+  type_fail([&v1]()
+    {
+      /* Use printf to make sure the line does not get optimized out. */
+      printf("%d", v1 < 2.0);
+    });
+  v1 = 1.0;
+  type_fail([&v1]()
+    {
+      printf("%d", v1 < 2);
+    });
+
   /* Arithmetic. */
   v1 = 2;
   assert(v1 == 2);
@@ -67,19 +109,6 @@ void primitivetest()
   v1 /= 2.0;
   assert(dbl_equal(v1, 2.0));
 
-  auto type_fail = [](std::function<void()> fn)
-  {
-    bool threw = false;
-    try {
-      fn();
-    } catch(err e) {
-      if (e.code() == err_code::WRONG_TYPE) {
-        threw = true;
-      }
-    }
-    assert(threw);
-  };
-
   v1 = 1;
   type_fail([&v1]()
     {
@@ -98,8 +127,6 @@ void primitivetest()
     {
       v1 += 1;
     });
-
-  /* TODO: Add <, >, <=, >= tests */
 }
 
 void strtest()

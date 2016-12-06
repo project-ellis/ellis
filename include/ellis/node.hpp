@@ -87,8 +87,6 @@ class node {
    *
    */
 
-  // TODO: experiment re safety w/o explicit constructors
-
   /** Construct an ARRAY, MAP, or NIL node. */
   node(type);
 
@@ -389,6 +387,66 @@ class node {
   friend class map_node;
 };
 
+
+/*
+ *   ____                                 _
+ *  / ___|___  _ __ ___  _ __   __ _ _ __(_)___  ___  _ __
+ * | |   / _ \| '_ ` _ \| '_ \ / _` | '__| / __|/ _ \| '_ \
+ * | |__| (_) | | | | | | |_) | (_| | |  | \__ \ (_) | | | |
+ *  \____\___/|_| |_| |_| .__/ \__,_|_|  |_|___/\___/|_| |_|
+ *                      |_|
+ *   ___                       _
+ *  / _ \ _ __   ___ _ __ __ _| |_ ___  _ __ ___
+ * | | | | '_ \ / _ \ '__/ _` | __/ _ \| '__/ __|
+ * | |_| | |_) |  __/ | | (_| | || (_) | |  \__ \
+ *  \___/| .__/ \___|_|  \__,_|\__\___/|_|  |___/
+ *       |_|
+ */
+
+bool operator<(const node &, const node &);
+bool operator<=(const node &, const node &);
+bool operator>(const node &, const node &);
+bool operator>=(const node &, const node &);
+
+bool operator<(const node &, int);
+bool operator<=(const node &, int);
+bool operator>(const node &, int);
+bool operator>=(const node &, int);
+
+bool operator<(int, const node &);
+bool operator<=(int, const node &);
+bool operator>(int, const node &);
+bool operator>=(int, const node &);
+
+bool operator<(const node &, unsigned int);
+bool operator<=(const node &, unsigned int);
+bool operator>(const node &, unsigned int);
+bool operator>=(const node &, unsigned int);
+
+bool operator<(unsigned int, const node &);
+bool operator<=(unsigned int, const node &);
+bool operator>(unsigned int, const node &);
+bool operator>=(unsigned int, const node &);
+
+bool operator<(const node &, int64_t);
+bool operator<=(const node &, int64_t);
+bool operator>(const node &, int64_t);
+bool operator>=(const node &, int64_t);
+
+bool operator<(int64_t, const node &);
+bool operator<=(int64_t, const node &);
+bool operator>(int64_t, const node &);
+bool operator>=(int64_t, const node &);
+
+bool operator<(const node &, double);
+bool operator<=(const node &, double);
+bool operator>(const node &, double);
+bool operator>=(const node &, double);
+
+bool operator<(double, const node &);
+bool operator<=(double, const node &);
+bool operator>(double, const node &);
+bool operator>=(double, const node &);
 
 /*
  *     _         _ _   _                    _   _
