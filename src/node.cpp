@@ -105,7 +105,7 @@ bool operator op(const node &a, const node &b) \
   } \
   else { \
     ostringstream msg; \
-    msg << "types " << type_str(a_type) << " and " << type_str(b_type) << "can't be " "added"; \
+    msg << "types " << type_str(a_type) << " and " << type_str(b_type) << "can't be " #verb; \
     throw MAKE_ELLIS_ERR( err_code::TYPE_MISMATCH, msg.str()); \
   } \
 }
@@ -133,7 +133,7 @@ node operator op(const node &a, const node &b) \
   } \
   else { \
     ostringstream msg; \
-    msg << "types " << type_str(a_type) << " and " << type_str(b_type) << "can't be " "added"; \
+    msg << "types " << type_str(a_type) << " and " << type_str(b_type) << "can't be " #verb; \
     throw MAKE_ELLIS_ERR( err_code::TYPE_MISMATCH, msg.str()); \
   } \
 }
