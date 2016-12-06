@@ -28,19 +28,19 @@ enum class err_code {
 
 
 #define MAKE_ELLIS_ERR(CODE, MSG) \
-  err((int)CODE, __FILE__, __LINE__, (MSG))
+  err(CODE, __FILE__, __LINE__, (MSG))
 
 
 class err : public std::runtime_error {
 
 public:
-  int m_code;
+  err_code m_code;
   std::string m_file;
   int m_line;
 
 public:
   err(
-      int code,
+      err_code code,
       const std::string &file,
       int line,
       const std::string &msg);
@@ -50,11 +50,8 @@ public:
   err& operator=(const err &) = default;
 
   /** Returns the machine-usable error code associated with the error.
-   *
-   * This value will be one of the normal errno values, such as EINVAL,
-   * or one of the Ellis-defined values in err_code. Note that the value
-   * will always be negative. */
-  int code();
+   */
+  err_code code();
 
   /** Returns the filename of the location in the code that created the
    * error. */

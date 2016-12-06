@@ -73,7 +73,7 @@ void primitivetest()
     try {
       fn();
     } catch(err e) {
-      if (e.code() == -((int)err_code::WRONG_TYPE)) {
+      if (e.code() == err_code::WRONG_TYPE) {
         threw = true;
       }
     }

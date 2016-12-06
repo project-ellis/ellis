@@ -7,7 +7,7 @@ namespace ellis {
 
 
 err::err(
-    int c,
+    err_code c,
     const std::string &f,
     int l,
     const std::string &m) :
@@ -24,9 +24,9 @@ err::~err()
 }
 
 
-int err::code()
+err_code err::code()
 {
-  return -m_code;
+  return m_code;
 }
 
 
