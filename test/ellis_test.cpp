@@ -110,9 +110,19 @@ void primitivetest()
   assert(dbl_equal(v1, 2.0));
 
   v1 = 1;
+  node v2(2);
+  v1 += v2;
+  assert(v1 == 3);
+
+  v1 = 1.0;
+  v2 = 2.0;
+  v1 += v2;
+  assert(dbl_equal(v1, 3.0));
+
+  v1 = 1;
   type_fail([&v1]()
     {
-      node v2 = v1 + 1.0;
+      node v3 = v1 + 1.0;
     });
   type_fail([&v1]()
     {
@@ -121,7 +131,7 @@ void primitivetest()
   v1 = 1.0;
   type_fail([&v1]()
     {
-      node v2 = v1 + 1;
+      node v3 = v1 + 1;
     });
   type_fail([&v1]()
     {

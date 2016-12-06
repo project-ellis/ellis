@@ -136,6 +136,23 @@ node operator op(const node &a, const node &b) \
     msg << "types " << type_str(a_type) << " and " << type_str(b_type) << "can't be " #verb; \
     throw MAKE_ELLIS_ERR( err_code::TYPE_MISMATCH, msg.str()); \
   } \
+} \
+node node::operator op##=(const node &o) \
+{ \
+  type this_type = get_type(); \
+  type o_type = o.get_type(); \
+  if (this_type == type::INT64 && o_type == type::INT64) { \
+    as_mutable_int64() += o.as_int64(); \
+  } \
+  else if (this_type == type::DOUBLE && o_type == type::DOUBLE) { \
+    as_mutable_double() += o.as_double(); \
+  } \
+  else { \
+    ostringstream msg; \
+    msg << "types " << type_str(this_type) << " and " << type_str(o_type) << "can't be " #verb; \
+    throw MAKE_ELLIS_ERR( err_code::TYPE_MISMATCH, msg.str()); \
+  } \
+  return *this; \
 }
 
 
