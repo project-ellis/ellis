@@ -87,7 +87,7 @@ void primitivetest()
 
   auto dbl_equal = [](double a, double b)
   {
-    return abs(a - b) <= DBL_EPSILON;
+    return std::abs(a - b) <= DBL_EPSILON;
   };
 
   v1 = 2.0;
@@ -161,7 +161,6 @@ void arraytest()
   using namespace ellis;
   node en(type::ARRAY);
   auto &am = en.as_mutable_array();
-  const auto &a = en.as_array();
 
   /* Behavior checks for an empty array. */
   auto empty_chk = [] (const node &n) {
