@@ -26,7 +26,7 @@ err::~err()
 
 int err::code()
 {
-  return m_code;
+  return -m_code;
 }
 
 
