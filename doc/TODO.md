@@ -39,8 +39,6 @@ M Make it easier to install ninja
 
 ## More cleanup
 
-* Compilation test with clang.
-* Turn on code coverage.
 * Run doxygen for purposes of checking inline docs.
 * Extensive tests, including fuzz tests, with valgrind.
 
