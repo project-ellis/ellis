@@ -100,11 +100,30 @@ use the mutable versions to make changes:
   n.as_mutable_double() = 7.1;
 ```
 
+## Casting operators
+We provide cast operators for all the supported types. `std::string` and `const
+char *` casts are explicit, in order to avoid ambiguity when presented with the
+following code:
+
+```
+string s = (string)n;
+```
+
+With implicit string casts, that code will not compile because n can be cast
+either directly to `std::string` or first to `const char *` and then to `const
+char *`.
+
+The other cast operators are implicit in order to reduce the number of operator
+overload functions that need to be written, and to make the calling code easier
+to use.
+
 ## Overloading for int
 
 We do this so that when a person uses the constant 0, which is just an int
 rather than an `int64_t`, the overloading will not cause this to be
 interpreted in a completely crazy way e.g. bool or const char \*.
+Experimentally, we determined that adding int, unsigned int, and `int64_t`
+covers all cases we can find.
 
 ## Overloading for `uint64_t`
 
