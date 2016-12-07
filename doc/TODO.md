@@ -6,10 +6,10 @@ J:Schema archetypal happy case test code.
 B:Schema API
 * Schema C++ code
 * Schema C wrappers
+* Zero-copy I/O for `binary_node`?
 * Schema tests
 J:array-node correctness tests.
 M:C wrappers.
-J:Zero copy I/O interface.
 J:Check whether C++ std::allocator types can form backbone of allocators.
 M:Decoders and encoder C++ API.
 J:JSON encoder/decoder.
@@ -29,7 +29,7 @@ M:Cross-build for at least ARM.
 ## Maturation
 
 M Make it easier to install ninja
-* Decide whether to keep std::string.
+* Create a `u8str_node`.
 * Write at least one simple perf test.
 * Do a perf run to see if there are any major blunders.
 * Investigate an automatic but predictable perf test.
