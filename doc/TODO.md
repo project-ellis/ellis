@@ -6,12 +6,11 @@ J:Schema archetypal happy case test code.
 B:Schema API
 * Schema C++ code
 * Schema C wrappers
-* Zero-copy I/O for `binary_node`?
 * Schema tests
+* Zero-copy I/O for `binary_node`?
 J:array-node correctness tests.
 M:C wrappers.
 J:Check whether C++ std::allocator types can form backbone of allocators.
-M:Decoders and encoder C++ API.
 J:JSON encoder/decoder.
 M:OBD decoder.
 
@@ -33,20 +32,32 @@ M Make it easier to install ninja
 * Write at least one simple perf test.
 * Do a perf run to see if there are any major blunders.
 * Investigate an automatic but predictable perf test.
-* Msgpack encoder/decoder.
-* XML encoder/decoder.
-* YAML encoder/decoder.
+* Msgpack codec
+* XML codec
+* YAML codec
+* ROS codec?
 
 ## More cleanup
 
 * Run doxygen for purposes of checking inline docs.
 * Extensive tests, including fuzz tests, with valgrind.
 
-## Releasing to public
+## Initial release to public
 
+* Command line converter tool.
+* Support half a dozen formats that people want.
 * Pick license.
 * General documentation for public.
 * Build instructions.
 * Github workflow instructions.
 * Sample code.
 * Sample encoders/decoders.
+
+## Further improvements
+
+* Meson understands the enabling of different codecs (effects lib, headers).
+* Codec registration system via shared libraries, dlopen, etc.
+* Issue tracking, documented in README.
+* Manual pages.
+* Packaging for debian.
+* Packaging for redhat.
