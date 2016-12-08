@@ -11,7 +11,6 @@
 #include <ellis/defs.hpp>
 #include <ellis/err.hpp>
 #include <ellis/node.hpp>
-#include <memory>
 
 namespace ellis {
 
