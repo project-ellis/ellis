@@ -13,7 +13,6 @@
 #include <ellis/node.hpp>
 #include <ellis/stream/fd_input_stream.hpp>
 #include <ellis/stream/fd_output_stream.hpp>
-#include <memory>
 
 namespace ellis {
 

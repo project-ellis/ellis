@@ -12,7 +12,6 @@
 #include <ellis/err.hpp>
 #include <ellis/node.hpp>
 #include <ellis/stream/fd_output_stream.hpp>
-#include <memory>
 
 namespace ellis {
 

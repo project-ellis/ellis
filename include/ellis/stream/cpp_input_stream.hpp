@@ -12,8 +12,6 @@
 #include <ellis/err.hpp>
 #include <ellis/node.hpp>
 #include <ellis/sync_input_stream.hpp>
-#include <istream>
-#include <memory>
 
 namespace ellis {
 

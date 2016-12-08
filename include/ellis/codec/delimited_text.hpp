@@ -13,7 +13,6 @@
 #include <ellis/node.hpp>
 #include <ellis/stream_decoder.hpp>
 #include <ellis/stream_encoder.hpp>
-#include <memory>
 #include <sstream>
 
 namespace ellis {
