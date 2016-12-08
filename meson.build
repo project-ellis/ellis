@@ -51,18 +51,18 @@ install_headers(public_headers, subdir: 'ellis')
 
 # libellis.
 src = [
-  'src/array_node.cpp',
-  'src/binary_node.cpp',
   'src/codec/delimited_text.cpp',
-  'src/err.cpp',
-  'src/map_node.cpp',
-  'src/node.cpp',
+  'src/core/array_node.cpp',
+  'src/core/binary_node.cpp',
+  'src/core/err.cpp',
+  'src/core/map_node.cpp',
+  'src/core/node.cpp',
+  'src/core/type.cpp',
   'src/stream/cpp_input_stream.cpp',
   'src/stream/cpp_output_stream.cpp',
   'src/stream/file_input_stream.cpp',
   'src/stream/file_output_stream.cpp',
-  'src/stream/tcp_client_stream.cpp',
-  'src/type.cpp']
+  'src/stream/tcp_client_stream.cpp']
 lib = shared_library(
   'ellis',
   src,
