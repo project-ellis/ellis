@@ -24,9 +24,9 @@ public:
 
   ~file_input_stream();
 
-  bool next_input_buf(byte **buf, int *bytecount) override;
+  bool next_input_buf(byte **buf, size_t *bytecount) override;
 
-  void put_back(int bytecount) override;
+  void put_back(size_t bytecount) override;
 
   std::unique_ptr<err> get_input_error() override;
 };

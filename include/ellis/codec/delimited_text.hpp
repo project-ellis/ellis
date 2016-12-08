@@ -34,7 +34,7 @@ public:
 
   decoding_status consume_buffer(
       const byte *buf,
-      int *bytecount) override;
+      size_t *bytecount) override;
 
   std::unique_ptr<node> get_node() override;
 
@@ -47,8 +47,8 @@ public:
 class delimited_text_encoder : public stream_encoder {
   std::stringstream m_ss;
   std::unique_ptr<err> m_err;
-  int m_sspos = 0;
-  int m_ssend = 0;
+  size_t m_sspos = 0;
+  size_t m_ssend = 0;
 
   void _clear_ss();
 
@@ -59,7 +59,7 @@ public:
 
   encoding_status fill_buffer(
       byte *buf,
-      int *bytecount) override;
+      size_t *bytecount) override;
 
   std::unique_ptr<err> get_error() override;
 

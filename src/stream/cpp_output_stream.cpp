@@ -9,13 +9,13 @@ namespace ellis {
 cpp_output_stream::cpp_output_stream(std::ostream &os) : m_os(os) {
 }
 
-bool cpp_output_stream::next_output_buf(byte **buf, int *bytecount) {
+bool cpp_output_stream::next_output_buf(byte **buf, size_t *bytecount) {
   *buf = m_buf;
   *bytecount = sizeof(m_buf);
   return true;
 }
 
-bool cpp_output_stream::emit(int bytecount) {
+bool cpp_output_stream::emit(size_t bytecount) {
   // TODO: handle failure
   m_os.write((char*)m_buf, bytecount);
   return true;

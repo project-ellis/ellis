@@ -17,11 +17,11 @@ tcp_stream::~tcp_stream() {
   // close(m_fd);
 }
 
-bool tcp_stream::next_input_buf(byte **buf, int *bytecount) {
+bool tcp_stream::next_input_buf(byte **buf, size_t *bytecount) {
   return m_fdis->next_input_buf(buf, bytecount);
 }
 
-void tcp_stream::put_back(int bytecount) {
+void tcp_stream::put_back(size_t bytecount) {
   return m_fdis->put_back(bytecount);
 }
 
@@ -29,11 +29,11 @@ unique_ptr<err> tcp_stream::get_input_error() {
   return m_fdis->get_input_error();
 }
 
-bool tcp_stream::next_output_buf(byte **buf, int *bytecount) {
+bool tcp_stream::next_output_buf(byte **buf, size_t *bytecount) {
   return m_fdos->next_output_buf(buf, bytecount);
 }
 
-bool tcp_stream::emit(int bytecount) {
+bool tcp_stream::emit(size_t bytecount) {
   return m_fdos->emit(bytecount);
 }
 

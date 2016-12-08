@@ -23,7 +23,7 @@ public:
   json_decoder();
   decoding_status consume_buffer(
       const byte *buf,
-      int *bytecount) override;
+      size_t *bytecount) override;
   std::unique_ptr<node> get_node() override;
   std::unique_ptr<err> get_error() override;
   void reset() override;
@@ -35,7 +35,7 @@ public:
   json_encoder();
   encoding_status fill_buffer(
       byte *buf,
-      int *bytecount) override;
+      size_t *bytecount) override;
   std::unique_ptr<err> get_error() override;
   void reset(const node *new_node) override;
 };

@@ -31,7 +31,7 @@ public:
    *   true  --> Buffer is available (and has been returned).
    *   false --> Buffer is unavailable (check get_input_error() for details).
    */
-  virtual bool next_output_buf(byte **buf, int *bytecount) = 0;
+  virtual bool next_output_buf(byte **buf, size_t *bytecount) = 0;
 
   /** Send bytecount bytes of data stored in the buffer (the last buffer
    * returned by next_output_buf).
@@ -40,7 +40,7 @@ public:
    *   true  --> Data successfully written.
    *   false --> Problem writing (check get_output_error() for details).
    */
-  virtual bool emit(int bytecount) = 0;
+  virtual bool emit(size_t bytecount) = 0;
 
   /** Return the error details.  Caller owns it now.  */
   virtual std::unique_ptr<err> get_output_error() = 0;

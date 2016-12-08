@@ -57,8 +57,7 @@ public:
    */
   virtual decoding_status consume_buffer(
       const byte *buf,
-      // TODO: martin likes size_t
-      int *bytecount) = 0;
+      size_t *bytecount) = 0;
 
   /** Return the constructed node.
    *

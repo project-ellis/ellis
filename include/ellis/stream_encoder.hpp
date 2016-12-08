@@ -45,7 +45,7 @@ public:
    */
   virtual encoding_status fill_buffer(
       byte *buf,
-      int *bytecount) = 0;
+      size_t *bytecount) = 0;
 
   /** Return the error details.  Caller owns it now.
    */

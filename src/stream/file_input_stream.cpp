@@ -17,11 +17,11 @@ file_input_stream::~file_input_stream() {
   // close(m_fd);
 }
 
-bool file_input_stream::next_input_buf(byte **buf, int *bytecount) {
+bool file_input_stream::next_input_buf(byte **buf, size_t *bytecount) {
   return m_fdis->next_input_buf(buf, bytecount);
 }
 
-void file_input_stream::put_back(int bytecount) {
+void file_input_stream::put_back(size_t bytecount) {
   return m_fdis->put_back(bytecount);
 }
 

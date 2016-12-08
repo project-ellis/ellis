@@ -24,9 +24,9 @@ public:
 
   ~file_output_stream();
 
-  bool next_output_buf(byte **buf, int *bytecount) override;
+  bool next_output_buf(byte **buf, size_t *bytecount) override;
 
-  bool emit(int bytecount) override;
+  bool emit(size_t bytecount) override;
 
   std::unique_ptr<err> get_output_error() override;
 };

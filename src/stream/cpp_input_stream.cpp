@@ -8,7 +8,7 @@ namespace ellis {
 cpp_input_stream::cpp_input_stream(std::istream &is) : m_is(is) {
 }
 
-bool cpp_input_stream::next_input_buf(byte **buf, int *bytecount) {
+bool cpp_input_stream::next_input_buf(byte **buf, size_t *bytecount) {
   if (m_pos < m_avail) {
     /* We have some leftover buffer from earlier.  Return that. */
     *buf = m_buf + m_pos;
@@ -34,7 +34,7 @@ bool cpp_input_stream::next_input_buf(byte **buf, int *bytecount) {
   return true;
 }
 
-void cpp_input_stream::put_back(int bytecount) {
+void cpp_input_stream::put_back(size_t bytecount) {
   m_pos = m_avail - bytecount;
 }
 

@@ -25,9 +25,9 @@ class cpp_output_stream : public sync_output_stream {
 public:
   cpp_output_stream(std::ostream &os);
 
-  bool next_output_buf(byte **buf, int *bytecount) override;
+  bool next_output_buf(byte **buf, size_t *bytecount) override;
 
-  bool emit(int bytecount) override;
+  bool emit(size_t bytecount) override;
 
   std::unique_ptr<err> get_output_error() override;
 };

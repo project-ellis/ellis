@@ -31,7 +31,7 @@ unique_ptr<node> load(
   deco->reset();
   while (1) {
     byte *buf = nullptr;
-    int buf_remain = 0;
+    size_t buf_remain = 0;
     /* Need another block; request it. */
     if (! in->next_input_buf(&buf, &buf_remain)) {
       *err_ret = in->get_input_error();
@@ -76,7 +76,7 @@ bool dump(
   enco->reset(nod);
   while (1) {
     byte *buf = nullptr;
-    int bytecount = 0;
+    size_t bytecount = 0;
     /* Request a buffer to fill data into. */
     if (! out->next_output_buf(&buf, &bytecount)) {
       *err_ret = std::move(out->get_output_error());

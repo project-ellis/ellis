@@ -17,11 +17,11 @@ file_output_stream::~file_output_stream() {
   // close(m_fd);
 }
 
-bool file_output_stream::next_output_buf(byte **buf, int *bytecount) {
+bool file_output_stream::next_output_buf(byte **buf, size_t *bytecount) {
   return m_fdos->next_output_buf(buf, bytecount);
 }
 
-bool file_output_stream::emit(int bytecount) {
+bool file_output_stream::emit(size_t bytecount) {
   return m_fdos->emit(bytecount);
 }
 

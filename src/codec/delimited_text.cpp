@@ -21,7 +21,7 @@ delimited_text_decoder::delimited_text_decoder() :
 
 decoding_status delimited_text_decoder::consume_buffer(
     const byte *buf,
-    int *bytecount)
+    size_t *bytecount)
 {
   const byte *p_end = buf + *bytecount;
   for (const byte *p = buf; p < p_end; p++) {
@@ -74,10 +74,10 @@ delimited_text_encoder::~delimited_text_encoder()
 
 encoding_status delimited_text_encoder::fill_buffer(
     byte *buf,
-    int *bytecount)
+    size_t *bytecount)
 {
-  int ss_avail = m_ssend - m_sspos;
-  int actual_bc = std::min(*bytecount, ss_avail);
+  size_t ss_avail = m_ssend - m_sspos;
+  size_t actual_bc = std::min(*bytecount, ss_avail);
   m_ss.read((char *)buf, actual_bc);
   m_sspos += actual_bc;
   *bytecount = actual_bc;
