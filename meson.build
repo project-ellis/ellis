@@ -91,9 +91,9 @@ test_exe = executable(
 test('ellis_test', test_exe)
 
 codec_test_exe = executable(
-  'codec_test',
+  'codectest',
   'test/codec_test.cpp',
   include_directories: inc,
   link_with: lib,
   dependencies: thread_deps)
-test('codec_test', codec_test_exe)
+test('codectest', codec_test_exe)
