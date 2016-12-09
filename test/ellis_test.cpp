@@ -10,7 +10,7 @@
 #include <stdio.h>
 #include <string.h>
 
-static const uint8_t k_somedata[] = {
+static const ellis::byte k_somedata[] = {
   0x00, 0x81, 0x23, 0xE8,
   0xD8, 0xAF, 0xF7, 0x00
 };
@@ -309,7 +309,7 @@ void binarytest()
   {
     const auto &b = n.as_binary();
     assert(b.length() == len);
-    const uint8_t *p = b.data();
+    const byte *p = b.data();
     for (size_t i = 0; i < len; i++) {
       assert(p[i] == 0);
       assert(b[i] == 0);

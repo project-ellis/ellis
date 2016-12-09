@@ -21,7 +21,7 @@ namespace ellis {
 namespace payload_types {
   using arr_t = std::vector<node>;
   using map_t = std::unordered_map<std::string, node>;
-  using bin_t = std::vector<uint8_t>;
+  using bin_t = std::vector<byte>;
   using refcount_t = unsigned;
 }
 

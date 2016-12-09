@@ -35,14 +35,14 @@ public:
    *
    * Will throw std::out_of_range if out of range.
    */
-  uint8_t & operator[](size_t);
-  const uint8_t & operator[](size_t) const;
+  byte & operator[](size_t);
+  const byte & operator[](size_t) const;
 
   /** Binary byte-for-byte comparison; length must be equal also. */
   bool operator==(const binary_node &) const;
 
   /** Append binary data, extending length as needed. */
-  void append(const uint8_t *data, size_t len);
+  void append(const byte *data, size_t len);
 
   /** Set the length.  Will truncate if less than current length, or fill
    * with zero bytes if greater than current length.
@@ -50,8 +50,8 @@ public:
   void resize(size_t);
 
   /** Return a pointer to the binary data. */
-  uint8_t *data();
-  const uint8_t *data() const;
+  byte *data();
+  const byte *data() const;
 
   /** Return the length of the binary data. */
   size_t length() const;

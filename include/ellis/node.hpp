@@ -9,6 +9,7 @@
 #ifndef ELLIS_NODE_HPP_
 #define ELLIS_NODE_HPP_
 
+#include <ellis/defs.hpp>
 #include <ellis/type.hpp>
 #include <string>
 
@@ -91,7 +92,7 @@ class node {
   node(type);
 
   /** Construct a BINARY node. */
-  node(const uint8_t *mem, size_t bytes);
+  node(const byte *mem, size_t bytes);
 
   /** Construct a BOOL node. */
   node(bool);

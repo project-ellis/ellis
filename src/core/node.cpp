@@ -446,7 +446,7 @@ node::node(type t)
 }
 
 
-node::node(const uint8_t *mem, size_t bytes)
+node::node(const byte *mem, size_t bytes)
 {
   _zap_contents(type::BINARY);
   m_pay->m_bin.resize(bytes);

@@ -20,13 +20,13 @@ binary_node::~binary_node()
 }
 
 
-uint8_t& binary_node::operator[](size_t index)
+byte& binary_node::operator[](size_t index)
 {
   return GETBIN[index];
 }
 
 
-const uint8_t& binary_node::operator[](size_t index) const
+const byte& binary_node::operator[](size_t index) const
 {
   return GETBIN[index];
 }
@@ -38,7 +38,7 @@ bool binary_node::operator==(const binary_node &o) const
 }
 
 
-void binary_node::append(const uint8_t *srcdata, size_t len)
+void binary_node::append(const byte *srcdata, size_t len)
 {
   GETBIN.insert(GETBIN.end(), srcdata, srcdata+len);
 }
@@ -50,13 +50,13 @@ void binary_node::resize(size_t n)
 }
 
 
-uint8_t * binary_node::data()
+byte * binary_node::data()
 {
   return GETBIN.data();
 }
 
 
-const uint8_t * binary_node::data() const
+const byte * binary_node::data() const
 {
   return GETBIN.data();
 }
