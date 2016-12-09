@@ -4,7 +4,7 @@
 #include <ellis/core/array_node.hpp>
 #include <ellis/core/binary_node.hpp>
 #include <ellis/core/map_node.hpp>
-#include <ellis/private/err.hpp>
+#include <ellis/private/core/err.hpp>
 #include <ellis/private/using.hpp>
 #include <ellis/stream/cpp_input_stream.hpp>
 #include <ellis/stream/cpp_output_stream.hpp>

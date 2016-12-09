@@ -1,6 +1,6 @@
 #include <ellis/stream/file_output_stream.hpp>
 
-#include <ellis/private/err.hpp>
+#include <ellis/private/core/err.hpp>
 #include <ellis/private/using.hpp>
 
 namespace ellis {

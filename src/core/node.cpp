@@ -5,8 +5,8 @@
 #include <ellis/core/err.hpp>
 #include <ellis/core/map_node.hpp>
 #include <ellis/core/type.hpp>
-#include <ellis/private/err.hpp>
-#include <ellis/private/payload.hpp>
+#include <ellis/private/core/err.hpp>
+#include <ellis/private/core/payload.hpp>
 #include <ellis/private/using.hpp>
 #include <sstream>
 #include <stddef.h>
