@@ -1,6 +1,6 @@
-#include <ellis/binary_node.hpp>
+#include <ellis/core/binary_node.hpp>
 
-#include <ellis/node.hpp>
+#include <ellis/core/node.hpp>
 #include <ellis/private/payload.hpp>
 #include <ellis/private/using.hpp>
 

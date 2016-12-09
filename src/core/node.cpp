@@ -1,13 +1,13 @@
-#include <ellis/node.hpp>
+#include <ellis/core/node.hpp>
 
-#include <ellis/array_node.hpp>
-#include <ellis/binary_node.hpp>
-#include <ellis/err.hpp>
-#include <ellis/map_node.hpp>
+#include <ellis/core/array_node.hpp>
+#include <ellis/core/binary_node.hpp>
+#include <ellis/core/err.hpp>
+#include <ellis/core/map_node.hpp>
+#include <ellis/core/type.hpp>
 #include <ellis/private/err.hpp>
 #include <ellis/private/payload.hpp>
 #include <ellis/private/using.hpp>
-#include <ellis/type.hpp>
 #include <sstream>
 #include <stddef.h>
 #include <string.h>

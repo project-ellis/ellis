@@ -9,8 +9,8 @@
 #ifndef ELLIS_NODE_HPP_
 #define ELLIS_NODE_HPP_
 
-#include <ellis/defs.hpp>
-#include <ellis/type.hpp>
+#include <ellis/core/defs.hpp>
+#include <ellis/core/type.hpp>
 #include <string>
 
 

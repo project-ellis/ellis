@@ -11,7 +11,7 @@
 #ifndef ELLIS_FLOW_H_
 #define ELLIS_FLOW_H_
 
-#include <ellis/ellis_ellis.h>
+#include <ellis/core/ellis.h>
 
 #ifndef __cplusplus
 extern "C" {

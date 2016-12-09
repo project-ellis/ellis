@@ -1,16 +1,16 @@
 #undef NDEBUG
 #include <assert.h>
-#include <stdio.h>
-#include <ellis/array_node.hpp>
-#include <ellis/binary_node.hpp>
 #include <ellis/codec/delimited_text.hpp>
-#include <ellis/map_node.hpp>
+#include <ellis/core/array_node.hpp>
+#include <ellis/core/binary_node.hpp>
+#include <ellis/core/map_node.hpp>
 #include <ellis/private/err.hpp>
 #include <ellis/private/using.hpp>
 #include <ellis/stream/cpp_input_stream.hpp>
 #include <ellis/stream/cpp_output_stream.hpp>
 #include <iostream>
 #include <sstream>
+#include <stdio.h>
 #include <string.h>
 
 namespace ellis {

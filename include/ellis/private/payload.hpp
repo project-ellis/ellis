@@ -9,7 +9,7 @@
 #ifndef ELLIS_PRIVATE_PAYLOAD_HPP_
 #define ELLIS_PRIVATE_PAYLOAD_HPP_
 
-#include <ellis/node.hpp>
+#include <ellis/core/node.hpp>
 #include <stdint.h>
 #include <string>
 #include <unordered_map>

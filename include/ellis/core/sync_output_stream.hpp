@@ -8,9 +8,9 @@
 #ifndef ELLIS_SYNC_OUTPUT_STREAM_HPP_
 #define ELLIS_SYNC_OUTPUT_STREAM_HPP_
 
-#include <ellis/defs.hpp>
-#include <ellis/err.hpp>
-#include <ellis/node.hpp>
+#include <ellis/core/defs.hpp>
+#include <ellis/core/err.hpp>
+#include <ellis/core/node.hpp>
 #include <memory>
 
 namespace ellis {

@@ -1,4 +1,4 @@
-#include <ellis/type.hpp>
+#include <ellis/core/type.hpp>
 
 #include <ellis/private/using.hpp>
 

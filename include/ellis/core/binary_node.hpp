@@ -9,7 +9,7 @@
 #ifndef ELLIS_BINARY_NODE_HPP_
 #define ELLIS_BINARY_NODE_HPP_
 
-#include <ellis/node.hpp>
+#include <ellis/core/node.hpp>
 
 namespace ellis {
 

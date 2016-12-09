@@ -1,11 +1,11 @@
 #undef NDEBUG
 #include <assert.h>
 #include <cfloat>
-#include <ellis/array_node.hpp>
-#include <ellis/binary_node.hpp>
-#include <ellis/err.hpp>
-#include <ellis/map_node.hpp>
-#include <ellis/node.hpp>
+#include <ellis/core/array_node.hpp>
+#include <ellis/core/binary_node.hpp>
+#include <ellis/core/err.hpp>
+#include <ellis/core/map_node.hpp>
+#include <ellis/core/node.hpp>
 #include <ellis/private/using.hpp>
 #include <stdio.h>
 #include <string.h>

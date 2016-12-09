@@ -9,7 +9,7 @@
 #ifndef ELLIS_ARRAY_NODE_HPP_
 #define ELLIS_ARRAY_NODE_HPP_
 
-#include <ellis/node.hpp>
+#include <ellis/core/node.hpp>
 #include <functional>
 
 namespace ellis {
