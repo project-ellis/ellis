@@ -78,6 +78,7 @@ pkg.generate(
 # Static analysis.
 run_target('check', command: 'meson/check')
 run_target('clangcheck', command: 'meson/clangcheck')
+run_target('clangtidy', command: 'meson/clangtidy')
 run_target('cppcheck', command: 'meson/cppcheck')
 
 # Tests.
