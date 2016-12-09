@@ -25,7 +25,7 @@ public:
   fd_output_stream(int fd);
   bool next_output_buf(byte **buf, size_t *bytecount) override;
   bool emit(size_t bytecount) override;
-  std::unique_ptr<err> get_output_error() override;
+  std::unique_ptr<err> extract_output_error() override;
 };
 
 

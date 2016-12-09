@@ -23,8 +23,8 @@ public:
   decoding_status consume_buffer(
       const byte *buf,
       size_t *bytecount) override;
-  std::unique_ptr<node> get_node() override;
-  std::unique_ptr<err> get_error() override;
+  std::unique_ptr<node> extract_node() override;
+  std::unique_ptr<err> extract_error() override;
   void reset() override;
 };
 
@@ -35,7 +35,7 @@ public:
   encoding_status fill_buffer(
       byte *buf,
       size_t *bytecount) override;
-  std::unique_ptr<err> get_error() override;
+  std::unique_ptr<err> extract_error() override;
   void reset(const node *new_node) override;
 };
 

@@ -40,7 +40,7 @@ void cpp_input_stream::put_back(size_t bytecount) {
   m_pos = m_avail - bytecount;
 }
 
-unique_ptr<err> cpp_input_stream::get_input_error() {
+unique_ptr<err> cpp_input_stream::extract_input_error() {
   return std::move(m_err);
 }
 

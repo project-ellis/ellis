@@ -37,8 +37,8 @@ public:
    * CONTINUE will be returned (to indicate that additional space is needed
    * for the encoding--to be provided via additional calls to fill_buffer).
    *
-   * If a status of ERROR is returned, the get_error() function may be used to
-   * access the details of the error.
+   * If a status of ERROR is returned, the extract_error() function may be
+   * used to access the details of the error.
    *
    * If a status of END or ERROR is returned, then the decoder must be reset
    * before any further calls to fill_buffer().
@@ -49,7 +49,7 @@ public:
 
   /** Return the error details.  Caller owns it now.
    */
-  virtual std::unique_ptr<err> get_error() = 0;
+  virtual std::unique_ptr<err> extract_error() = 0;
 
   /** Reset the encoder to start encoding new_node into output buffers. */
   virtual void reset(const node *new_node) = 0;

@@ -27,7 +27,7 @@ public:
 
   void put_back(size_t bytecount) override;
 
-  std::unique_ptr<err> get_input_error() override;
+  std::unique_ptr<err> extract_input_error() override;
 };
 
 

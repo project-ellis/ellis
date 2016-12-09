@@ -47,10 +47,10 @@ public:
    * provided via additional calls to consume_buffer).
    *
    * If a status of END is returned, the constructed object may be obtained
-   * via the get_node() function.
+   * via the extract_node() function.
    *
-   * If a status of ERROR is returned, the get_error() function may be used to
-   * access the details of the error.
+   * If a status of ERROR is returned, the extract_error() function may be
+   * used to access the details of the error.
    *
    * If a status of END or ERROR is returned, then the decoder must be reset
    * before any further calls to consume_buffer().
@@ -63,11 +63,11 @@ public:
    *
    * It is only valid to call this when consume_buffer has returned COMPLETE.
    */
-  virtual std::unique_ptr<node> get_node() = 0;
+  virtual std::unique_ptr<node> extract_node() = 0;
 
   /** Return the error details.  Caller owns it now.
    */
-  virtual std::unique_ptr<err> get_error() = 0;
+  virtual std::unique_ptr<err> extract_error() = 0;
 
   /** Reset the encoder to start encoding a new ellis node.
    *

@@ -25,8 +25,8 @@ void file_input_stream::put_back(size_t bytecount) {
   return m_fdis->put_back(bytecount);
 }
 
-unique_ptr<err> file_input_stream::get_input_error() {
-  return m_fdis->get_input_error();
+unique_ptr<err> file_input_stream::extract_input_error() {
+  return m_fdis->extract_input_error();
 }
 
 

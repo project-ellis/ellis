@@ -25,8 +25,8 @@ void tcp_stream::put_back(size_t bytecount) {
   return m_fdis->put_back(bytecount);
 }
 
-unique_ptr<err> tcp_stream::get_input_error() {
-  return m_fdis->get_input_error();
+unique_ptr<err> tcp_stream::extract_input_error() {
+  return m_fdis->extract_input_error();
 }
 
 bool tcp_stream::next_output_buf(byte **buf, size_t *bytecount) {
@@ -37,8 +37,8 @@ bool tcp_stream::emit(size_t bytecount) {
   return m_fdos->emit(bytecount);
 }
 
-unique_ptr<err> tcp_stream::get_output_error() {
-  return m_fdos->get_output_error();
+unique_ptr<err> tcp_stream::extract_output_error() {
+  return m_fdos->extract_output_error();
 }
 
 

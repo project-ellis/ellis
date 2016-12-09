@@ -21,7 +21,7 @@ bool cpp_output_stream::emit(size_t bytecount) {
   return true;
 }
 
-unique_ptr<err> cpp_output_stream::get_output_error() {
+unique_ptr<err> cpp_output_stream::extract_output_error() {
   return std::move(m_err);
 }
 

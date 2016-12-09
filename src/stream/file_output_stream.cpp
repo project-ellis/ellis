@@ -25,8 +25,8 @@ bool file_output_stream::emit(size_t bytecount) {
   return m_fdos->emit(bytecount);
 }
 
-unique_ptr<err> file_output_stream::get_output_error() {
-  return m_fdos->get_output_error();
+unique_ptr<err> file_output_stream::extract_output_error() {
+  return m_fdos->extract_output_error();
 }
 
 

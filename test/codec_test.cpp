@@ -34,7 +34,7 @@ unique_ptr<node> load(
     size_t buf_remain = 0;
     /* Need another block; request it. */
     if (! in->next_input_buf(&buf, &buf_remain)) {
-      *err_ret = in->get_input_error();
+      *err_ret = in->extract_input_error();
       return nullptr;
     }
     assert(buf != nullptr);
@@ -45,10 +45,9 @@ unique_ptr<node> load(
       /* buf_remain has been updated to reflect unconsumed bytes remaining. */
       in->put_back(buf_remain);
       if (st == decoding_status::END) {
-        return deco->get_node();
-        //return std::move(deco->get_node());
+        return deco->extract_node();
       } else {
-        *err_ret = deco->get_error();
+        *err_ret = deco->extract_error();
         return nullptr;
       }
     }
@@ -93,21 +92,21 @@ bool dump(
     size_t bytecount = 0;
     /* Request a buffer to fill data into. */
     if (! out->next_output_buf(&buf, &bytecount)) {
-      *err_ret = std::move(out->get_output_error());
+      *err_ret = std::move(out->extract_output_error());
       return false;
     }
     /* Have encoder fill the buffer. */
     auto st = enco->fill_buffer(buf, &bytecount);
     /* Emit whatever we were given to emit, regardless of error status. */
     if (! out->emit(bytecount)) {
-      *err_ret = std::move(out->get_output_error());
+      *err_ret = std::move(out->extract_output_error());
       return false;
     }
     if (st == encoding_status::END) {
       return true;
     }
     else if (st == encoding_status::ERROR) {
-      *err_ret = std::move(enco->get_error());
+      *err_ret = std::move(enco->extract_error());
     }
     else if (st == encoding_status::CONTINUE) {
       continue;

@@ -28,7 +28,7 @@ public:
    *
    * Return values:
    *   true  --> Data is available (and has been returned).
-   *   false --> Data is unavailable (check get_input_error() for details).
+   *   false --> Data is unavailable (check extract_input_error() for details).
    */
   virtual bool next_input_buf(byte **buf, size_t *bytecount) = 0;
 
@@ -36,7 +36,7 @@ public:
   virtual void put_back(size_t bytecount) = 0;
 
   /** Return the error details.  Caller owns it now.  */
-  virtual std::unique_ptr<err> get_input_error() = 0;
+  virtual std::unique_ptr<err> extract_input_error() = 0;
 
   virtual ~sync_input_stream() {}
 };

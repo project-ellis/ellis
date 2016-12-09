@@ -29,7 +29,7 @@ public:
    *
    * Return values:
    *   true  --> Buffer is available (and has been returned).
-   *   false --> Buffer is unavailable (check get_input_error() for details).
+   *   false --> Buffer unavailable (check extract_output_error() for details).
    */
   virtual bool next_output_buf(byte **buf, size_t *bytecount) = 0;
 
@@ -38,12 +38,12 @@ public:
    *
    * Return values:
    *   true  --> Data successfully written.
-   *   false --> Problem writing (check get_output_error() for details).
+   *   false --> Problem writing (check extract_output_error() for details).
    */
   virtual bool emit(size_t bytecount) = 0;
 
   /** Return the error details.  Caller owns it now.  */
-  virtual std::unique_ptr<err> get_output_error() = 0;
+  virtual std::unique_ptr<err> extract_output_error() = 0;
 
   virtual ~sync_output_stream() {}
 };

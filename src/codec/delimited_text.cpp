@@ -40,12 +40,12 @@ decoding_status delimited_text_decoder::consume_buffer(
   return decoding_status::CONTINUE;
 }
 
-unique_ptr<node> delimited_text_decoder::get_node()
+unique_ptr<node> delimited_text_decoder::extract_node()
 {
   return std::move(m_node);
 }
 
-unique_ptr<err> delimited_text_decoder::get_error()
+unique_ptr<err> delimited_text_decoder::extract_error()
 {
   return std::move(m_err);
 }
@@ -87,7 +87,7 @@ encoding_status delimited_text_encoder::fill_buffer(
   return encoding_status::CONTINUE;
 }
 
-unique_ptr<err> delimited_text_encoder::get_error()
+unique_ptr<err> delimited_text_encoder::extract_error()
 {
   return std::move(m_err);
 }

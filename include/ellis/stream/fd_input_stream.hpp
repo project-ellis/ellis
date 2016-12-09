@@ -25,7 +25,7 @@ public:
   fd_input_stream(int fd);
   bool next_input_buf(byte **buf, size_t *bytecount) override;
   void put_back(size_t bytecount) override;
-  std::unique_ptr<err> get_input_error() override;
+  std::unique_ptr<err> extract_input_error() override;
 };
 
 
