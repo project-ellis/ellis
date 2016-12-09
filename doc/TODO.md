@@ -55,6 +55,7 @@ M Make it easier to install ninja
 
 ## Further improvements
 
+* Make clang-format support our coding style programatically.
 * Meson understands the enabling of different codecs (effects lib, headers).
 * Codec registration system via shared libraries, dlopen, etc.
 * Issue tracking, documented in README.
