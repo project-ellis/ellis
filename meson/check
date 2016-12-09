@@ -21,6 +21,7 @@ wrap() {
   fi
 }
 
-wrap meson/clangcheck
 wrap meson/cppcheck
+wrap meson/clangcheck
+wrap meson/clangtidy
 wrap build/ellis_test
