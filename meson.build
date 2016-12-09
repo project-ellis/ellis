@@ -83,12 +83,12 @@ run_target('cppcheck', command: 'meson/cppcheck')
 
 # Tests.
 test_exe = executable(
-  'ellis_test',
+  'ellistest',
   'test/ellis_test.cpp',
   include_directories: inc,
   link_with: lib,
   dependencies: thread_deps)
-test('ellis_test', test_exe)
+test('ellistest', test_exe)
 
 codec_test_exe = executable(
   'codectest',
