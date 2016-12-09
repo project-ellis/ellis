@@ -31,6 +31,8 @@ bool cpp_input_stream::next_input_buf(byte **buf, size_t *bytecount) {
     m_err.reset(new MAKE_ELLIS_ERR(err_code::PARSING_ERROR, "end of file"));
     return false;
   }
+  *buf = m_buf;
+  *bytecount = m_avail;
   return true;
 }
 

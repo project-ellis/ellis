@@ -37,6 +37,8 @@ unique_ptr<node> load(
       *err_ret = in->get_input_error();
       return nullptr;
     }
+    assert(buf != nullptr);
+    assert(buf_remain > 0);
     /* Give block to decoder. */
     auto st = deco->consume_buffer(buf, &buf_remain);
     if (st != decoding_status::CONTINUE) {
@@ -57,6 +59,18 @@ unique_ptr<node> load(
   }
   assert(0);  /* should be unreachable */
   return nullptr;
+}
+
+
+template<typename TSTREAM, typename TDECODER>
+unique_ptr<node> load(TSTREAM &&in, TDECODER &&deco)
+{
+  unique_ptr<err> e;
+  unique_ptr<node> rv = load(&in, &deco, &e);
+  if (e) {
+    throw *e;
+  }
+  return rv;
 }
 
 
@@ -107,6 +121,17 @@ bool dump(
 }
 
 
+template<typename TSTREAM, typename TENCODER>
+void dump(const node *nod, TSTREAM &&out, TENCODER &&enco)
+{
+  unique_ptr<err> e;
+  dump(nod, &out, &enco, &e);
+  if (e) {
+    throw *e;
+  }
+}
+
+
 }  /* namespace ellis */
 
 
@@ -121,16 +146,10 @@ int main() {
   std::stringstream ss1;
   ss1 << "one" << std::endl << "two" << std::endl << "three" << std::endl;
   auto s1 = ss1.str();
-  unique_ptr<err> e;
-  cpp_input_stream is(ss1);
-  delimited_text_decoder dec;
-  auto n = load(&is, &dec, &e);
-  assert(!e);
+  auto n = load(cpp_input_stream(ss1), delimited_text_decoder());
   std::stringstream ss2;
-  cpp_output_stream os(ss2);
-  delimited_text_encoder enc;
-  assert(dump(n.get(), &os, &enc, &e));
+  dump(n.get(), cpp_output_stream(ss2), delimited_text_encoder());
   auto s2 = ss2.str();
-  //assert(s1 == s2);
+  assert(s1 == s2);
   return 0;
 }

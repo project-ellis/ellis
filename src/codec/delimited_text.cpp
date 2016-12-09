@@ -96,10 +96,11 @@ void delimited_text_encoder::reset(const node *new_node)
 {
   _clear_ss();
   for (size_t i = 0; i < new_node->as_array().length(); i++) {
-    m_ss << new_node->as_array()[i].as_u8str();
+    m_ss << new_node->as_array()[i].as_u8str() << "\n";
   }
+  m_ss.flush();
   m_sspos = 0;
-  m_ssend = m_ss.gcount();
+  m_ssend = m_ss.tellp();
 }
 
 
