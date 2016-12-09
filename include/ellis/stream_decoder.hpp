@@ -59,6 +59,16 @@ public:
       const byte *buf,
       size_t *bytecount) = 0;
 
+  /** Check on the node being constructed.
+   *
+   * Whether there is any useful partially constructed node to see before
+   * consume_buffer has returned COMPLETE is dependent on the particular
+   * codec.  If there is no useful partial node to see, the code may
+   * return nullptr to indicate that there is nothing to see, which is
+   * the default behavior.
+   */
+  virtual const node * peek_node() { return nullptr; }
+
   /** Return the constructed node.
    *
    * It is only valid to call this when consume_buffer has returned COMPLETE.
