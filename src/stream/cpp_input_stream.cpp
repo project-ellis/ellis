@@ -23,7 +23,7 @@ bool cpp_input_stream::next_input_buf(byte **buf, size_t *bytecount) {
     return false;
   }
   m_pos = 0;
-  m_is.read((char*)m_buf, sizeof(buf));
+  m_is.read((char*)m_buf, sizeof(m_buf));
   m_avail = (int)m_is.gcount();
   if (m_avail <= 0) {
     // TODO: check fail bits?
