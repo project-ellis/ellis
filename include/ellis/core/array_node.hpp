@@ -1,13 +1,13 @@
 /*
- * @file array_node.hpp
+ * @file ellis/core/array_node.hpp
  *
  * @brief Ellis array node public C++ header.
  *
  */
 
 #pragma once
-#ifndef ELLIS_ARRAY_NODE_HPP_
-#define ELLIS_ARRAY_NODE_HPP_
+#ifndef ELLIS_CORE_ARRAY_NODE_HPP_
+#define ELLIS_CORE_ARRAY_NODE_HPP_
 
 #include <ellis/core/node.hpp>
 #include <functional>
@@ -85,4 +85,4 @@ public:
 
 }  /* namespace ellis */
 
-#endif  /* ELLIS_ARRAY_NODE_HPP_ */
+#endif  /* ELLIS_CORE_ARRAY_NODE_HPP_ */

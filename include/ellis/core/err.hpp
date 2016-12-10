@@ -1,5 +1,5 @@
 /*
- * @file err.hpp
+ * @file ellis/core/err.hpp
  *
  * @brief Ellis error public C++ header.
  *
@@ -7,8 +7,8 @@
  */
 
 #pragma once
-#ifndef ELLIS_ERR_HPP_
-#define ELLIS_ERR_HPP_
+#ifndef ELLIS_CORE_ERR_HPP_
+#define ELLIS_CORE_ERR_HPP_
 
 #include <stdexcept>
 #include <string>
@@ -66,4 +66,4 @@ public:
 
 }  /* namespace ellis */
 
-#endif  /* ELLIS_ERR_HPP_ */
+#endif  /* ELLIS_CORE_ERR_HPP_ */

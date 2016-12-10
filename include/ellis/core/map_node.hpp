@@ -1,13 +1,13 @@
 /*
- * @file map_node.hpp
+ * @file ellis/core/map_node.hpp
  *
  * @brief Ellis map node public C++ header.
  *
  */
 
 #pragma once
-#ifndef ELLIS_MAP_NODE_HPP_
-#define ELLIS_MAP_NODE_HPP_
+#ifndef ELLIS_CORE_MAP_NODE_HPP_
+#define ELLIS_CORE_MAP_NODE_HPP_
 
 #include <ellis/core/node.hpp>
 #include <functional>
@@ -124,4 +124,4 @@ public:
 
 }  /* namespace ellis */
 
-#endif  /* ELLIS_MAP_NODE_HPP_ */
+#endif  /* ELLIS_CORE_MAP_NODE_HPP_ */

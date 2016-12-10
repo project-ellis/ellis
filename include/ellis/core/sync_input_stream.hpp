@@ -1,12 +1,12 @@
 /*
- * @file sync_input_stream.hpp
+ * @file ellis/core/sync_input_stream.hpp
  *
  * @brief Ellis TBD C++ header.
  */
 
 #pragma once
-#ifndef ELLIS_SYNC_INPUT_STREAM_HPP_
-#define ELLIS_SYNC_INPUT_STREAM_HPP_
+#ifndef ELLIS_CORE_SYNC_INPUT_STREAM_HPP_
+#define ELLIS_CORE_SYNC_INPUT_STREAM_HPP_
 
 #include <ellis/core/defs.hpp>
 #include <ellis/core/err.hpp>
@@ -44,4 +44,4 @@ public:
 
 }  /* namespace ellis */
 
-#endif  /* ELLIS_SYNC_INPUT_STREAM_HPP_ */
+#endif  /* ELLIS_CORE_SYNC_INPUT_STREAM_HPP_ */

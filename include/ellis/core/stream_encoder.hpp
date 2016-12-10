@@ -1,12 +1,12 @@
 /*
- * @file stream_encoder.hpp
+ * @file ellis/core/stream_encoder.hpp
  *
  * @brief Ellis TBD C++ header.
  */
 
 #pragma once
-#ifndef ELLIS_STREAM_ENCODER_HPP_
-#define ELLIS_STREAM_ENCODER_HPP_
+#ifndef ELLIS_CORE_STREAM_ENCODER_HPP_
+#define ELLIS_CORE_STREAM_ENCODER_HPP_
 
 #include <ellis/core/defs.hpp>
 #include <ellis/core/err.hpp>
@@ -60,4 +60,4 @@ public:
 
 }  /* namespace ellis */
 
-#endif  /* ELLIS_STREAM_ENCODER_HPP_ */
+#endif  /* ELLIS_CORE_STREAM_ENCODER_HPP_ */

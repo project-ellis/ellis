@@ -1,13 +1,13 @@
 /*
- * @file node.hpp
+ * @file ellis/core/node.hpp
  *
  * @brief Ellis node public C++ header.
  *
  */
 
 #pragma once
-#ifndef ELLIS_NODE_HPP_
-#define ELLIS_NODE_HPP_
+#ifndef ELLIS_CORE_NODE_HPP_
+#define ELLIS_CORE_NODE_HPP_
 
 #include <ellis/core/defs.hpp>
 #include <ellis/core/type.hpp>
@@ -531,4 +531,4 @@ std::istream & operator>>(std::istream & is, node & v);
 }  /* namespace ellis */
 
 
-#endif  /* ELLIS_NODE_HPP_ */
+#endif  /* ELLIS_CORE_NODE_HPP_ */

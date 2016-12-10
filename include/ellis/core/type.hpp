@@ -1,5 +1,5 @@
 /*
- * @file type.h
+ * @file ellis/core/type.h
  *
  * @brief Ellis types C++ header.
  *
@@ -7,8 +7,8 @@
  */
 
 #pragma once
-#ifndef ELLIS_TYPE_HPP_
-#define ELLIS_TYPE_HPP_
+#ifndef ELLIS_CORE_TYPE_HPP_
+#define ELLIS_CORE_TYPE_HPP_
 
 
 namespace ellis {
@@ -36,4 +36,4 @@ const char *type_str(type t);
 
 }  /* namespace ellis */
 
-#endif  /* ELLIS_TYPE_HPP_ */
+#endif  /* ELLIS_CORE_TYPE_HPP_ */

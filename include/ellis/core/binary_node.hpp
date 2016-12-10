@@ -1,13 +1,13 @@
 /*
- * @file binary_node.hpp
+ * @file ellis/core/binary_node.hpp
  *
  * @brief Ellis binary node public C++ header.
  *
  */
 
 #pragma once
-#ifndef ELLIS_BINARY_NODE_HPP_
-#define ELLIS_BINARY_NODE_HPP_
+#ifndef ELLIS_CORE_BINARY_NODE_HPP_
+#define ELLIS_CORE_BINARY_NODE_HPP_
 
 #include <ellis/core/node.hpp>
 
@@ -66,4 +66,4 @@ public:
 
 }  /* namespace ellis */
 
-#endif  /* ELLIS_BINARY_NODE_HPP_ */
+#endif  /* ELLIS_CORE_BINARY_NODE_HPP_ */
