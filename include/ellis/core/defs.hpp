@@ -15,6 +15,9 @@ namespace ellis {
 using byte = unsigned char;
 
 
+#define UNUSED __attribute__((unused))
+
+
 }  /* namespace ellis */
 
 #endif  /* ELLIS_CORE_DEFS_HPP_ */

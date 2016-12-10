@@ -18,8 +18,10 @@ namespace ellis {
 
 class file_input_stream : public sync_input_stream {
   std::unique_ptr<fd_input_stream> m_fdis;
+  int m_fd = -1;
+
 public:
-  file_input_stream(const char *);
+  file_input_stream(const char *filename);
 
   ~file_input_stream();
 

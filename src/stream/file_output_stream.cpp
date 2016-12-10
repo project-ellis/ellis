@@ -2,19 +2,29 @@
 
 #include <ellis/private/core/err.hpp>
 #include <ellis/private/using.hpp>
+#include <fcntl.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
+
 
 namespace ellis {
 
 
-file_output_stream::file_output_stream(const char *) {
-  // int fd = open(filename, "w");
-  // TODO: throw exception on bad filename
-  // m_fdos.reset(new fd_output_stream(fd));
+file_output_stream::file_output_stream(const char *filename) {
+  m_fd = open(filename, O_WRONLY | O_CREAT | O_TRUNC, 0600);
+  if (m_fd < 0) {
+    throw MAKE_ELLIS_ERR(err_code::TODO, filename);
+  }
+  //m_fdos.reset(new fd_output_stream(m_fd));
 }
 
 file_output_stream::~file_output_stream() {
-  // m_fdos.reset();
-  // close(m_fd);
+  m_fdos.reset();
+  if (m_fd >= 0) {
+    close(m_fd);
+    m_fd = 0;
+  }
 }
 
 bool file_output_stream::next_output_buf(byte **buf, size_t *bytecount) {

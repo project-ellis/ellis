@@ -22,7 +22,8 @@ enum class err_code {
   TYPE_MISMATCH = 4097,
   PARSING_ERROR = 4098,
   NOT_MERGED = 4099,
-  PATH_ERROR = 4100
+  PATH_ERROR = 4100,
+  TODO = 4101,
 };
 
 

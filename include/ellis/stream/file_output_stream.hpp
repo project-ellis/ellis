@@ -18,8 +18,10 @@ namespace ellis {
 
 class file_output_stream : public sync_output_stream {
   std::unique_ptr<fd_output_stream> m_fdos;
+  int m_fd = -1;
+
 public:
-  file_output_stream(const char *);
+  file_output_stream(const char *filename);
 
   ~file_output_stream();
 

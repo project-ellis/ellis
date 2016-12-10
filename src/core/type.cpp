@@ -1,5 +1,6 @@
 #include <ellis/core/type.hpp>
 
+#include <ellis/core/system.hpp>
 #include <ellis/private/using.hpp>
 
 
@@ -33,8 +34,7 @@ const char *type_str(type t)
     case type::MAP:
       return "MAP";
   }
-  /* Never reached. */
-  assert(0);
+  ELLIS_ASSERT_UNREACHABLE();
 }
 
 

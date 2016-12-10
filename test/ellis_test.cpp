@@ -3,9 +3,11 @@
 #include <cfloat>
 #include <ellis/core/array_node.hpp>
 #include <ellis/core/binary_node.hpp>
+#include <ellis/core/defs.hpp>
 #include <ellis/core/err.hpp>
 #include <ellis/core/map_node.hpp>
 #include <ellis/core/node.hpp>
+#include <ellis/core/system.hpp>
 #include <ellis/private/using.hpp>
 #include <stdio.h>
 #include <string.h>
@@ -14,6 +16,98 @@ static const ellis::byte k_somedata[] = {
   0x00, 0x81, 0x23, 0xE8,
   0xD8, 0xAF, 0xF7, 0x00
 };
+
+
+static int g_log_called = 0;
+
+void test_log_function(
+    UNUSED ellis::log_severity sev,
+    UNUSED const char *file,
+    UNUSED int line,
+    UNUSED const char *func,
+    UNUSED const char *fmt, ...)
+{
+  g_log_called++;
+}
+
+
+static int g_crash_called = 0;
+
+void test_crash_function(
+    UNUSED const char *file,
+    UNUSED int line,
+    UNUSED const char *func,
+    UNUSED const char *fmt, ...)
+{
+  g_crash_called++;
+}
+
+
+void logtest()
+{
+  auto cause_logs = []() {
+    ELLIS_LOG(INFO, "hello no args");
+    ELLIS_LOG(DBUG, "errno was %d", errno);
+    ELLIS_LOGSTREAM(DBUG, "errno was " << errno);
+  };
+
+  /* Nothing bad happening by default with logging. */
+  cause_logs();
+
+  /* Replace log function, observe behavior. */
+  ellis::set_system_log_function(test_log_function);
+  cause_logs();
+  assert(g_log_called == 0);
+
+  /* Adjust prefilter to INFO, try again. */
+  ellis::set_system_log_prefilter(ellis::log_severity::INFO);
+  cause_logs();
+  assert(g_log_called == 1);
+  g_log_called = 0;
+
+  /* Adjust prefilter to DBUG, should see all. */
+  ellis::set_system_log_prefilter(ellis::log_severity::DBUG);
+  cause_logs();
+  assert(g_log_called == 3);
+}
+
+void asserttest()
+{
+  auto safe_asserts = []() {
+    int x = 1;
+    ELLIS_ASSERT(1);
+    ELLIS_ASSERT_OP(x, >, 0);
+    if (x == 1) {
+    } else {
+      ELLIS_ASSERT_UNREACHABLE();
+    }
+  };
+  int x = 0;
+  auto unsafe_asserts = [&x]() {
+    ELLIS_ASSERT(0);
+    x++;
+    ELLIS_ASSERT_OP(x, ==, 0);
+    x++;
+    if (x == 0) {
+    } else {
+      ELLIS_ASSERT_UNREACHABLE();
+    }
+    x++;
+  };
+
+  /* Try some safe asserts using default crash handler. */
+  safe_asserts();
+  assert(g_crash_called == 0);
+
+  /* Now replace crash function and try again with safe asserts. */
+  ellis::set_system_crash_function(&test_crash_function);
+  safe_asserts();
+  assert(g_crash_called == 0);
+
+  /* Now for the unsafe asserts. */
+  unsafe_asserts();
+  assert(g_crash_called == x);
+}
 
 void primitivetest()
 {
@@ -486,6 +580,8 @@ void pathtest()
 
 int main()
 {
+  logtest();
+  asserttest();
   /* TODO: generic nodetest */
   primitivetest();
   strtest();

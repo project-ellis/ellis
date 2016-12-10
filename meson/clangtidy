@@ -2,5 +2,5 @@
 
 cd "$MESON_SOURCE_ROOT"
 exec clang-tidy $(find src -name '*.cpp') \
-  -checks=*,-google-build-using-namespace,-google-readability-casting,-llvm-include-order \
+  -checks=*,-clang-analyzer-alpha.deadcode.UnreachableCode,-google-build-using-namespace,-google-readability-casting,-llvm-include-order \
   -- -std=c++11 -Iinclude

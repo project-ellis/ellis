@@ -1,12 +1,13 @@
 #include <ellis/stream/tcp_client_stream.hpp>
 
+#include <ellis/core/defs.hpp>
 #include <ellis/private/core/err.hpp>
 #include <ellis/private/using.hpp>
 
 namespace ellis {
 
 
-tcp_stream::tcp_stream(const char *, const char *) {
+tcp_stream::tcp_stream(UNUSED const char *host, UNUSED const char *port) {
   // int fd = tcpclientopen(host, port);  // if only that easy
   // TODO: throw exception on tcpclientopen
   // m_fdis.reset(new fd_input_stream(fd));
