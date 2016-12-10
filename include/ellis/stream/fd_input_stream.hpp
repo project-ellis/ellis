@@ -1,5 +1,5 @@
 /*
- * @file stream/fd_input_stream.hpp
+ * @file ellis/stream/fd_input_stream.hpp
  *
  * @brief Ellis TBD C++ header.
  */

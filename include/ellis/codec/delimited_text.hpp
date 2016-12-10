@@ -1,5 +1,5 @@
 /*
- * @file codec/delimited_text.hpp
+ * @file ellis/codec/delimited_text.hpp
  *
  * @brief Ellis TBD C++ header.
  */

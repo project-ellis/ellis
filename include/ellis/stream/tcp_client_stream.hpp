@@ -1,5 +1,5 @@
 /*
- * @file stream/tcp_client_stream.hpp
+ * @file ellis/stream/tcp_client_stream.hpp
  *
  * @brief Ellis TBD C++ header.
  */

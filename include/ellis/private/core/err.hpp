@@ -1,5 +1,5 @@
 /*
- * @file private/err.hpp
+ * @file ellis/private/core/err.hpp
  *
  * @brief Ellis error private C++ header.
  *
@@ -7,8 +7,8 @@
  */
 
 #pragma once
-#ifndef ELLIS_PRIVATE_ERR_HPP_
-#define ELLIS_PRIVATE_ERR_HPP_
+#ifndef ELLIS_PRIVATE_CORE_ERR_HPP_
+#define ELLIS_PRIVATE_CORE_ERR_HPP_
 
 namespace ellis {
 
@@ -19,4 +19,4 @@ namespace ellis {
 
 }  /* namespace ellis */
 
-#endif  /* ELLIS_PRIVATE_ERR_HPP_ */
+#endif  /* ELLIS_PRIVATE_CORE_ERR_HPP_ */

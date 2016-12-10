@@ -1,13 +1,13 @@
 /*
- * @file private/payload.hpp
+ * @file ellis/private/core/payload.hpp
  *
  * @brief payload -- refcounted payload for ellis nodes.
  *
  */
 
 #pragma once
-#ifndef ELLIS_PRIVATE_PAYLOAD_HPP_
-#define ELLIS_PRIVATE_PAYLOAD_HPP_
+#ifndef ELLIS_PRIVATE_CORE_PAYLOAD_HPP_
+#define ELLIS_PRIVATE_CORE_PAYLOAD_HPP_
 
 #include <ellis/core/node.hpp>
 #include <stdint.h>
@@ -38,4 +38,4 @@ struct payload {
 
 }  /* namespace ellis */
 
-#endif  /* ELLIS_PRIVATE_PAYLOAD_HPP_ */
+#endif  /* ELLIS_PRIVATE_CORE_PAYLOAD_HPP_ */
