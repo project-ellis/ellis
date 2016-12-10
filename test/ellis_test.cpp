@@ -20,7 +20,7 @@ static const ellis::byte k_somedata[] = {
 
 static int g_log_called = 0;
 
-void test_log_function(
+static void test_log_function(
     UNUSED ellis::log_severity sev,
     UNUSED const char *file,
     UNUSED int line,
@@ -33,7 +33,7 @@ void test_log_function(
 
 static int g_crash_called = 0;
 
-void test_crash_function(
+static void test_crash_function(
     UNUSED const char *file,
     UNUSED int line,
     UNUSED const char *func,
@@ -43,7 +43,7 @@ void test_crash_function(
 }
 
 
-void logtest()
+static void logtest()
 {
   auto cause_logs = []() {
     ELLIS_LOG(INFO, "hello no args");
@@ -71,7 +71,7 @@ void logtest()
   assert(g_log_called == 3);
 }
 
-void asserttest()
+static void asserttest()
 {
   auto safe_asserts = []() {
     int x = 1;
@@ -109,7 +109,7 @@ void asserttest()
   assert(g_crash_called == x);
 }
 
-void primitivetest()
+static void primitivetest()
 {
   using namespace ellis;
   node v1(2.1);
@@ -233,7 +233,7 @@ void primitivetest()
     });
 }
 
-void strtest()
+static void strtest()
 {
   using namespace ellis;
   node n1("hello");
@@ -250,7 +250,7 @@ void strtest()
   assert(n2 != "hello world");
 }
 
-void arraytest()
+static void arraytest()
 {
   using namespace ellis;
   node en(type::ARRAY);
@@ -357,7 +357,7 @@ void arraytest()
   contents_chk(en);
 }
 
-void binarytest()
+static void binarytest()
 {
   using namespace ellis;
   size_t sdlen = sizeof(k_somedata);
@@ -415,7 +415,7 @@ void binarytest()
   zchk(b4, big - 1);
 }
 
-void maptest()
+static void maptest()
 {
   using namespace ellis;
   node en(type::MAP);
@@ -545,7 +545,7 @@ void maptest()
   assert(en.as_map().is_empty());
 }
 
-void pathtest()
+static void pathtest()
 {
   using namespace ellis;
   node a(type::ARRAY);

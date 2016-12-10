@@ -8,9 +8,7 @@ B:Schema API
 * Schema C wrappers
 * Schema tests
 * Zero-copy I/O for `binary_node`?
-J:array-node correctness tests.
 M:C wrappers.
-J:Check whether C++ std::allocator types can form backbone of allocators.
 J:JSON encoder/decoder.
 M:OBD decoder.
 
@@ -21,7 +19,6 @@ M:OBD decoder.
 
 ## Probably need real soon
 
-J:Simple arena tests.
 J:Cython wrappers or SWIG.
 M:Cross-build for at least ARM.
 
