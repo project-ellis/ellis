@@ -9,7 +9,6 @@
 #include <ellis/private/core/err.hpp>
 #include <ellis/private/core/payload.hpp>
 #include <ellis/private/using.hpp>
-#include <sstream>
 #include <stddef.h>
 #include <string.h>
 
@@ -105,9 +104,9 @@ bool operator op(const node &a, const node &b) \
     return a.as_double() op b.as_double(); \
   } \
   else { \
-    ostringstream msg; \
-    msg << "types " << type_str(a_type) << " and " << type_str(b_type) << "can't be " #verb; \
-    throw MAKE_ELLIS_ERR( err_code::TYPE_MISMATCH, msg.str()); \
+    const string &msg = ELLIS_SSTRING("types " << type_str(a_type) << " and " << type_str(b_type) << "can't be " #verb); \
+    throw MAKE_ELLIS_ERR( \
+        err_code::TYPE_MISMATCH, msg); \
   } \
 }
 
@@ -133,9 +132,8 @@ node operator op(const node &a, const node &b) \
     return node(a.as_double() op b.as_double()); \
   } \
   else { \
-    ostringstream msg; \
-    msg << "types " << type_str(a_type) << " and " << type_str(b_type) << "can't be " #verb; \
-    throw MAKE_ELLIS_ERR( err_code::TYPE_MISMATCH, msg.str()); \
+    const string &msg = ELLIS_SSTRING("types " << type_str(a_type) << " and " << type_str(b_type) << "can't be " #verb); \
+    throw MAKE_ELLIS_ERR( err_code::TYPE_MISMATCH, msg); \
   } \
 } \
 node node::operator op##=(const node &o) \
@@ -149,9 +147,8 @@ node node::operator op##=(const node &o) \
     as_mutable_double() += o.as_double(); \
   } \
   else { \
-    ostringstream msg; \
-    msg << "types " << type_str(this_type) << " and " << type_str(o_type) << "can't be " #verb; \
-    throw MAKE_ELLIS_ERR( err_code::TYPE_MISMATCH, msg.str()); \
+    const string &msg = ELLIS_SSTRING("types " << type_str(this_type) << " and " << type_str(o_type) << "can't be " #verb); \
+    throw MAKE_ELLIS_ERR( err_code::TYPE_MISMATCH, msg); \
   } \
   return *this; \
 }
@@ -656,10 +653,10 @@ const node & node::at_path(const std::string &path) const
 
 #define BOOM(msg) \
   do { \
-    std::ostringstream os; \
-    os << "path access failure at position " << (curr - path_start) \
-       << " of path " << path << ": " << msg; \
-    throw MAKE_ELLIS_ERR(err_code::PATH_ERROR, os.str()); \
+    const string &err_msg = ELLIS_SSTRING( \
+      "path access failure at position " << (curr - path_start) \
+      << " of path " << path << ": " << msg); \
+    throw MAKE_ELLIS_ERR(err_code::PATH_ERROR, err_msg); \
   } while (0)
 
   const node *v = this;

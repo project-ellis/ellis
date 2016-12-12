@@ -5,6 +5,7 @@
 #include <ellis/core/map_node.hpp>
 #include <ellis/core/defs.hpp>
 #include <ellis/core/err.hpp>
+#include <ellis/core/system.hpp>
 #include <ellis/private/codec/obd/pid.hpp>
 #include <ellis/private/core/err.hpp>
 #include <ellis/private/using.hpp>
@@ -29,9 +30,8 @@ byte hex_val(byte val)
     return 0xA + val - 'A';
   }
   else {
-    ostringstream msg;
-    msg << "value " << val << "is not a valid hex char";
-    MAKE_ELLIS_ERR(err_code::VALUE_NOT_HEX, msg.str());
+    const string &msg = ELLIS_SSTRING("value " << val << "is not a valid hex char");
+    MAKE_ELLIS_ERR(err_code::VALUE_NOT_HEX, msg);
   }
   assert(0);
 }
