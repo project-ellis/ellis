@@ -58,7 +58,7 @@ namespace ellis {
  *   destroyed by the time p is used, and the memory is undefined.
  */
 #define ELLIS_SSTRING(args) \
-  ((std::ostringstream&)((std::ostringstream{}) << args)).str()
+  ((::std::ostringstream&)((::std::ostringstream{}) << args)).str()
 
 
 /*  _                      _               _   _             _
