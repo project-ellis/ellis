@@ -30,6 +30,8 @@ public:
   /** Constructor
    */
   array_node() = delete;
+  array_node(const array_node &) = delete;
+  array_node(array_node &&) = delete;
   ~array_node();
 
   /** Return a reference to the element at the given index.

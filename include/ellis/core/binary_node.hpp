@@ -29,6 +29,8 @@ public:
   /** Constructor
    */
   binary_node() = delete;
+  binary_node(const binary_node &) = delete;
+  binary_node(binary_node &&) = delete;
   ~binary_node();
 
   /** Return a reference to the value with the given key.

@@ -42,6 +42,8 @@ public:
   /** Constructor
    */
   map_node() = delete;
+  map_node(const map_node &) = delete;
+  map_node(map_node &&) = delete;
   ~map_node();
 
   /** Return a reference to the value with the given key.
