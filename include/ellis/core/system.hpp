@@ -229,7 +229,7 @@ extern log_severity g_system_log_prefilter;
  * for the given object type.  You'll want to make sure that the copy
  * constructor is inexpensive, since we have to make a copy of X so that
  * we can refer to it in multiple locations without side effects (this is
- * a basic issue with the macro approach.
+ * a basic issue with the macro approach).
  *
  * Always evaluated, whether in debug or release build.
  */

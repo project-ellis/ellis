@@ -9,7 +9,6 @@
 #define ELLIS_TEST_ASSERT_HPP_
 
 
-
 #include <cfloat>
 
 namespace ellis {
