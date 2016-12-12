@@ -18,8 +18,10 @@ static const ellis::byte k_somedata[] = {
 };
 
 
+/* Used by logtest. */
 static int g_log_called = 0;
 
+/* Used by logtest. */
 static void test_log_function(
     UNUSED ellis::log_severity sev,
     UNUSED const char *file,
@@ -28,18 +30,6 @@ static void test_log_function(
     UNUSED const char *fmt, ...)
 {
   g_log_called++;
-}
-
-
-static int g_crash_called = 0;
-
-static void test_crash_function(
-    UNUSED const char *file,
-    UNUSED int line,
-    UNUSED const char *func,
-    UNUSED const char *fmt, ...)
-{
-  g_crash_called++;
 }
 
 
@@ -75,6 +65,21 @@ static void logtest()
   assert(g_log_called == 3);
 }
 
+
+/* Used by asserttest. */
+static int g_crash_called = 0;
+
+/* Used by asserttest. */
+static void test_crash_function(
+    UNUSED const char *file,
+    UNUSED int line,
+    UNUSED const char *func,
+    UNUSED const char *fmt, ...)
+{
+  g_crash_called++;
+}
+
+
 static void asserttest()
 {
   auto safe_asserts = []() {
@@ -92,8 +97,7 @@ static void asserttest()
     x++;
     ELLIS_ASSERT_EQ(x, 0);
     x++;
-    if (x == 0) {
-    } else {
+    if (x != 0) {
       ELLIS_ASSERT_UNREACHABLE();
     }
     x++;
