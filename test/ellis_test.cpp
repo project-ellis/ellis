@@ -1,7 +1,6 @@
 #undef NDEBUG
 #define ELLIS_DISABLE_UNREACHABLE_HINT
 #include <assert.h>
-#include <cfloat>
 #include <ellis/core/array_node.hpp>
 #include <ellis/core/binary_node.hpp>
 #include <ellis/core/defs.hpp>
@@ -12,6 +11,7 @@
 #include <ellis/private/using.hpp>
 #include <stdio.h>
 #include <string.h>
+#include <test/assert.hpp>
 
 static const ellis::byte k_somedata[] = {
   0x00, 0x81, 0x23, 0xE8,
@@ -119,6 +119,7 @@ static void asserttest()
 static void primitivetest()
 {
   using namespace ellis;
+  using namespace ellis::test;
   node v1(2.1);
   ELLIS_ASSERT(v1.as_double() == 2.1);
   double d1 = (double)v1;
@@ -185,11 +186,6 @@ static void primitivetest()
   ELLIS_ASSERT(v1 == 4);
   v1 /= 2;
   ELLIS_ASSERT(v1 == 2);
-
-  auto dbl_equal = [](double a, double b)
-  {
-    return std::abs(a - b) <= DBL_EPSILON;
-  };
 
   v1 = 2.0;
   ELLIS_ASSERT(v1 == 2.0);

@@ -24,6 +24,7 @@ enum class err_code {
   NOT_MERGED = 4099,
   PATH_ERROR = 4100,
   TODO = 4101,
+  VALUE_NOT_HEX = 4102
 };
 
 

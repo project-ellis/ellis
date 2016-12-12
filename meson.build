@@ -54,6 +54,8 @@ install_headers(public_headers, subdir: 'ellis')
 # libellis.
 src = [
   'src/codec/delimited_text.cpp',
+  'src/codec/elm327/elm327.cpp',
+  'src/codec/obd/pid.cpp',
   'src/core/array_node.cpp',
   'src/core/binary_node.cpp',
   'src/core/emigration.cpp',
@@ -103,3 +105,11 @@ codec_test_exe = executable(
   link_with: lib,
   dependencies: thread_deps)
 test('codectest', codec_test_exe)
+
+obd_test_exe = executable(
+  'obdtest',
+  'test/obd_test.cpp',
+  include_directories: inc,
+  link_with: lib,
+  dependencies: thread_deps)
+test('obdtest', obd_test_exe)
