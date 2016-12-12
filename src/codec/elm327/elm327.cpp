@@ -122,7 +122,7 @@ decoding_status elm327_decoder::consume_buffer(
    */
   const byte *start = buf;
   const byte *end = buf + *bytecount;
-  const byte *last_newline;
+  const byte *last_newline = end;
   while (true) {
     const byte *p;
     for (p = start; p < end; p++) {
