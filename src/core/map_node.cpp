@@ -2,6 +2,7 @@
 
 #include <ellis/core/err.hpp>
 #include <ellis/core/node.hpp>
+#include <ellis/core/system.hpp>
 #include <ellis/private/core/payload.hpp>
 #include <ellis/private/using.hpp>
 
@@ -14,7 +15,7 @@ namespace ellis {
 
 map_node::~map_node()
 {
-  assert(0);
+  ELLIS_ASSERT_UNREACHABLE();
   /* This function should never be called; map_node is a type safety wrapper
    * over node, and destruction is to be handled by node.  The user should
    * only ever see map_node by reference, and only be able to destroy
@@ -34,7 +35,7 @@ const node & map_node::operator[](const std::string &key) const
   const auto it = GETMAP.find(key);
   if (it == GETMAP.end()) {
     auto added = GETMAP.emplace(key, node(type::NIL));
-    assert(added.second == true);
+    ELLIS_ASSERT(added.second);
     return added.first->second;
   }
   return it->second;
@@ -58,7 +59,7 @@ void map_node::add(
   bool will_replace = exists && addpol != add_policy::INSERT_ONLY;
   bool will_insert = (not exists) && addpol != add_policy::REPLACE_ONLY;
   /* will_replace and will_insert can not both be set. */
-  assert(! (will_replace && will_insert));
+  ELLIS_ASSERT(! (will_replace && will_insert));
 
   if (will_insert) {
     GETMAP.emplace(key, val);

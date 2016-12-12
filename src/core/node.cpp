@@ -4,6 +4,7 @@
 #include <ellis/core/binary_node.hpp>
 #include <ellis/core/err.hpp>
 #include <ellis/core/map_node.hpp>
+#include <ellis/core/system.hpp>
 #include <ellis/core/type.hpp>
 #include <ellis/private/core/err.hpp>
 #include <ellis/private/core/payload.hpp>
@@ -302,7 +303,7 @@ void node::_zap_contents(type t)
 
       default:
         /* Never hit, due to _is_refcounted. */
-        assert(0);
+        ELLIS_ASSERT_UNREACHABLE();
         break;
     }
   }
@@ -366,7 +367,7 @@ void node::_release_contents()
 
         default:
           /* Never hit, due to _is_refcounted. */
-          assert(0);
+          ELLIS_ASSERT_UNREACHABLE();
           break;
       }
       free(m_pay);
@@ -389,7 +390,7 @@ void node::_prep_for_write()
     /* Nothing to do for a primitive type. */
     return;
   }
-  assert(m_pay->m_refcount > 0);
+  ELLIS_ASSERT_OP(m_pay->m_refcount, >, 0);
   if (m_pay->m_refcount == 1) {
     /* Nothing to do, this is the only copy, so go ahead and write. */
     return;
@@ -554,7 +555,7 @@ void node::deep_copy(const node &o)
 
       default:
         /* Never hit, due to _is_refcounted. */
-        assert(0);
+        ELLIS_ASSERT_UNREACHABLE();
         break;
     }
   }
@@ -612,7 +613,7 @@ bool node::operator==(const node &o) const
       return _as_map() == o._as_map();
   }
   /* Never reached. */
-  assert(0);
+  ELLIS_ASSERT_UNREACHABLE();
   return true;
 }
 
