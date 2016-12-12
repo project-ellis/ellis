@@ -1,4 +1,5 @@
 #undef NDEBUG
+#define ELLIS_DISABLE_UNREACHABLE_HINT
 #include <assert.h>
 #include <cfloat>
 #include <ellis/core/array_node.hpp>
@@ -92,6 +93,8 @@ static void asserttest()
     } else {
       ELLIS_ASSERT_UNREACHABLE();
     }
+    x++;
+    ELLIS_CRASH("the murderer was %s", "aaaaaaaa");
     x++;
   };
 

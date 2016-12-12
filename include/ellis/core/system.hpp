@@ -25,9 +25,37 @@ namespace ellis {
 
 /** Stream to string helper.
  *
- * Usage:
+ * Creates a temporary string stream, sends macro arguments to that stream,
+ * and gets the string result.
  *
- *   set_title(ELLIS_SSTRING(pfx << "[" << dmp << "]" << getpid()).c_str());
+ * Example:
+ *
+ *   // This function becomes a one-liner...
+ *   string myfunc() {
+ *     return ELLIS_SSTRING(pfx << "[" << dmp << "]" << getpid());
+ *   }
+ *
+ * Warning:
+ *
+ *   If you are using the result with a function that takes a const char *,
+ *   you can safely pass the c_str() output from the resulting string, if the
+ *   value will be used only during the function call and will not need to
+ *   live on after the function call terminates.  Thus the following is safe:
+ *
+ *     somefunc(ELLIS_SSTRING(left << x << right).c_str());
+ *
+ *   The following is also safe:
+ *
+ *     auto s = ELLIS_SSTRING(left << x << right);
+ *     somefunc(s.c_str());
+ *
+ *   But the following is NOT SAFE:
+ *
+ *     const char *p = ELLIS_SSTRING(left << x << right).c_str();  // trouble
+ *     somefunc(p);
+ *
+ *   The reason the latter is not safe is that the string has already been
+ *   destroyed by the time p is used, and the memory is undefined.
  */
 #define ELLIS_SSTRING(args) \
   ((std::ostringstream&)((std::ostringstream{}) << args)).str()
@@ -72,7 +100,7 @@ namespace ellis {
  *
  * Example:
  *
- *   ELLIS_LOGSTREAM(DBUG, x << ": object was: " << myobject);
+ *   ELLIS_LOGSTREAM(DBUG, "x was: " << x << ", obj was: " << obj);
  */
 #define ELLIS_LOGSTREAM(LVL, ...) \
   do { \
@@ -119,23 +147,31 @@ void default_system_log_function(
 using system_log_fn_t = decltype(&default_system_log_function);
 
 
-/** Change the system log function. */
+/** Replace the system log function.
+ *
+ * You can use this to redirect ellis log output into your the logging
+ * system that your software uses.
+ */
 void set_system_log_function(system_log_fn_t fn);
 
 
 /** Adjust the prefilter severity that gets checked before the arguments to
  * ELLIS_LOG are evaluated or forwarded to the system log function.
  *
- * You may want to automatically adjust this in response to changes to
+ * You may wish to automatically adjust this in response to changes to
  * the downstream system logging configuration, so as to allow for speed
  * gains while ensuring no accidental filtering of desired messages.
+ *
  * Or, for those who are lazy and less concerned about speed, it is safe
- * to set it to DBUG and forget about it.
+ * to set it to DBUG and let the system log function that you specified
+ * to set_system_log_function do the filtering.  This is simpler but it
+ * means that arguments to ELLIS_LOG would be evaluated, and the function
+ * called, in all cases, which could result in lower performance.
  */
 void set_system_log_prefilter(log_severity sev);
 
 
-// TODO: move this stuff to private
+/* Implementation details, referenced in macros. */
 extern system_log_fn_t g_system_log_fn;
 extern log_severity g_system_log_prefilter;
 
@@ -155,19 +191,13 @@ extern log_severity g_system_log_prefilter;
  */
 
 
-void default_crash_function(
-    const char *file,
-    int line,
-    const char *func,
-    const char *fmt, ...);
-
-using system_crash_fn_t = decltype(&default_crash_function);
-
-void set_system_crash_function(system_crash_fn_t fn);
-
-extern system_crash_fn_t g_system_crash_fn;
-
-
+/** Assert that EXPR is true.
+ *
+ * In case of failure, the system failure function will be called, with a
+ * message describing the assert condition, filename and line number.
+ *
+ * Always evaluated, whether in debug or release build.
+ */
 #define ELLIS_ASSERT(EXPR) \
   do { \
     if (EXPR) { \
@@ -182,6 +212,27 @@ extern system_crash_fn_t g_system_crash_fn;
   } while (0)
 
 
+/** Assert that the X compared to Y via OP returns true.
+ *
+ * Example:
+ *
+ *   ELLIS_ASSERT_OP(a, ==, b);
+ *   ELLIS_ASSERT_OP(c, >, d);
+ *   ELLIS_ASSERT_OP(d, >=, 1);
+ *
+ * In case of failure, the system failure function will be called, with a
+ * message showing the failed condition along with the specific values of
+ * X and Y, and the filename and line number.
+ *
+ * To use this on non-primitive types, you need to define the appropriate
+ * comparison operators, as well as stream insertion (output) operators
+ * for the given object type.  You'll want to make sure that the copy
+ * constructor is inexpensive, since we have to make a copy of X so that
+ * we can refer to it in multiple locations without side effects (this is
+ * a basic issue with the macro approach.
+ *
+ * Always evaluated, whether in debug or release build.
+ */
 #define ELLIS_ASSERT_OP(X, OP, Y) \
   do { \
     /* Correctness requires making copy of X and Y. */ \
@@ -202,6 +253,27 @@ extern system_crash_fn_t g_system_crash_fn;
   } while (0)
 
 
+/* Internal macro--leave alone.  We need unreachability hints to tell the
+ * compilers that we know something is unreachable and it's not an error, but
+ * in tests of these macros, we may intentionally not exit after supposedly
+ * unreachable code, though __builtin_unreachable normally results in
+ * undefined behavior for code that follows it, which would result in
+ * unpredictable tests, so such tests would need to disable the unreachability
+ * hint. */
+#ifndef ELLIS_DISABLE_UNREACHABLE_HINT
+#define ELLIS_UNREACHABLE_HINT() __builtin_unreachable();
+#else
+#define ELLIS_UNREACHABLE_HINT()
+#endif
+
+
+/** Assert that this line should never be reached.
+ *
+ * In case of failure, the system failure function will be called, with a
+ * message explaining the problem and noting filename and line number.
+ *
+ * Always evaluated, whether in debug or release build.
+ */
 #define ELLIS_ASSERT_UNREACHABLE() \
   do { \
     (*::ellis::g_system_crash_fn)( \
@@ -209,8 +281,46 @@ extern system_crash_fn_t g_system_crash_fn;
         __LINE__, \
         __FUNCTION__, \
         "Assert: invalid code path reached"); \
-    __builtin_unreachable(); \
-  } while (0);
+    ELLIS_UNREACHABLE_HINT() \
+  } while (0)
+
+
+/** Call the ellis system crash function with printf message semantics,
+ * annotating with file/line.
+ */
+#define ELLIS_CRASH(...) \
+  do { \
+    (*::ellis::g_system_crash_fn)( \
+        __FILE__, \
+        __LINE__, \
+        __FUNCTION__, \
+        __VA_ARGS__); \
+    ELLIS_UNREACHABLE_HINT() \
+  } while (0)
+
+
+/** The default logging in ELLIS prints to stderr, logs, and calls abort()
+ * which generates a core dump.
+ */
+void default_crash_function(
+    const char *file,
+    int line,
+    const char *func,
+    const char *fmt, ...);
+
+
+/** The type of crash functions that ELLIS accepts. */
+using system_crash_fn_t = decltype(&default_crash_function);
+
+
+/** Replace the system crash function, which is called when ellis encounters
+ * a fatal error.
+ */
+void set_system_crash_function(system_crash_fn_t fn);
+
+
+/* Implementation details, referenced in macros. */
+extern system_crash_fn_t g_system_crash_fn;
 
 
 /*  ____            _                               _     _
@@ -228,7 +338,9 @@ extern system_crash_fn_t g_system_crash_fn;
  */
 
 
-#define ELLIS_CONF(KEY)
+// Big TBD; config like an area where we might need to interoperate with
+// a larger system.
+#define ELLIS_GETCONF(KEY)
 
 
 }  /* namespace ellis */
