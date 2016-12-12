@@ -36,6 +36,8 @@ bool dump(
  *
  * This allows for the convenience of on-the-fly instantiation of particular
  * streams and codecs within the function call.
+ *
+ * TODO: reference search term regarding universal reference stuff.
  */
 template<typename TSTREAM, typename TENCODER>
 void dump(const node *nod, TSTREAM &&out, TENCODER &&enco)

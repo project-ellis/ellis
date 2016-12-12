@@ -23,6 +23,8 @@ namespace ellis {
  * On success, returns the newly constructed node.
  *
  * On failure, returns nullptr, and sets err_ret.
+ *
+ * @pre err_ret is not NULL.
  */
 std::unique_ptr<node> load(
     sync_input_stream *in,
@@ -34,6 +36,8 @@ std::unique_ptr<node> load(
  *
  * This allows for the convenience of on-the-fly instantiation of particular
  * streams and codecs within the function call.
+ *
+ * TODO: reference search term regarding universal reference stuff.
  */
 template<typename TSTREAM, typename TDECODER>
 std::unique_ptr<node> load(TSTREAM &&in, TDECODER &&deco)

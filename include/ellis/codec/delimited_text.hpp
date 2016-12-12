@@ -1,7 +1,7 @@
 /*
  * @file ellis/codec/delimited_text.hpp
  *
- * @brief Ellis TBD C++ header.
+ * @brief Ellis Delimited Text Codec C++ header.
  */
 
 #pragma once

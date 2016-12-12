@@ -12,14 +12,16 @@ unique_ptr<node> load(
     stream_decoder *deco,
     unique_ptr<err> *err_ret)
 {
+  ELLIS_ASSERT(err_ret != nullptr);
   deco->reset();
+  unique_ptr<node> rv;
   while (1) {
     byte *buf = nullptr;
     size_t buf_remain = 0;
     /* Need another block; request it. */
     if (! in->next_input_buf(&buf, &buf_remain)) {
       *err_ret = in->extract_input_error();
-      return nullptr;
+      goto error_return;
     }
     ELLIS_ASSERT(buf != nullptr);
     ELLIS_ASSERT(buf_remain > 0);
@@ -29,10 +31,11 @@ unique_ptr<node> load(
       /* buf_remain has been updated to reflect unconsumed bytes remaining. */
       in->put_back(buf_remain);
       if (st == decoding_status::END) {
-        return deco->extract_node();
+        rv = deco->extract_node();
+        goto success_return;
       } else {
         *err_ret = deco->extract_error();
-        return nullptr;
+        goto error_return;
       }
     }
     else {
@@ -41,6 +44,13 @@ unique_ptr<node> load(
     }
   }
   ELLIS_ASSERT_UNREACHABLE();
+
+success_return:
+  ELLIS_ASSERT(rv);
+  return rv;
+
+error_return:
+  ELLIS_ASSERT(*err_ret);
   return nullptr;
 }
 

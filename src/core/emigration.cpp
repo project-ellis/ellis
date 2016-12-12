@@ -29,6 +29,7 @@ bool dump(
       *err_ret = std::move(out->extract_output_error());
       return false;
     }
+    // TODO: switch to switch
     if (st == encoding_status::END) {
       return true;
     }
