@@ -1,14 +1,30 @@
 #include <ellis/private/codec/obd/pid.hpp>
 
+#include <ellis/core/defs.hpp>
 #include <ellis/private/using.hpp>
-
-#define BYTE_A(X) ((X >> 24) & 0xFF)
-#define BYTE_B(X) ((X >> 16) & 0xFF)
-#define BYTE_C(X) ((X >> 8) & 0xFF)
-#define BYTE_D(X) ((X >> 0) & 0xFF)
 
 namespace ellis {
 namespace obd {
+
+static inline uint32_t byte_a(uint32_t x)
+{
+  return (x >> 24) & 0xFF;
+}
+
+static inline uint32_t byte_b(uint32_t x)
+{
+  return (x >> 16) & 0xFF;
+}
+
+UNUSED static inline uint32_t byte_c(uint32_t x)
+{
+  return (x >> 8) & 0xFF;
+}
+
+UNUSED static inline uint32_t byte_d(uint32_t x)
+{
+  return (x >> 0) & 0xFF;
+}
 
 struct pid_info {
   const char *description;
@@ -18,31 +34,31 @@ struct pid_info {
 
 double engine_coolant_temp(uint32_t val)
 {
-  return ((int32_t)BYTE_A(val)) - 40;
+  return ((int32_t)byte_a(val)) - 40;
 }
 
 
 double engine_rpm(uint32_t val)
 {
-  return (256*BYTE_A(val) + BYTE_B(val)) / 4.0;
+  return (256*byte_a(val) + byte_b(val)) / 4.0;
 }
 
 
 double vehicle_speed(uint32_t val)
 {
-  return BYTE_A(val);
+  return byte_a(val);
 }
 
 
 double mass_air_flow(uint32_t val)
 {
-  return (256*BYTE_A(val) + BYTE_B(val)) / 100.0;
+  return (256*byte_a(val) + byte_b(val)) / 100.0;
 }
 
 
 double o2_sensor_voltage(uint32_t val)
 {
-  return BYTE_A(val) / 200.0;
+  return byte_a(val) / 200.0;
 }
 
 
@@ -73,6 +89,7 @@ std::unique_ptr<std::string> get_mode_string(uint16_t mode)
     mode_str.reset(new string("freeze"));
   }
   else {
+    /* TODO: throw unsupported if it's a mode we don't yet handle*/
     mode_str.reset(new string(std::to_string(mode - 0x40)));
   }
 
