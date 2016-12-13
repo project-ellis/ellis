@@ -39,19 +39,55 @@ int main() {
   assert(decode_value(0x14, 0xAB123456) == 0xAB / 200.0);
 
   /* ELM327. */
-  elm327_decoder dec;
-  const byte buf[] = "41 05 B9\n";
-  size_t count = sizeof(buf) - 1;
-  decoding_status status = dec.consume_buffer(buf, &count);
-  assert(status == decoding_status::END);
-  assert(count == 0);
-  assert(dec.extract_error() == nullptr);
-  node n = *dec.extract_node();
-  assert(n.as_array().length() == 1);
-  const map_node &m = n.as_array()[0].as_map();
-  assert(m["mode"] == "current");
-  assert(m["pid"] == "engine_coolant_temp");
-  assert(dbl_equal(m["value"], 0xB9 - 40));
+  {
+    elm327_decoder dec;
+    const byte buf[] = "41 05 B9\n";
+    size_t count = sizeof(buf) - 1;
+    decoding_status status = dec.consume_buffer(buf, &count);
+    assert(status == decoding_status::END);
+    assert(count == 0);
+    assert(dec.extract_error() == nullptr);
+    node n = *dec.extract_node();
+    assert(n.as_array().length() == 1);
+    const map_node &m = n.as_array()[0].as_map();
+    assert(m["mode"] == "current");
+    assert(m["pid"] == "engine_coolant_temp");
+    assert(dbl_equal(m["value"], 0xB9 - 40));
+  }
+
+  {
+    elm327_decoder dec;
+    const byte buf[] = "41 0C 08 1B\n";
+    size_t count = sizeof(buf) - 1;
+    decoding_status status = dec.consume_buffer(buf, &count);
+    assert(status == decoding_status::END);
+    assert(count == 0);
+    assert(dec.extract_error() == nullptr);
+    node n = *dec.extract_node();
+    assert(n.as_array().length() == 1);
+    const map_node &m = n.as_array()[0].as_map();
+    assert(m["mode"] == "current");
+    assert(m["pid"] == "engine_rpm");
+    assert(dbl_equal(m["value"], (0x08*256 + 0x1B)/4.0));
+  }
+
+  {
+    elm327_decoder dec;
+    const byte buf[] = "";
+    size_t count = sizeof(buf) - 1;
+    decoding_status status = dec.consume_buffer(buf, &count);
+    assert(status == decoding_status::ERROR);
+    assert(dec.extract_error() != nullptr);
+  }
+
+  {
+    elm327_decoder dec;
+    const byte buf[] = "\n";
+    size_t count = sizeof(buf) - 1;
+    decoding_status status = dec.consume_buffer(buf, &count);
+    assert(status == decoding_status::ERROR);
+    assert(dec.extract_error() != nullptr);
+  }
 
   return 0;
 }
