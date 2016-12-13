@@ -113,6 +113,8 @@ decoding_status elm327_decoder::consume_buffer(
     size_t *bytecount)
 {
   if (bytecount == nullptr || *bytecount == 0) {
+    m_err.reset(
+      new MAKE_ELLIS_ERR(err_code::PARSING_ERROR, "Cannot parse empty OBD II node"));
     return decoding_status::ERROR;
   }
 
