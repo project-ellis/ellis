@@ -82,12 +82,11 @@ std::unique_ptr<node> elm327_decoder::make_obd_node(
   p += 3;
 
   uint32_t val = 0;
-  uint32_t mul = 1;
+  size_t bits = 0;
   for (; p < end; p += 3) {
-    val = val*mul + hex_val(*p);
-    mul *= 16;
-    val = val*mul + hex_val(*(p+1));
-    mul *= 16;
+    val = val*16 + hex_val(*p);
+    val = val*16 + hex_val(*(p+1));
+    bits += 8;
   }
   /* decode_value expects values to be in the MSB, so for a 2-byte value, it
    * should look like:
@@ -97,7 +96,7 @@ std::unique_ptr<node> elm327_decoder::make_obd_node(
    * XXXXBBBB
    * So, compute the number of bytes we have and left-shift.
    */
-  val <<= __builtin_clz(val);
+  val <<= 32 - bits;
   double dec_val = decode_value(pid, val);
 
   unique_ptr<node> m = unique_ptr<node>(new node(type::MAP));
