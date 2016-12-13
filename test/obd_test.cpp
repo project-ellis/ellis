@@ -82,7 +82,49 @@ int main() {
 
   {
     elm327_decoder dec;
+    const byte buf[] = "";
+    size_t count = sizeof(buf) - 1;
+    decoding_status status = dec.consume_buffer(buf, &count);
+    ELLIS_ASSERT(status == decoding_status::ERROR);
+    ELLIS_ASSERT(dec.extract_error() != nullptr);
+  }
+
+  {
+    elm327_decoder dec;
     const byte buf[] = "\n";
+    size_t count = sizeof(buf) - 1;
+    decoding_status status = dec.consume_buffer(buf, &count);
+    ELLIS_ASSERT(status == decoding_status::ERROR);
+    ELLIS_ASSERT(dec.extract_error() != nullptr);
+  }
+
+  {
+    elm327_decoder dec;
+    const byte buf[] = "41\n";
+    size_t count = sizeof(buf) - 1;
+    decoding_status status = dec.consume_buffer(buf, &count);
+    ELLIS_ASSERT(status == decoding_status::ERROR);
+    ELLIS_ASSERT(dec.extract_error() != nullptr);
+  }
+
+  {
+    elm327_decoder dec;
+    const byte buf[] = "41 0C\n";
+    size_t count = sizeof(buf) - 1;
+    decoding_status status = dec.consume_buffer(buf, &count);
+    ELLIS_ASSERT(status == decoding_status::END);
+    ELLIS_ASSERT(dec.extract_error() == nullptr);
+    node n = *dec.extract_node();
+    ELLIS_ASSERT(n.as_array().length() == 1);
+    const map_node &m = n.as_array()[0].as_map();
+    ELLIS_ASSERT(m["mode"] == "current");
+    ELLIS_ASSERT(m["pid"] == "engine_rpm");
+    ELLIS_ASSERT(m.has_key("value") == false);
+  }
+
+  {
+    elm327_decoder dec;
+    const byte buf[] = "41 0C 12 34 56 78 9A\n";
     size_t count = sizeof(buf) - 1;
     decoding_status status = dec.consume_buffer(buf, &count);
     ELLIS_ASSERT(status == decoding_status::ERROR);
