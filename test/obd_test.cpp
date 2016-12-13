@@ -17,7 +17,7 @@ int main() {
   assert(get_mode_string(0x00) == nullptr);
   assert(*get_mode_string(0x41) == "current");
   assert(*get_mode_string(0x42) == "freeze");
-  assert(*get_mode_string(0xFF) == std::to_string(0xFF - 0x40));
+  assert(get_mode_string(0xFF) == nullptr);
 
   assert(get_pid_string(0xFF) == nullptr);
   assert(string(get_pid_string(0x0D)) == "vehicle_speed");

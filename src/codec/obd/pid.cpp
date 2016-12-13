@@ -89,8 +89,8 @@ std::unique_ptr<std::string> get_mode_string(uint16_t mode)
     mode_str.reset(new string("freeze"));
   }
   else {
-    /* TODO: throw unsupported if it's a mode we don't yet handle*/
-    mode_str.reset(new string(std::to_string(mode - 0x40)));
+    /* We don't yet support this mode. */
+    return nullptr;
   }
 
   return mode_str;
