@@ -49,15 +49,17 @@ std::unique_ptr<node> elm327_decoder::make_obd_node(
   /* TODO: how to handle timestamps? */
 
   /* Make sure the input is formatted as:
-   * AB CD EF ...
-   * Where AB specifies the mode, CD specifies the pid, and EF ... are
+   * MM PP AB ...
+   * Where MM specifies the mode, PP specifies the pid, and AB ... are
    * between 1 and 4 space-separated hex pairs.
    */
-  if (bytecount < 8) {
+  static constexpr size_t smallest_node = sizeof("MM PP")-1;
+  static constexpr size_t largest_node = sizeof("MM PP AA BB CC DD")-1;
+  if (bytecount < smallest_node || bytecount > largest_node) {
     return nullptr;
   }
   const byte *end = start + bytecount;
-  for (const byte *p = start; p <= end - 2; p += 3) {
+  for (const byte *p = start; p <= end-2; p += 3) {
     if (! ( isxdigit(*p) && isxdigit(*(p+1)) ) ) {
       return nullptr;
     }
@@ -81,28 +83,30 @@ std::unique_ptr<node> elm327_decoder::make_obd_node(
   }
   p += 3;
 
-  uint32_t val = 0;
-  size_t bits = 0;
-  for (; p < end; p += 3) {
-    val = val*16 + hex_val(*p);
-    val = val*16 + hex_val(*(p+1));
-    bits += 8;
-  }
-  /* decode_value expects values to be in the MSB, so for a 2-byte value, it
-   * should look like:
-   * BBBBXXXX
-   * where BB are the value bytes that you care about.
-   * However, the ELM327 would instead give bytes like this:
-   * XXXXBBBB
-   * So, compute the number of bytes we have and left-shift.
-   */
-  val <<= 32 - bits;
-  double dec_val = decode_value(pid, val);
-
   unique_ptr<node> m = unique_ptr<node>(new node(type::MAP));
   m->as_mutable_map().insert("mode", std::move(*mode_str));
   m->as_mutable_map().insert("pid", pid_str);
-  m->as_mutable_map().insert("value", dec_val);
+  if (p < end) {
+    uint32_t val = 0;
+    size_t shift = 32;
+    for (; p < end; p += 3) {
+      val = val*16 + hex_val(*p);
+      val = val*16 + hex_val(*(p+1));
+      shift -= 8;
+    }
+    /* decode_value expects values to be in the MSB, so for a 2-byte value XXXX,
+     * the output value of 4 bytes should look like:
+     * XXXX0000
+     * However, the ELM327 would instead give bytes like this:
+     * 0000XXXX
+     * So, compute the number of bits we have and left-shift.
+     */
+    ELLIS_ASSERT(shift < 32);
+    val <<= shift;
+    double dec_val = decode_value(pid, val);
+
+    m->as_mutable_map().insert("value", dec_val);
+  }
 
   return m;
 }
