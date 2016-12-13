@@ -208,6 +208,7 @@ extern log_severity g_system_log_prefilter;
           __LINE__, \
           __FUNCTION__, \
           "Assert: failed expression (" #EXPR ")"); \
+      ELLIS_UNREACHABLE_HINT() \
     } \
   } while (0)
 
@@ -249,6 +250,7 @@ extern log_severity g_system_log_prefilter;
           "with LHS = %s and RHS = %s", \
           xstr.c_str(), \
           ystr.c_str()); \
+      ELLIS_UNREACHABLE_HINT() \
     } \
   } while (0)
 
