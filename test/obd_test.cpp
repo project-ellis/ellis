@@ -82,15 +82,6 @@ int main() {
 
   {
     elm327_decoder dec;
-    const byte buf[] = "";
-    size_t count = sizeof(buf) - 1;
-    decoding_status status = dec.consume_buffer(buf, &count);
-    ELLIS_ASSERT(status == decoding_status::ERROR);
-    ELLIS_ASSERT(dec.extract_error() != nullptr);
-  }
-
-  {
-    elm327_decoder dec;
     const byte buf[] = "\n";
     size_t count = sizeof(buf) - 1;
     decoding_status status = dec.consume_buffer(buf, &count);
