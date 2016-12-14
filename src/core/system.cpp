@@ -1,10 +1,12 @@
 #include <ellis/core/system.hpp>
 
+#include <cfloat>
+#include <cmath>
+#include <ellis/core/defs.hpp>
 #include <ellis/private/using.hpp>
 #include <stdarg.h>
 #include <stdio.h>
 #include <time.h>
-
 
 namespace ellis {
 
@@ -107,6 +109,19 @@ system_crash_fn_t g_system_crash_fn = &default_crash_function;
 void set_system_crash_function(system_crash_fn_t fn)
 {
   g_system_crash_fn = fn;
+}
+
+
+bool dbl_equal(double a, double b)
+{
+  return std::abs(a - b) <= DBL_EPSILON;
+}
+
+
+template <>
+std::string _internal_make_str(UNUSED const std::nullptr_t &)
+{
+  return std::string("nullptr");
 }
 
 

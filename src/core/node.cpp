@@ -387,7 +387,7 @@ void node::_prep_for_write()
     /* Nothing to do for a primitive type. */
     return;
   }
-  ELLIS_ASSERT_OP(m_pay->m_refcount, >, 0);
+  ELLIS_ASSERT_GT(m_pay->m_refcount, 0);
   if (m_pay->m_refcount == 1) {
     /* Nothing to do, this is the only copy, so go ahead and write. */
     return;

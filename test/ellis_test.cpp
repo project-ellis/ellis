@@ -11,7 +11,6 @@
 #include <ellis/private/using.hpp>
 #include <stdio.h>
 #include <string.h>
-#include <test/assert.hpp>
 
 static const ellis::byte k_somedata[] = {
   0x00, 0x81, 0x23, 0xE8,
@@ -46,7 +45,7 @@ static void test_crash_function(
 
 static void logtest()
 {
-  /* By the way, we use assert instead of ELLIS_ASSERT in this function, since 
+  /* By the way, we use assert instead of ELLIS_ASSERT in this function, since
    * the latter may itself cause logging, and thus add to confusion of the
    * logging test. */
 
@@ -81,7 +80,7 @@ static void asserttest()
   auto safe_asserts = []() {
     int x = 1;
     ELLIS_ASSERT(1);
-    ELLIS_ASSERT_OP(x, >, 0);
+    ELLIS_ASSERT_GT(x, 0);
     if (x == 1) {
     } else {
       ELLIS_ASSERT_UNREACHABLE();
@@ -91,7 +90,7 @@ static void asserttest()
   auto unsafe_asserts = [&x]() {
     ELLIS_ASSERT(0);
     x++;
-    ELLIS_ASSERT_OP(x, ==, 0);
+    ELLIS_ASSERT_EQ(x, 0);
     x++;
     if (x == 0) {
     } else {
@@ -119,7 +118,6 @@ static void asserttest()
 static void primitivetest()
 {
   using namespace ellis;
-  using namespace ellis::test;
   node v1(2.1);
   ELLIS_ASSERT(v1.as_double() == 2.1);
   double d1 = (double)v1;

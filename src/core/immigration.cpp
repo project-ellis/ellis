@@ -36,7 +36,7 @@ unique_ptr<node> load(
       }
     }
     else {
-      ELLIS_ASSERT_OP(buf_remain, ==, 0);
+      ELLIS_ASSERT_EQ(buf_remain, 0);
       /* We consumed the whole buffer, not done yet; continue the loop. */
     }
   }

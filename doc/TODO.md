@@ -27,6 +27,8 @@ M:Cross-build for at least ARM.
 M Make it easier to install ninja
 * Create a `u8str_node`.
 * Write at least one simple perf test.
+* Perf comparison of `ELLIS_ASSERT_EQ` vs `ELLIS_ASSERT_OP`, which calls the
+  copy-constructor.
 * Do a perf run to see if there are any major blunders.
 * Investigate an automatic but predictable perf test.
 * Msgpack codec

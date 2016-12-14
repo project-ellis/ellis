@@ -24,6 +24,6 @@ int main() {
   std::stringstream ss2;
   dump(n.get(), cpp_output_stream(ss2), delimited_text_encoder());
   auto s2 = ss2.str();
-  ELLIS_ASSERT_OP(s1, ==, s2);
+  ELLIS_ASSERT_EQ(s1, s2);
   return 0;
 }
