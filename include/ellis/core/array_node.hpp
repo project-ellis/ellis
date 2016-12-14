@@ -101,7 +101,6 @@ public:
 
 
 std::ostream & operator<<(std::ostream & os, const array_node & v);
-std::istream & operator>>(std::istream & is, array_node & v);
 
 
 }  /* namespace ellis */

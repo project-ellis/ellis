@@ -140,7 +140,6 @@ public:
 
 
 std::ostream & operator<<(std::ostream & os, const map_node & v);
-std::istream & operator>>(std::istream & is, map_node & v);
 
 
 }  /* namespace ellis */

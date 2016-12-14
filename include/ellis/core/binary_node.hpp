@@ -81,7 +81,6 @@ public:
 
 
 std::ostream & operator<<(std::ostream & os, const binary_node & v);
-std::istream & operator>>(std::istream & is, binary_node & v);
 
 
 }  /* namespace ellis */

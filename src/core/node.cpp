@@ -789,10 +789,6 @@ std::ostream & operator<<(std::ostream & os, const node & v)
   return os;
 }
 
-/* TODO:
-std::istream & operator>>(std::istream & is, node & v);
-*/
-
 
 OPFUNC_NODE_CMP
 

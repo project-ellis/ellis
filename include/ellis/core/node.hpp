@@ -526,7 +526,6 @@ double operator*(double, const node &);
 
 
 std::ostream & operator<<(std::ostream & os, const node & v);
-std::istream & operator>>(std::istream & is, node & v);
 
 
 }  /* namespace ellis */
