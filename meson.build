@@ -63,6 +63,8 @@ src = [
   'src/core/immigration.cpp',
   'src/core/map_node.cpp',
   'src/core/node.cpp',
+  'src/core/stream_decoder.cpp',
+  'src/core/stream_encoder.cpp',
   'src/core/system.cpp',
   'src/core/type.cpp',
   'src/stream/cpp_input_stream.cpp',

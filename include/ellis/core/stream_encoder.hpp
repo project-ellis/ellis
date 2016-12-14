@@ -22,6 +22,8 @@ enum class encoding_status {
   ERROR
 };
 
+std::ostream & operator<<(std::ostream & os, const array_node & v);
+
 
 // aka serialize, aka output
 class stream_encoder {

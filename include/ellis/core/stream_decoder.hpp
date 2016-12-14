@@ -28,6 +28,8 @@ enum class decoding_status {
   ERROR
 };
 
+std::ostream & operator<<(std::ostream & os, const array_node & v);
+
 
 // aka deserialize, aka input
 class stream_decoder {
