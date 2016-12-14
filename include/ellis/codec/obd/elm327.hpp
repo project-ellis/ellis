@@ -15,7 +15,7 @@
 #include <ellis/core/stream_encoder.hpp>
 
 namespace ellis {
-
+namespace obd {
 
 class elm327_decoder : public stream_decoder {
   std::unique_ptr<node> m_node;
@@ -60,6 +60,7 @@ public:
 };
 
 
+}  /* namespace obd */
 }  /* namespace ellis */
 
 #endif  /* ELLIS_CODEC_ELM327_HPP_ */

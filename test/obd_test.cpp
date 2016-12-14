@@ -1,5 +1,5 @@
 #undef NDEBUG
-#include <ellis/codec/elm327.hpp>
+#include <ellis/codec/obd/elm327.hpp>
 #include <ellis/core/array_node.hpp>
 #include <ellis/core/map_node.hpp>
 #include <ellis_private/codec/obd/pid.hpp>

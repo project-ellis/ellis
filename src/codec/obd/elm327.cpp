@@ -1,4 +1,4 @@
-#include <ellis/codec/elm327.hpp>
+#include <ellis/codec/obd/elm327.hpp>
 
 #include <ctype.h>
 #include <ellis/core/array_node.hpp>
@@ -11,8 +11,7 @@
 #include <ellis_private/using.hpp>
 
 namespace ellis {
-
-using namespace obd;
+namespace obd {
 
 
 /** Returns an integer value given a hex character (lowercase or uppercase). If
@@ -179,4 +178,5 @@ void elm327_decoder::reset()
 }
 
 
+}  /* namespace obd */
 }  /* namespace ellis */
