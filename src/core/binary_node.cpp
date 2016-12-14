@@ -81,4 +81,18 @@ void binary_node::clear()
 }
 
 
+std::ostream & operator<<(std::ostream & os, const binary_node &v)
+{
+  size_t length = v.length();
+  if (length > 0) {
+    os << "0x";
+    for (size_t i = 0; i < length; i++) {
+      os << std::hex << static_cast<unsigned int>(v[i]);
+    }
+  }
+
+  return os;
+}
+
+
 }  /* namespace ellis */

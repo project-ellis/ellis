@@ -126,4 +126,23 @@ void array_node::clear()
 }
 
 
+std::ostream & operator<<(std::ostream & os, const array_node &v)
+{
+  size_t count = 0;
+  size_t length = v.length();
+  os << "[";
+  v.foreach([&os, &count, &length](const node &n)
+  {
+    os << n;
+    count++;
+    if (count < length) {
+      os << ", ";
+    }
+  });
+  os << "]";
+
+  return os;
+}
+
+
 }  /* namespace ellis */

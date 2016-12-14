@@ -177,4 +177,23 @@ void map_node::clear()
 }
 
 
+std::ostream & operator<<(std::ostream & os, const map_node &v)
+{
+  size_t count = 0;
+  size_t length = v.length();
+  os << "{";
+  v.foreach([&os, &count, &length](const string &k, const node &n)
+  {
+    os << k << ": " << n;
+    count++;
+    if (count < length) {
+      os << ", ";
+    }
+  });
+  os << "}";
+
+  return os;
+}
+
+
 }  /* namespace ellis */

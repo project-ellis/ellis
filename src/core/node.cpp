@@ -750,6 +750,49 @@ const node & node::at_path(const std::string &path) const
   return *v;
 }
 
+std::ostream & operator<<(std::ostream & os, const node & v)
+{
+  switch (type(v.get_type())) {
+    case type::NIL:
+      os << "NIL";
+      break;
+
+    case type::BOOL:
+      os << v.as_bool();
+      break;
+
+    case type::INT64:
+      os << v.as_int64();
+      break;
+
+    case type::DOUBLE:
+      os << v.as_double();
+      break;
+
+    case type::U8STR:
+      os << v.as_u8str();
+      break;
+
+    case type::ARRAY:
+      os << v.as_array();
+      break;
+
+    case type::BINARY:
+      os << v.as_binary();
+      break;
+
+    case type::MAP:
+      os << v.as_map();
+      break;
+  }
+
+  return os;
+}
+
+/* TODO:
+std::istream & operator>>(std::istream & is, node & v);
+*/
+
 
 OPFUNC_NODE_CMP
 
