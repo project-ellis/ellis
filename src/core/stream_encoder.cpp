@@ -1,25 +1,21 @@
 #include <ellis/core/stream_encoder.hpp>
 
+#include <ellis/core/system.hpp>
+
 namespace ellis {
 
 
 std::ostream & operator<<(std::ostream & os, const encoding_status &s)
 {
-  const char *val;
   switch (s) {
     case encoding_status::CONTINUE:
-      val = "CONTINUE";
-      break;
+      return os << "CONTINUE";
     case encoding_status::END:
-      val = "END";
-      break;
+      return os << "END";
     case encoding_status::ERROR:
-      val = "ERROR";
-      break;
+      return os << "ERROR";
   }
-  os << val;
-
-  return os;
+  ELLIS_ASSERT_UNREACHABLE();
 }
 
 
