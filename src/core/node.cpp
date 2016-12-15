@@ -777,6 +777,7 @@ std::ostream & operator<<(std::ostream & os, const node & v)
     case type::MAP:
       return os << v.as_map();
   }
+  ELLIS_ASSERT_UNREACHABLE();
 }
 
 
