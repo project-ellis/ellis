@@ -30,9 +30,8 @@ byte hex_val(byte val)
   }
   else {
     const string &msg = ELLIS_SSTRING("value " << val << "is not a valid hex char");
-    MAKE_ELLIS_ERR(err_code::VALUE_NOT_HEX, msg);
+    throw MAKE_ELLIS_ERR(err_code::VALUE_NOT_HEX, msg);
   }
-  ELLIS_ASSERT_UNREACHABLE();
 }
 
 
