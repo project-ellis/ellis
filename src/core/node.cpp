@@ -754,39 +754,29 @@ std::ostream & operator<<(std::ostream & os, const node & v)
 {
   switch (type(v.get_type())) {
     case type::NIL:
-      os << "NIL";
-      break;
+      return os << "NIL";
 
     case type::BOOL:
-      os << v.as_bool();
-      break;
+      return os << v.as_bool();
 
     case type::INT64:
-      os << v.as_int64();
-      break;
+      return os << v.as_int64();
 
     case type::DOUBLE:
-      os << v.as_double();
-      break;
+      return os << v.as_double();
 
     case type::U8STR:
-      os << v.as_u8str();
-      break;
+      return os << v.as_u8str();
 
     case type::ARRAY:
-      os << v.as_array();
-      break;
+      return os << v.as_array();
 
     case type::BINARY:
-      os << v.as_binary();
-      break;
+      return os << v.as_binary();
 
     case type::MAP:
-      os << v.as_map();
-      break;
+      return os << v.as_map();
   }
-
-  return os;
 }
 
 
