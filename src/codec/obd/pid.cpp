@@ -75,10 +75,7 @@ static unordered_map<uint16_t, pid_info> g_pid_map =
 std::unique_ptr<std::string> get_mode_string(uint16_t mode)
 {
   unique_ptr<string> mode_str = nullptr;
-  if (mode == 0x7F) {
-    mode_str.reset(new string("unknown"));
-  }
-  else if (mode < 0x40) {
+  if (mode < 0x40) {
     /* 0x40 should be added to the mode, so something is wrong. */
     return nullptr;
   }
@@ -89,7 +86,7 @@ std::unique_ptr<std::string> get_mode_string(uint16_t mode)
     mode_str.reset(new string("freeze"));
   }
   else {
-    /* We don't yet support this mode. */
+    /* We currently support only SAE Standard modes. */
     return nullptr;
   }
 

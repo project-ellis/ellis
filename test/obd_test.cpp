@@ -11,7 +11,6 @@ int main() {
   using namespace ellis::obd;
 
   /* OBD. */
-  ELLIS_ASSERT_EQ(*get_mode_string(0x7F), "unknown");
   ELLIS_ASSERT_NULL(get_mode_string(0x00).get());
   ELLIS_ASSERT_EQ(*get_mode_string(0x41), "current");
   ELLIS_ASSERT_EQ(*get_mode_string(0x42), "freeze");
