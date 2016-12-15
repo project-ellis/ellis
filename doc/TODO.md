@@ -10,7 +10,6 @@ B:Schema API
 * Zero-copy I/O for `binary_node`?
 M:C wrappers.
 J:JSON encoder/decoder.
-M:OBD-over-CAN decoder.
 
 ## Initial sanity cleanup
 
