@@ -2,6 +2,10 @@
  * @file codec/elm327.hpp
  *
  * @brief Ellis ELM327 codec C++ header.
+ *
+ * This decoder implements decoding of ECU responses in the OBD II protocol over
+ * ELM327. Specifically, it currently implements only OBD II modes 01 and 02 (SAE
+ * Standard modes) and does not implement anything vehicle-specific.
  */
 
 #pragma once
