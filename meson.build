@@ -54,6 +54,7 @@ install_headers(public_headers, subdir: 'ellis')
 # libellis.
 src = [
   'src/codec/delimited_text.cpp',
+  'src/codec/obd/can.cpp',
   'src/codec/obd/elm327.cpp',
   'src/codec/obd/pid.cpp',
   'src/core/array_node.cpp',

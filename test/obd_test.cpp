@@ -1,4 +1,5 @@
 #undef NDEBUG
+#include <ellis/codec/obd/can.hpp>
 #include <ellis/codec/obd/elm327.hpp>
 #include <ellis/core/array_node.hpp>
 #include <ellis/core/map_node.hpp>
@@ -34,6 +35,64 @@ int main() {
 
   ELLIS_ASSERT_EQ(decode_value(0x14, 0xAB000000), 0xAB / 200.0);
   ELLIS_ASSERT_EQ(decode_value(0x14, 0xAB123456), 0xAB / 200.0);
+
+  /* CAN. */
+  {
+    can_decoder dec;
+    const byte buf[] = {0};
+    size_t count = 0;
+    decoding_status status = dec.consume_buffer(buf, &count);
+    ELLIS_ASSERT_EQ((int)status, (int)decoding_status::ERROR);
+    ELLIS_ASSERT_NOT_NULL(dec.extract_error().get());
+  }
+
+  {
+    can_decoder dec;
+    const byte buf[] = { 0x3, 0x41, 0x05, 0xB9, 0xA, 0xB, 0xC, 0x0 };
+    size_t count = sizeof(buf);
+    decoding_status status = dec.consume_buffer(buf, &count);
+    ELLIS_ASSERT_EQ((int)status, (int)decoding_status::END);
+    ELLIS_ASSERT_EQ(count, 0);
+    ELLIS_ASSERT_NULL(dec.extract_error().get());
+    node n = *dec.extract_node();
+    ELLIS_ASSERT_EQ(n.as_array().length(), 1);
+    const map_node &m = n.as_array()[0].as_map();
+    ELLIS_ASSERT_EQ(m["mode"], "current");
+    ELLIS_ASSERT_EQ(m["pid"], "engine_coolant_temp");
+    ELLIS_ASSERT_DBL_EQ(m["value"], 0xB9 - 40);
+  }
+
+  {
+    can_decoder dec;
+    const byte buf[] = { 0x3, 0x42, 0x05, 0xB9, 0xA, 0xB, 0xC, 0x55 };
+    size_t count = sizeof(buf);
+    decoding_status status = dec.consume_buffer(buf, &count);
+    ELLIS_ASSERT_EQ((int)status, (int)decoding_status::END);
+    ELLIS_ASSERT_EQ(count, 0);
+    ELLIS_ASSERT_NULL(dec.extract_error().get());
+    node n = *dec.extract_node();
+    ELLIS_ASSERT_EQ(n.as_array().length(), 1);
+    const map_node &m = n.as_array()[0].as_map();
+    ELLIS_ASSERT_EQ(m["mode"], "freeze");
+    ELLIS_ASSERT_EQ(m["pid"], "engine_coolant_temp");
+    ELLIS_ASSERT_DBL_EQ(m["value"], 0xB9 - 40);
+  }
+
+  {
+    can_decoder dec;
+    const byte buf[] = { 0x4, 0x41, 0x0C, 0x08, 0x1B, 0xA, 0xB, 0x0 };
+    size_t count = sizeof(buf);
+    decoding_status status = dec.consume_buffer(buf, &count);
+    ELLIS_ASSERT_EQ((int)status, (int)decoding_status::END);
+    ELLIS_ASSERT_EQ(count, 0);
+    ELLIS_ASSERT_NULL(dec.extract_error().get());
+    node n = *dec.extract_node();
+    ELLIS_ASSERT_EQ(n.as_array().length(), 1);
+    const map_node &m = n.as_array()[0].as_map();
+    ELLIS_ASSERT_EQ(m["mode"], "current");
+    ELLIS_ASSERT_EQ(m["pid"], "engine_rpm");
+    ELLIS_ASSERT_DBL_EQ(m["value"], (0x08*256 + 0x1B)/4.0);
+  }
 
   /* ELM327. */
   {
