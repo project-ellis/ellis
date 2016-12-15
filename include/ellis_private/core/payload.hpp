@@ -1,5 +1,5 @@
 /*
- * @file ellis/private/core/payload.hpp
+ * @file ellis_private/core/payload.hpp
  *
  * @brief payload -- refcounted payload for ellis nodes.
  *

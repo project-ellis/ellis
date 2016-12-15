@@ -1,6 +1,6 @@
 #include <ellis/core/err.hpp>
 
-#include <ellis/private/using.hpp>
+#include <ellis_private/using.hpp>
 
 
 namespace ellis {

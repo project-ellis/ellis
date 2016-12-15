@@ -3,7 +3,7 @@
 #include <ellis/core/immigration.hpp>
 #include <ellis/core/system.hpp>
 #include <ellis/codec/delimited_text.hpp>
-#include <ellis/private/using.hpp>
+#include <ellis_private/using.hpp>
 #include <ellis/stream/cpp_input_stream.hpp>
 #include <ellis/stream/cpp_output_stream.hpp>
 #include <sstream>

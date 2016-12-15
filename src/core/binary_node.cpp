@@ -2,8 +2,8 @@
 
 #include <ellis/core/node.hpp>
 #include <ellis/core/system.hpp>
-#include <ellis/private/core/payload.hpp>
-#include <ellis/private/using.hpp>
+#include <ellis_private/core/payload.hpp>
+#include <ellis_private/using.hpp>
 
 namespace ellis {
 

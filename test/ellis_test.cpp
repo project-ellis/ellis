@@ -8,7 +8,7 @@
 #include <ellis/core/map_node.hpp>
 #include <ellis/core/node.hpp>
 #include <ellis/core/system.hpp>
-#include <ellis/private/using.hpp>
+#include <ellis_private/using.hpp>
 #include <stdio.h>
 #include <string.h>
 

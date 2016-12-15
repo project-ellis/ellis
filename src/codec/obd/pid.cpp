@@ -1,7 +1,7 @@
-#include <ellis/private/codec/obd/pid.hpp>
+#include <ellis_private/codec/obd/pid.hpp>
 
 #include <ellis/core/defs.hpp>
-#include <ellis/private/using.hpp>
+#include <ellis_private/using.hpp>
 
 namespace ellis {
 namespace obd {

@@ -6,9 +6,9 @@
 #include <ellis/core/map_node.hpp>
 #include <ellis/core/system.hpp>
 #include <ellis/core/type.hpp>
-#include <ellis/private/core/err.hpp>
-#include <ellis/private/core/payload.hpp>
-#include <ellis/private/using.hpp>
+#include <ellis_private/core/err.hpp>
+#include <ellis_private/core/payload.hpp>
+#include <ellis_private/using.hpp>
 #include <stddef.h>
 #include <string.h>
 

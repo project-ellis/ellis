@@ -1,5 +1,5 @@
 /*
- * @file ellis/private/using.hpp
+ * @file ellis_private/using.hpp
  *
  * @brief common types and headers for C++.
  *

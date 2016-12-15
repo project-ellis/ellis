@@ -3,7 +3,7 @@
 #include <cfloat>
 #include <cmath>
 #include <ellis/core/defs.hpp>
-#include <ellis/private/using.hpp>
+#include <ellis_private/using.hpp>
 #include <stdarg.h>
 #include <stdio.h>
 #include <time.h>

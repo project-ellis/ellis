@@ -1,7 +1,7 @@
 #include <ellis/core/emigration.hpp>
 
 #include <ellis/core/system.hpp>
-#include <ellis/private/using.hpp>
+#include <ellis_private/using.hpp>
 
 
 namespace ellis {

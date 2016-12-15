@@ -2,9 +2,9 @@
 #include <ellis/codec/elm327.hpp>
 #include <ellis/core/array_node.hpp>
 #include <ellis/core/map_node.hpp>
-#include <ellis/private/codec/obd/pid.hpp>
+#include <ellis_private/codec/obd/pid.hpp>
 #include <ellis/core/system.hpp>
-#include <ellis/private/using.hpp>
+#include <ellis_private/using.hpp>
 
 int main() {
   using namespace ellis;

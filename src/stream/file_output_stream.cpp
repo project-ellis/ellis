@@ -1,7 +1,7 @@
 #include <ellis/stream/file_output_stream.hpp>
 
-#include <ellis/private/core/err.hpp>
-#include <ellis/private/using.hpp>
+#include <ellis_private/core/err.hpp>
+#include <ellis_private/using.hpp>
 #include <fcntl.h>
 #include <sys/types.h>
 #include <sys/stat.h>

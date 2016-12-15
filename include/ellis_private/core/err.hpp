@@ -1,5 +1,5 @@
 /*
- * @file ellis/private/core/err.hpp
+ * @file ellis_private/core/err.hpp
  *
  * @brief Ellis error private C++ header.
  *
