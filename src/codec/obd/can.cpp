@@ -97,7 +97,7 @@ decoding_status can_decoder::consume_buffer(
   /* ECU responses are 8 bytes long. */
   if (*bytecount < 8) {
     *bytecount = 0;
-    return decoding_status::CONTINUE;
+    return decoding_status::MUST_CONTINUE;
   }
 
   const byte *end = buf + *bytecount;
@@ -114,7 +114,7 @@ decoding_status can_decoder::consume_buffer(
 
   if ((*bytecount % 8) != 0) {
     *bytecount = *bytecount - (8*(*bytecount/8));
-    return decoding_status::CONTINUE;
+    return decoding_status::MUST_CONTINUE;
   }
   else {
     *bytecount = 0;
