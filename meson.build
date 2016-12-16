@@ -9,9 +9,11 @@ project('ellis', 'cpp',
     'warning_level=3',
     'werror=true'])
 
-extra_gcc_flags = ['-Wshadow']
-add_project_arguments(extra_gcc_flags, language: 'cpp')
-add_project_arguments(extra_gcc_flags, language: 'c')
+common_flags = ['-Wshadow']
+c_flags = common_flags
+cpp_flags = common_flags + ['-fno-rtti']
+add_project_arguments(c_flags, language: 'c')
+add_project_arguments(cpp_flags, language: 'cpp')
 
 pkg = import('pkgconfig')
 
