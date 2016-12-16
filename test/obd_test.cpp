@@ -42,7 +42,7 @@ int main() {
     const byte buf[] = {0};
     size_t count = 0;
     decoding_status status = dec.consume_buffer(buf, &count);
-    ELLIS_ASSERT_EQ((int)status, (int)decoding_status::ERROR);
+    ELLIS_ASSERT_EQ(status, decoding_status::ERROR);
     ELLIS_ASSERT_NOT_NULL(dec.extract_error().get());
   }
 
@@ -51,7 +51,7 @@ int main() {
     const byte buf[] = { 0x3, 0x41, 0x05, 0xB9, 0xA, 0xB, 0xC, 0x0 };
     size_t count = sizeof(buf);
     decoding_status status = dec.consume_buffer(buf, &count);
-    ELLIS_ASSERT_EQ((int)status, (int)decoding_status::END);
+    ELLIS_ASSERT_EQ(status, decoding_status::END);
     ELLIS_ASSERT_EQ(count, 0);
     ELLIS_ASSERT_NULL(dec.extract_error().get());
     node n = *dec.extract_node();
@@ -67,7 +67,7 @@ int main() {
     const byte buf[] = { 0x3, 0x42, 0x05, 0xB9, 0xA, 0xB, 0xC, 0x55 };
     size_t count = sizeof(buf);
     decoding_status status = dec.consume_buffer(buf, &count);
-    ELLIS_ASSERT_EQ((int)status, (int)decoding_status::END);
+    ELLIS_ASSERT_EQ(status, decoding_status::END);
     ELLIS_ASSERT_EQ(count, 0);
     ELLIS_ASSERT_NULL(dec.extract_error().get());
     node n = *dec.extract_node();
@@ -83,7 +83,7 @@ int main() {
     const byte buf[] = { 0x4, 0x41, 0x0C, 0x08, 0x1B, 0xA, 0xB, 0x0 };
     size_t count = sizeof(buf);
     decoding_status status = dec.consume_buffer(buf, &count);
-    ELLIS_ASSERT_EQ((int)status, (int)decoding_status::END);
+    ELLIS_ASSERT_EQ(status, decoding_status::END);
     ELLIS_ASSERT_EQ(count, 0);
     ELLIS_ASSERT_NULL(dec.extract_error().get());
     node n = *dec.extract_node();
@@ -100,7 +100,7 @@ int main() {
     const byte buf[] = "41 05 B9\n";
     size_t count = sizeof(buf) - 1;
     decoding_status status = dec.consume_buffer(buf, &count);
-    ELLIS_ASSERT_EQ((int)status, (int)decoding_status::END);
+    ELLIS_ASSERT_EQ(status, decoding_status::END);
     ELLIS_ASSERT_EQ(count, 0);
     ELLIS_ASSERT_NULL(dec.extract_error().get());
     node n = *dec.extract_node();
@@ -116,7 +116,7 @@ int main() {
     const byte buf[] = "41 0C 08 1B\n";
     size_t count = sizeof(buf) - 1;
     decoding_status status = dec.consume_buffer(buf, &count);
-    ELLIS_ASSERT_EQ((int)status, (int)decoding_status::END);
+    ELLIS_ASSERT_EQ(status, decoding_status::END);
     ELLIS_ASSERT_EQ(count, 0);
     ELLIS_ASSERT_NULL(dec.extract_error().get());
     node n = *dec.extract_node();
@@ -132,7 +132,7 @@ int main() {
     const byte buf[] = "";
     size_t count = sizeof(buf) - 1;
     decoding_status status = dec.consume_buffer(buf, &count);
-    ELLIS_ASSERT_EQ((int)status, (int)decoding_status::ERROR);
+    ELLIS_ASSERT_EQ(status, decoding_status::ERROR);
     ELLIS_ASSERT_NOT_NULL(dec.extract_error().get());
   }
 
@@ -141,7 +141,7 @@ int main() {
     const byte buf[] = "\n";
     size_t count = sizeof(buf) - 1;
     decoding_status status = dec.consume_buffer(buf, &count);
-    ELLIS_ASSERT_EQ((int)status, (int)decoding_status::ERROR);
+    ELLIS_ASSERT_EQ(status, decoding_status::ERROR);
     ELLIS_ASSERT_NOT_NULL(dec.extract_error().get());
   }
 
@@ -150,7 +150,7 @@ int main() {
     const byte buf[] = "41\n";
     size_t count = sizeof(buf) - 1;
     decoding_status status = dec.consume_buffer(buf, &count);
-    ELLIS_ASSERT_EQ((int)status, (int)decoding_status::ERROR);
+    ELLIS_ASSERT_EQ(status, decoding_status::ERROR);
     ELLIS_ASSERT_NOT_NULL(dec.extract_error().get());
   }
 
@@ -159,7 +159,7 @@ int main() {
     const byte buf[] = "41 0C\n";
     size_t count = sizeof(buf) - 1;
     decoding_status status = dec.consume_buffer(buf, &count);
-    ELLIS_ASSERT_EQ((int)status, (int)decoding_status::END);
+    ELLIS_ASSERT_EQ(status, decoding_status::END);
     ELLIS_ASSERT_NULL(dec.extract_error().get());
     node n = *dec.extract_node();
     ELLIS_ASSERT_EQ(n.as_array().length(), 1);
@@ -174,7 +174,7 @@ int main() {
     const byte buf[] = "41 0C 12 34 56 78 9A\n";
     size_t count = sizeof(buf) - 1;
     decoding_status status = dec.consume_buffer(buf, &count);
-    ELLIS_ASSERT_EQ((int)status, (int)decoding_status::ERROR);
+    ELLIS_ASSERT_EQ(status, decoding_status::ERROR);
     ELLIS_ASSERT_NOT_NULL(dec.extract_error().get());
   }
 
