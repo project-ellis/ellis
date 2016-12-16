@@ -22,6 +22,7 @@ enum class encoding_status {
   ERROR
 };
 
+std::ostream & operator<<(std::ostream & os, const encoding_status &s);
 std::ostream & operator<<(std::ostream & os, const array_node & v);
 
 
