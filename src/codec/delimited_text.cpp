@@ -37,7 +37,7 @@ decoding_status delimited_text_decoder::consume_buffer(
   if (m_ss.tellp() == 0) {
     return decoding_status::END;
   }
-  return decoding_status::CONTINUE;
+  return decoding_status::MUST_CONTINUE;
 }
 
 unique_ptr<node> delimited_text_decoder::extract_node()

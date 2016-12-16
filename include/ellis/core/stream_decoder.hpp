@@ -23,7 +23,8 @@ namespace ellis {
 // streaming/generator approach, and/or decode headers of huge objects.
 // Is there any need for analogous greedy param to encoders?
 enum class decoding_status {
-  CONTINUE,
+  MAY_CONTINUE,
+  MUST_CONTINUE,
   END,
   ERROR
 };
@@ -45,7 +46,7 @@ public:
    * If there has been a non-recoverable error in the decoding process, the
    * ERROR status will be returned; otherwise, if an ellis node has been
    * completely decoded, a status of END is returned; otherwise a status of
-   * CONTINUE will be returned (to indicate that additional bytes must be
+   * MUST_CONTINUE will be returned (to indicate that additional bytes must be
    * provided via additional calls to consume_buffer).
    *
    * If a status of END is returned, the constructed object may be obtained
@@ -73,11 +74,13 @@ public:
 
   /** Return the constructed node.
    *
-   * It is only valid to call this when consume_buffer has returned COMPLETE.
+   * Only valid when decoder status is END or MAY_CONTINUE.
    */
   virtual std::unique_ptr<node> extract_node() = 0;
 
   /** Return the error details.  Caller owns it now.
+   *
+   * Only valid when decoder status is ERROR.
    */
   virtual std::unique_ptr<err> extract_error() = 0;
 
