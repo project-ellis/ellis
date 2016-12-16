@@ -95,26 +95,16 @@ run_target('clangtidy', command: 'meson/clangtidy')
 run_target('cppcheck', command: 'meson/cppcheck')
 
 # Tests.
-test_exe = executable(
-  'ellistest',
-  'test/ellis_test.cpp',
-  include_directories: inc,
-  link_with: lib,
-  dependencies: thread_deps)
-test('ellistest', test_exe)
-
-codec_test_exe = executable(
-  'codectest',
-  'test/codec_test.cpp',
-  include_directories: inc,
-  link_with: lib,
-  dependencies: thread_deps)
-test('codectest', codec_test_exe)
-
-obd_test_exe = executable(
-  'obdtest',
-  'test/obd_test.cpp',
-  include_directories: inc,
-  link_with: lib,
-  dependencies: thread_deps)
-test('obdtest', obd_test_exe)
+tests = [
+  ['ellistest', 'test/ellis_test.cpp'],
+  ['codectest', 'test/codec_test.cpp'],
+  ['obdtest', 'test/obd_test.cpp']]
+foreach t : tests
+  exe = executable(
+    t.get(0),
+    t.get(1),
+    include_directories: inc,
+    link_with: lib,
+    dependencies: thread_deps)
+  test(t.get(0), exe)
+endforeach
