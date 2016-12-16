@@ -14,73 +14,73 @@
 namespace ellis {
 
 
-  /*   ____                           _
-   *  / ___|___  _ ____   _____ _ __ (_) ___ _ __   ___ ___
-   * | |   / _ \| '_ \ \ / / _ \ '_ \| |/ _ \ '_ \ / __/ _ \
-   * | |__| (_) | | | \ V /  __/ | | | |  __/ | | | (_|  __/
-   *  \____\___/|_| |_|\_/ \___|_| |_|_|\___|_| |_|\___\___|
-   *
-   */
+/*   ____                           _
+ *  / ___|___  _ ____   _____ _ __ (_) ___ _ __   ___ ___
+ * | |   / _ \| '_ \ \ / / _ \ '_ \| |/ _ \ '_ \ / __/ _ \
+ * | |__| (_) | | | \ V /  __/ | | | |  __/ | | | (_|  __/
+ *  \____\___/|_| |_|\_/ \___|_| |_|_|\___|_| |_|\___\___|
+ *
+ */
 
 
-  /** Stream to string helper.
-   *
-   * Creates a temporary string stream, sends macro arguments to that stream,
-   * and gets the string result.
-   *
-   * Example:
-   *
-   *   // This function becomes a one-liner...
-   *   string myfunc() {
-   *     return ELLIS_SSTRING(pfx << "[" << dmp << "]" << getpid());
-   *   }
-   *
-   * Warning:
-   *
-   *   If you are using the result with a function that takes a const char *,
-   *   you can safely pass the c_str() output from the resulting string, if the
-   *   value will be used only during the function call and will not need to
-   *   live on after the function call terminates.  Thus the following is safe:
-   *
-   *     somefunc(ELLIS_SSTRING(left << x << right).c_str());
-   *
-   *   The following is also safe:
-   *
-   *     auto s = ELLIS_SSTRING(left << x << right);
-   *     somefunc(s.c_str());
-   *
-   *   But the following is NOT SAFE:
-   *
-   *     const char *p = ELLIS_SSTRING(left << x << right).c_str();  // trouble
-   *     somefunc(p);
-   *
-   *   The reason the latter is not safe is that the string has already been
-   *   destroyed by the time p is used, and the memory is undefined.
-   */
+/** Stream to string helper.
+ *
+ * Creates a temporary string stream, sends macro arguments to that stream,
+ * and gets the string result.
+ *
+ * Example:
+ *
+ *   // This function becomes a one-liner...
+ *   string myfunc() {
+ *     return ELLIS_SSTRING(pfx << "[" << dmp << "]" << getpid());
+ *   }
+ *
+ * Warning:
+ *
+ *   If you are using the result with a function that takes a const char *,
+ *   you can safely pass the c_str() output from the resulting string, if the
+ *   value will be used only during the function call and will not need to
+ *   live on after the function call terminates.  Thus the following is safe:
+ *
+ *     somefunc(ELLIS_SSTRING(left << x << right).c_str());
+ *
+ *   The following is also safe:
+ *
+ *     auto s = ELLIS_SSTRING(left << x << right);
+ *     somefunc(s.c_str());
+ *
+ *   But the following is NOT SAFE:
+ *
+ *     const char *p = ELLIS_SSTRING(left << x << right).c_str();  // trouble
+ *     somefunc(p);
+ *
+ *   The reason the latter is not safe is that the string has already been
+ *   destroyed by the time p is used, and the memory is undefined.
+ */
 #define ELLIS_SSTRING(args) \
   ((::std::ostringstream&)((::std::ostringstream{}) << args)).str()
 
 
-  /*  _                      _               _   _             _
-   * | |    ___   __ _  __ _(_)_ __   __ _  | | | | ___   ___ | | _____
-   * | |   / _ \ / _` |/ _` | | '_ \ / _` | | |_| |/ _ \ / _ \| |/ / __|
-   * | |__| (_) | (_| | (_| | | | | | (_| | |  _  | (_) | (_) |   <\__ \
-   * |_____\___/ \__, |\__, |_|_| |_|\__, | |_| |_|\___/ \___/|_|\_\___/
-   *             |___/ |___/         |___/
-   */
+/*  _                      _               _   _             _
+ * | |    ___   __ _  __ _(_)_ __   __ _  | | | | ___   ___ | | _____
+ * | |   / _ \ / _` |/ _` | | '_ \ / _` | | |_| |/ _ \ / _ \| |/ / __|
+ * | |__| (_) | (_| | (_| | | | | | (_| | |  _  | (_) | (_) |   <\__ \
+ * |_____\___/ \__, |\__, |_|_| |_|\__, | |_| |_|\___/ \___/|_|\_\___/
+ *             |___/ |___/         |___/
+ */
 
 
-  /** Use this macro to log.  It has printf semantics with a severity,
-   * and for the sake of performance will only evaluate its arguments and
-   * forward to the system logging function if the severity prefilter is
-   * breached.
-   *
-   * Example:
-   *
-   *   ELLIS_LOG(DBUG, "unrecognized record %s", rec.c_str());
-   *
-   * In this macro, the names are intentionally fully qualified.
-   */
+/** Use this macro to log.  It has printf semantics with a severity,
+ * and for the sake of performance will only evaluate its arguments and
+ * forward to the system logging function if the severity prefilter is
+ * breached.
+ *
+ * Example:
+ *
+ *   ELLIS_LOG(DBUG, "unrecognized record %s", rec.c_str());
+ *
+ * In this macro, the names are intentionally fully qualified.
+ */
 #define ELLIS_LOG(LVL, ...) \
   do { \
     if ((int)::ellis::log_severity::LVL \
@@ -96,12 +96,12 @@ namespace ellis {
   } while(0)
 
 
-  /** This is like ELLIS_LOG but with streaming semantics.
-   *
-   * Example:
-   *
-   *   ELLIS_LOGSTREAM(DBUG, "x was: " << x << ", obj was: " << obj);
-   */
+/** This is like ELLIS_LOG but with streaming semantics.
+ *
+ * Example:
+ *
+ *   ELLIS_LOGSTREAM(DBUG, "x was: " << x << ", obj was: " << obj);
+ */
 #define ELLIS_LOGSTREAM(LVL, ...) \
   do { \
     if ((int)::ellis::log_severity::LVL \
@@ -118,101 +118,125 @@ namespace ellis {
   } while(0)
 
 
-  /** The severity levels used in the ELLIS_LOG macro.
-   *
-   * They should not be changed.
-   */
-  enum class log_severity {
-    EMRG = 0,
-    ALRT = 1,
-    CRIT = 2,
-    ERRO = 3,
-    WARN = 4,
-    NOTI = 5,
-    INFO = 6,
-    DBUG = 7,
-  };
+/** The severity levels used in the ELLIS_LOG macro.
+ *
+ * They should not be changed.
+ */
+enum class log_severity {
+  EMRG = 0,
+  ALRT = 1,
+  CRIT = 2,
+  ERRO = 3,
+  WARN = 4,
+  NOTI = 5,
+  INFO = 6,
+  DBUG = 7,
+};
 
 
-  /** The default logging in ELLIS simply dumps to stderr. */
-  void default_system_log_function(
-      log_severity sev,
-      const char *file,
-      int line,
-      const char *func,
-      const char *fmt, ...);
+/** The default logging in ELLIS simply dumps to stderr. */
+void default_system_log_function(
+    log_severity sev,
+    const char *file,
+    int line,
+    const char *func,
+    const char *fmt, ...);
 
 
-  /** The type of logging functions that ELLIS accepts. */
-  using system_log_fn_t = decltype(&default_system_log_function);
+/** The type of logging functions that ELLIS accepts. */
+using system_log_fn_t = decltype(&default_system_log_function);
 
 
-  /** Replace the system log function.
-   *
-   * You can use this to redirect ellis log output into your the logging
-   * system that your software uses.
-   */
-  void set_system_log_function(system_log_fn_t fn);
+/** Replace the system log function.
+ *
+ * You can use this to redirect ellis log output into your the logging
+ * system that your software uses.
+ */
+void set_system_log_function(system_log_fn_t fn);
 
 
-  /** Adjust the prefilter severity that gets checked before the arguments to
-   * ELLIS_LOG are evaluated or forwarded to the system log function.
-   *
-   * You may wish to automatically adjust this in response to changes to
-   * the downstream system logging configuration, so as to allow for speed
-   * gains while ensuring no accidental filtering of desired messages.
-   *
-   * Or, for those who are lazy and less concerned about speed, it is safe
-   * to set it to DBUG and let the system log function that you specified
-   * to set_system_log_function do the filtering.  This is simpler but it
-   * means that arguments to ELLIS_LOG would be evaluated, and the function
-   * called, in all cases, which could result in lower performance.
-   */
-  void set_system_log_prefilter(log_severity sev);
+/** Adjust the prefilter severity that gets checked before the arguments to
+ * ELLIS_LOG are evaluated or forwarded to the system log function.
+ *
+ * You may wish to automatically adjust this in response to changes to
+ * the downstream system logging configuration, so as to allow for speed
+ * gains while ensuring no accidental filtering of desired messages.
+ *
+ * Or, for those who are lazy and less concerned about speed, it is safe
+ * to set it to DBUG and let the system log function that you specified
+ * to set_system_log_function do the filtering.  This is simpler but it
+ * means that arguments to ELLIS_LOG would be evaluated, and the function
+ * called, in all cases, which could result in lower performance.
+ */
+void set_system_log_prefilter(log_severity sev);
 
 
-  /* Implementation details, referenced in macros. */
-  extern system_log_fn_t g_system_log_fn;
-  extern log_severity g_system_log_prefilter;
+/* Implementation details, referenced in macros. */
+extern system_log_fn_t g_system_log_fn;
+extern log_severity g_system_log_prefilter;
 
 
-  /*  _____     _        _                       _
-   * |  ___|_ _| |_ __ _| |___    __ _ _ __   __| |
-   * | |_ / _` | __/ _` | / __|  / _` | '_ \ / _` |
-   * |  _| (_| | || (_| | \__ \ | (_| | | | | (_| |
-   * |_|  \__,_|\__\__,_|_|___/  \__,_|_| |_|\__,_|
-   *
-   *     _                      _
-   *    / \   ___ ___  ___ _ __| |_ ___
-   *   / _ \ / __/ __|/ _ \ '__| __/ __|
-   *  / ___ \\__ \__ \  __/ |  | |_\__ \
-   * /_/   \_\___/___/\___|_|   \__|___/
-   *
-   */
+/*  _____     _        _                       _
+ * |  ___|_ _| |_ __ _| |___    __ _ _ __   __| |
+ * | |_ / _` | __/ _` | / __|  / _` | '_ \ / _` |
+ * |  _| (_| | || (_| | \__ \ | (_| | | | | (_| |
+ * |_|  \__,_|\__\__,_|_|___/  \__,_|_| |_|\__,_|
+ *
+ *     _                      _
+ *    / \   ___ ___  ___ _ __| |_ ___
+ *   / _ \ / __/ __|/ _ \ '__| __/ __|
+ *  / ___ \\__ \__ \  __/ |  | |_\__ \
+ * /_/   \_\___/___/\___|_|   \__|___/
+ *
+ */
 
 
-  /** Assert that EXPR is true.
-   *
-   * In case of failure, the system failure function will be called, with a
-   * message describing the assert condition, filename and line number.
-   *
-   * Always evaluated, whether in debug or release build.
-   */
+/** Assert that EXPR is true.
+ *
+ * In case of failure, the system failure function will be called, with a
+ * message describing the assert condition, filename and line number.
+ *
+ * Always evaluated, whether in debug or release build.
+ */
 #define ELLIS_ASSERT(EXPR) \
-  do { \
-    if (EXPR) { \
-      /* Empty, but catches accidental assignment (i.e. a=b) in EXPR. */ \
-    } else { \
-      (*::ellis::g_system_crash_fn)( \
-          __FILE__, \
-          __LINE__, \
-          __FUNCTION__, \
-          "Assert: failed expression (" #EXPR ")"); \
-      ELLIS_UNREACHABLE_HINT() \
-    } \
-  } while (0)
+do { \
+  if (EXPR) { \
+    /* Empty, but catches accidental assignment (i.e. a=b) in EXPR. */ \
+  } else { \
+    (*::ellis::g_system_crash_fn)( \
+        __FILE__, \
+        __LINE__, \
+        __FUNCTION__, \
+        "Assert: failed expression (" #EXPR ")"); \
+    ELLIS_UNREACHABLE_HINT() \
+  } \
+} while (0)
 
 
+/** Assert that the X compared to Y via OP returns true.
+ *
+ * Examples:
+ *
+ *   ELLIS_ASSERT_LT(a, b);
+ *   ELLIS_ASSERT_LTE(a, b);
+ *   ELLIS_ASSERT_EQ(a, b);
+ *   ELLIS_ASSERT_NEQ(a, b);
+ *   ELLIS_ASSERT_GT(c, d);
+ *   ELLIS_ASSERT_GTE(d, 1);
+ *   ELLIS_ASSERT_DBL_EQ(a, b);
+ *   ELLIS_ASSERT_NULL(d);
+ *   ELLIS_ASSERT_NOT_NULL(d);
+ *
+ * In case of failure, the system failure function will be called, with a
+ * message showing the failed condition along with the specific values of
+ * X and Y, and the filename and line number.
+ *
+ * To use this on non-primitive types, you need to define the appropriate
+ * comparison operators, as well as stream insertion (output) operators
+ * for the given object type.
+ *
+ * Always evaluated, whether in debug or release build.
+ */
 #define ELLIS_ASSERT_LT(x, y) ::ellis::_assert_lt(x, y, __FILE__, __LINE__, __FUNCTION__)
 #define ELLIS_ASSERT_LTE(x, y) ::ellis::_assert_lte(x, y, __FILE__, __LINE__, __FUNCTION__)
 #define ELLIS_ASSERT_EQ(x, y) ::ellis::_assert_eq(x, y, __FILE__, __LINE__, __FUNCTION__)
@@ -223,8 +247,8 @@ namespace ellis {
 #define ELLIS_ASSERT_TRUE(x) ELLIS_ASSERT_EQ(x, true)
 #define ELLIS_ASSERT_FALSE(x) ELLIS_ASSERT_EQ(x, false)
 #define ELLIS_ASSERT_DBL_EQ(x, y) ELLIS_ASSERT_TRUE(dbl_equal(x, y))
-#define ELLIS_ASSERT_NULL(x) ::ellis::_assert_eq(x, nullptr, __FILE__, __LINE__, __FUNCTION__);
-#define ELLIS_ASSERT_NOT_NULL(x) ::ellis::_assert_neq(x, nullptr, __FILE__, __LINE__, __FUNCTION__);
+#define ELLIS_ASSERT_NULL(x) ::ellis::_assert_eq(x, nullptr, __FILE__, __LINE__, __FUNCTION__)
+#define ELLIS_ASSERT_NOT_NULL(x) ::ellis::_assert_neq(x, nullptr, __FILE__, __LINE__, __FUNCTION__)
 
 
 /* Internal macro--leave alone.  We need unreachability hints to tell the
@@ -340,26 +364,6 @@ static void _assert_##name( \
   ELLIS_UNREACHABLE_HINT() \
 }
 
-/** Assert that the X compared to Y via OP returns true.
- *
- * Examples:
- *
- *   ELLIS_ASSERT_EQ(a, b);
- *   ELLIS_ASSERT_GT(c, d);
- *   ELLIS_ASSERT_GTE(d, 1);
- *   ELLIS_ASSERT_NULL(d);
- *   ELLIS_ASSERT_NOT_NULL(d);
- *
- * In case of failure, the system failure function will be called, with a
- * message showing the failed condition along with the specific values of
- * X and Y, and the filename and line number.
- *
- * To use this on non-primitive types, you need to define the appropriate
- * comparison operators, as well as stream insertion (output) operators
- * for the given object type.
- *
- * Always evaluated, whether in debug or release build.
- */
 _INTERNAL_GEN_ASSERTS(<, lt)
 _INTERNAL_GEN_ASSERTS(<=, lte)
 _INTERNAL_GEN_ASSERTS(==, eq)
