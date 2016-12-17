@@ -29,19 +29,11 @@ can_decoder::can_decoder() :
 }
 
 
-std::unique_ptr<node> can_decoder::make_obd_node(const void *start)
+node can_decoder::make_obd_node(const void *start)
 {
   const ecu_response *resp = static_cast<const ecu_response *>(start);
-
-  unique_ptr<string> mode_str = get_mode_string(resp->mode);
-  if (mode_str == nullptr) {
-    return nullptr;
-  }
-
+  const string &mode_str = get_mode_string(resp->mode);
   const char *pid_str = get_pid_string(resp->pid);
-  if (pid_str == nullptr) {
-    return nullptr;
-  }
 
   uint32_t data;
   if (resp->extra_bytes == 3) {
@@ -67,18 +59,20 @@ std::unique_ptr<node> can_decoder::make_obd_node(const void *start)
   }
   else {
     /* In SAE Standard, we must have 3 <= extra bytes <= 6. */
-    return nullptr;
+    const string &msg = ELLIS_SSTRING(
+        "Non-SAE standard extra bytes field: " << resp->extra_bytes);
+    throw MAKE_ELLIS_ERR(err_code::PARSING_ERROR, msg);
   }
   double dec_val = decode_value(resp->pid, data);
 
   if (resp->unused != 0x00 && resp->unused != 0x55) {
-    ELLIS_LOG(WARN, "PID %s has non-compliant unused field %hh", resp->unused);
+    ELLIS_LOG(WARN, "PID %s has non-compliant unused field %hh", pid_str, resp->unused);
   }
 
-  unique_ptr<node> m = unique_ptr<node>(new node(type::MAP));
-  m->as_mutable_map().insert("mode", std::move(*mode_str));
-  m->as_mutable_map().insert("pid", pid_str);
-  m->as_mutable_map().insert("value", dec_val);
+  node m = node(type::MAP);
+  m.as_mutable_map().insert("mode", mode_str);
+  m.as_mutable_map().insert("pid", pid_str);
+  m.as_mutable_map().insert("value", dec_val);
 
   return m;
 }
@@ -102,14 +96,14 @@ decoding_status can_decoder::consume_buffer(
 
   const byte *end = buf + *bytecount;
   for (const byte *p = buf; p < end; p += 8) {
-    unique_ptr<node> node = make_obd_node(p);
-    if (node == nullptr) {
-      m_err.reset(
-        new MAKE_ELLIS_ERR(err_code::PARSING_ERROR, "Failed to parse OBD II node"));
+    try {
+      node n = make_obd_node(p);
+      m_node->as_mutable_array().append(n);
+    }
+    catch (const err &e) {
+      m_err.reset(new err(e));
       return decoding_status::ERROR;
     }
-
-    m_node->as_mutable_array().append(*node);
   }
 
   if ((*bytecount % 8) != 0) {

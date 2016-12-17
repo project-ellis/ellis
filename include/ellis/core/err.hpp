@@ -23,8 +23,7 @@ enum class err_code {
   PARSING_ERROR = 4098,
   NOT_MERGED = 4099,
   PATH_ERROR = 4100,
-  TODO = 4101,
-  VALUE_NOT_HEX = 4102
+  TODO = 4101
 };
 
 

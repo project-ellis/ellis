@@ -32,7 +32,7 @@ class elm327_decoder : public stream_decoder {
    *
    * @return a new node representing an OBD II datum
    * */
-  static std::unique_ptr<node> make_obd_node(const byte *start, size_t bytecount);
+  static node make_obd_node(const byte *start, size_t bytecount);
 
 public:
   /** Constructor. */

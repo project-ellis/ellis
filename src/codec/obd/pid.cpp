@@ -1,6 +1,9 @@
 #include <ellis_private/codec/obd/pid.hpp>
 
 #include <ellis/core/defs.hpp>
+#include <ellis/core/err.hpp>
+#include <ellis/core/system.hpp>
+#include <ellis_private/core/err.hpp>
 #include <ellis_private/using.hpp>
 
 namespace ellis {
@@ -72,25 +75,24 @@ static unordered_map<uint16_t, pid_info> g_pid_map =
   };
 
 
-std::unique_ptr<std::string> get_mode_string(uint16_t mode)
+std::string get_mode_string(uint16_t mode)
 {
-  unique_ptr<string> mode_str = nullptr;
   if (mode < 0x40) {
     /* 0x40 should be added to the mode, so something is wrong. */
-    return nullptr;
+    const string &msg = ELLIS_SSTRING("Unknown mode " << mode);
+    throw MAKE_ELLIS_ERR(err_code::PARSING_ERROR, msg);
   }
   else if (mode == 0x41) {
-    mode_str.reset(new string("current"));
+    return string("current");
   }
   else if (mode == 0x42) {
-    mode_str.reset(new string("freeze"));
+    return string("freeze");
   }
   else {
     /* We currently support only SAE Standard modes. */
-    return nullptr;
+    const string &msg = ELLIS_SSTRING("Non-SAE standard mode " << mode);
+    throw MAKE_ELLIS_ERR(err_code::PARSING_ERROR, msg);
   }
-
-  return mode_str;
 }
 
 
@@ -98,7 +100,8 @@ const char * get_pid_string(uint16_t pid)
 {
   auto it = g_pid_map.find(pid);
   if (it == g_pid_map.end()) {
-    return nullptr;
+    const string &msg = ELLIS_SSTRING("Unrecognized PID " << pid);
+    throw MAKE_ELLIS_ERR(err_code::PARSING_ERROR, msg);
   }
 
   return it->second.description;

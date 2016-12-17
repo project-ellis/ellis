@@ -29,8 +29,8 @@ byte hex_val(byte val)
     return 0xA + val - 'A';
   }
   else {
-    const string &msg = ELLIS_SSTRING("value " << val << "is not a valid hex char");
-    throw MAKE_ELLIS_ERR(err_code::VALUE_NOT_HEX, msg);
+    const string &msg = ELLIS_SSTRING("value " << val << " is not a valid hex char");
+    throw MAKE_ELLIS_ERR(err_code::PARSING_ERROR, msg);
   }
 }
 
@@ -41,8 +41,7 @@ elm327_decoder::elm327_decoder() :
 }
 
 
-std::unique_ptr<node> elm327_decoder::make_obd_node(
-    const byte *start, size_t bytecount)
+node elm327_decoder::make_obd_node(const byte *start, size_t bytecount)
 {
   /* TODO: how to handle timestamps? */
 
@@ -53,37 +52,38 @@ std::unique_ptr<node> elm327_decoder::make_obd_node(
    */
   static constexpr size_t smallest_node = sizeof("MM PP")-1;
   static constexpr size_t largest_node = sizeof("MM PP AA BB CC DD")-1;
-  if (bytecount < smallest_node || bytecount > largest_node) {
-    return nullptr;
+  if (bytecount < smallest_node) {
+    const string &msg = ELLIS_SSTRING("OBD II node length " << bytecount << " is too small");
+    throw MAKE_ELLIS_ERR(err_code::PARSING_ERROR, msg);
+  }
+  else if (bytecount > largest_node) {
+    const string &msg = ELLIS_SSTRING("OBD II node length " << bytecount << " is too large");
+    throw MAKE_ELLIS_ERR(err_code::PARSING_ERROR, msg);
   }
   const byte *end = start + bytecount;
   for (const byte *p = start; p <= end-2; p += 3) {
     if (! ( isxdigit(*p) && isxdigit(*(p+1)) ) ) {
-      return nullptr;
+      const string &msg = ELLIS_SSTRING("OBD II node has non-hex digits");
+      throw MAKE_ELLIS_ERR(err_code::PARSING_ERROR, msg);
     }
     if ((p < end-2) && (*(p+2) != ' ')) {
-      return nullptr;
+      const string &msg = ELLIS_SSTRING("OBD II node is not space-separated");
+      throw MAKE_ELLIS_ERR(err_code::PARSING_ERROR, msg);
     }
   }
 
   const byte *p = start;
   uint16_t mode = 16*hex_val(*p) + hex_val(*(p+1));
-  unique_ptr<string> mode_str = get_mode_string(mode);
-  if (mode_str == nullptr) {
-    return nullptr;
-  }
+  const string &mode_str = get_mode_string(mode);
   p += 3;
 
   uint16_t pid = 16*hex_val(*p) + hex_val(*(p+1));
   const char *pid_str = get_pid_string(pid);
-  if (pid_str == nullptr) {
-    return nullptr;
-  }
   p += 3;
 
-  unique_ptr<node> m = unique_ptr<node>(new node(type::MAP));
-  m->as_mutable_map().insert("mode", std::move(*mode_str));
-  m->as_mutable_map().insert("pid", pid_str);
+  node m = node(type::MAP);
+  m.as_mutable_map().insert("mode", mode_str);
+  m.as_mutable_map().insert("pid", pid_str);
   if (p < end) {
     uint32_t val = 0;
     size_t shift = 32;
@@ -99,11 +99,11 @@ std::unique_ptr<node> elm327_decoder::make_obd_node(
      * 0000XXXX
      * So, compute the number of bits we have and left-shift.
      */
-    ELLIS_ASSERT(shift < 32);
+    ELLIS_ASSERT_LT(shift, 32);
     val <<= shift;
     double dec_val = decode_value(pid, val);
 
-    m->as_mutable_map().insert("value", dec_val);
+    m.as_mutable_map().insert("value", dec_val);
   }
 
   return m;
@@ -138,13 +138,14 @@ decoding_status elm327_decoder::consume_buffer(
       break;
     }
 
-    unique_ptr<node> node = make_obd_node(start, p - start);
-    if (node == nullptr) {
-      m_err.reset(
-        new MAKE_ELLIS_ERR(err_code::PARSING_ERROR, "Failed to parse OBD II node"));
+    try {
+      node n = make_obd_node(start, p - start);
+      m_node->as_mutable_array().append(n);
+    }
+    catch (const err &e) {
+      m_err.reset(new err(e));
       return decoding_status::ERROR;
     }
-    m_node->as_mutable_array().append(*node);
 
     start = p + 1;
   }

@@ -154,7 +154,7 @@ static void primitivetest()
         threw = true;
       }
     }
-    ELLIS_ASSERT(threw);
+    ELLIS_ASSERT_TRUE(threw);
   };
 
   v1 = 1;

@@ -11,13 +11,31 @@ int main() {
   using namespace ellis;
   using namespace ellis::obd;
 
-  /* OBD. */
-  ELLIS_ASSERT_NULL(get_mode_string(0x00).get());
-  ELLIS_ASSERT_EQ(*get_mode_string(0x41), "current");
-  ELLIS_ASSERT_EQ(*get_mode_string(0x42), "freeze");
-  ELLIS_ASSERT_NULL(get_mode_string(0xFF).get());
+  auto parse_fail = [](std::function<void()> fn)
+  {
+    bool threw = false;
+    try {
+      fn();
+    } catch(err e) {
+      if (e.code() == err_code::PARSING_ERROR) {
+        threw = true;
+      }
+    }
+    ELLIS_ASSERT_TRUE(threw);
+  };
 
-  ELLIS_ASSERT_NULL(get_pid_string(0xFF));
+
+  /* OBD. */
+  parse_fail([]{
+    get_mode_string(0x00);
+  });
+  parse_fail([]{
+    get_mode_string(0xFF);
+  });
+
+  ELLIS_ASSERT_EQ(get_mode_string(0x41), "current");
+  ELLIS_ASSERT_EQ(get_mode_string(0x42), "freeze");
+
   ELLIS_ASSERT_EQ(string(get_pid_string(0x0D)), "vehicle_speed");
 
   ELLIS_ASSERT_DBL_EQ(decode_value(0x05, 0xAB000000), 0xAB - 40);

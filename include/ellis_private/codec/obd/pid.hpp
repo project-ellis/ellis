@@ -29,7 +29,7 @@ const char * get_pid_string(uint16_t pid);
  *
  * @return a string description
  */
-std::unique_ptr<std::string> get_mode_string(uint16_t mode);
+std::string get_mode_string(uint16_t mode);
 
 /** Decodes a given value, applying the appropriate unit transformation
  * depending on the given PID.
