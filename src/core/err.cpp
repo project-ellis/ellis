@@ -24,31 +24,31 @@ err::~err()
 }
 
 
-err_code err::code()
+err_code err::code() const
 {
   return m_code;
 }
 
 
-std::string err::file()
+std::string err::file() const
 {
   return m_file;
 }
 
 
-int err::line()
+int err::line() const
 {
   return m_line;
 }
 
 
-std::string err::msg()
+std::string err::msg() const
 {
   return what();
 }
 
 
-std::string err::summary()
+std::string err::summary() const
 {
   return string(what()) + " at " + m_file + ":" + std::to_string(m_line);
 }

@@ -16,7 +16,7 @@ int main() {
     bool threw = false;
     try {
       fn();
-    } catch(err e) {
+    } catch(const err &e) {
       if (e.code() == err_code::PARSING_ERROR) {
         threw = true;
       }

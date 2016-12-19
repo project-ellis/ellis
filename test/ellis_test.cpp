@@ -149,7 +149,7 @@ static void primitivetest()
     bool threw = false;
     try {
       fn();
-    } catch(err e) {
+    } catch(const err &e) {
       if (e.code() == err_code::WRONG_TYPE) {
         threw = true;
       }
@@ -274,7 +274,7 @@ static void arraytest()
     ELLIS_ASSERT(f.as_array().is_empty());
     try {
       ac[0];
-    } catch (std::out_of_range) {
+    } catch (const std::out_of_range &) {
       hit = true;
     }
     ELLIS_ASSERT(hit == true);
@@ -565,7 +565,7 @@ static void pathtest()
     bool threw = false;
     try {
       r.at_path(path);
-    } catch(err e) {
+    } catch(const err &e) {
       threw = true;
     }
     ELLIS_ASSERT(threw);

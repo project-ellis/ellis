@@ -47,21 +47,21 @@ public:
 
   /** Returns the machine-usable error code associated with the error.
    */
-  err_code code();
+  err_code code() const;
 
   /** Returns the filename of the location in the code that created the
    * error. */
-  std::string file();
+  std::string file() const;
 
   /** Returns the line number of the location in the code that created the
    * error. */
-  int line();
+  int line() const;
 
   /** Returns the human-readable message associated with the error.  */
-  std::string msg();
+  std::string msg() const;
 
   /** Return a summary string including code, file, line, and msg. */
-  std::string summary();
+  std::string summary() const;
 };
 
 
