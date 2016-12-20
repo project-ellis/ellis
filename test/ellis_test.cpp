@@ -84,7 +84,7 @@ static void asserttest()
 {
   auto safe_asserts = []() {
     int x = 1;
-    ELLIS_ASSERT(1);
+    ELLIS_ASSERT_TRUE(true);
     ELLIS_ASSERT_GT(x, 0);
     if (x == 1) {
     } else {
@@ -93,7 +93,7 @@ static void asserttest()
   };
   int x = 0;
   auto unsafe_asserts = [&x]() {
-    ELLIS_ASSERT(0);
+    ELLIS_ASSERT_TRUE(false);
     x++;
     ELLIS_ASSERT_EQ(x, 0);
     x++;
@@ -123,26 +123,26 @@ static void primitivetest()
 {
   using namespace ellis;
   node v1(2.1);
-  ELLIS_ASSERT(v1.as_double() == 2.1);
+  ELLIS_ASSERT_EQ(v1.as_double(), 2.1);
   double d1 = (double)v1;
-  ELLIS_ASSERT(d1 == 2.1);
+  ELLIS_ASSERT_EQ(d1, 2.1);
 
   /* Comparison. */
   v1 = 2;
-  ELLIS_ASSERT(v1 < 3);
-  ELLIS_ASSERT(v1 <= 2);
-  ELLIS_ASSERT(v1 <= 3);
-  ELLIS_ASSERT(v1 > 1);
-  ELLIS_ASSERT(v1 >= 2);
-  ELLIS_ASSERT(v1 >= 1);
+  ELLIS_ASSERT_LT(v1, 3);
+  ELLIS_ASSERT_LTE(v1, 2);
+  ELLIS_ASSERT_LTE(v1, 3);
+  ELLIS_ASSERT_GT(v1, 1);
+  ELLIS_ASSERT_GTE(v1, 2);
+  ELLIS_ASSERT_GTE(v1, 1);
 
   v1 = 2.0;
-  ELLIS_ASSERT(v1 < 3.0);
-  ELLIS_ASSERT(v1 <= 2.0);
-  ELLIS_ASSERT(v1 <= 3.0);
-  ELLIS_ASSERT(v1 > 1.0);
-  ELLIS_ASSERT(v1 >= 2.0);
-  ELLIS_ASSERT(v1 >= 1.0);
+  ELLIS_ASSERT_LT(v1, 3.0);
+  ELLIS_ASSERT_LTE(v1, 2.0);
+  ELLIS_ASSERT_LTE(v1, 3.0);
+  ELLIS_ASSERT_GT(v1, 1.0);
+  ELLIS_ASSERT_GTE(v1, 2.0);
+  ELLIS_ASSERT_GTE(v1, 1.0);
 
   auto type_fail = [](std::function<void()> fn)
   {
@@ -171,52 +171,52 @@ static void primitivetest()
 
   /* Arithmetic. */
   v1 = 2;
-  ELLIS_ASSERT(v1 == 2);
-  ELLIS_ASSERT(v1 + 1 == 3);
-  ELLIS_ASSERT(1 + v1 == 3);
-  ELLIS_ASSERT(v1 - 1 == 1);
-  ELLIS_ASSERT(1 - v1 == -1);
-  ELLIS_ASSERT(v1 * 2 == 4);
-  ELLIS_ASSERT(2 * v1 == 4);
-  ELLIS_ASSERT(v1 / 2 == 1);
-  ELLIS_ASSERT(2 / v1 == 1);
+  ELLIS_ASSERT_EQ(v1, 2);
+  ELLIS_ASSERT_EQ(v1 + 1, 3);
+  ELLIS_ASSERT_EQ(1 + v1, 3);
+  ELLIS_ASSERT_EQ(v1 - 1, 1);
+  ELLIS_ASSERT_EQ(1 - v1, -1);
+  ELLIS_ASSERT_EQ(v1 * 2, 4);
+  ELLIS_ASSERT_EQ(2 * v1, 4);
+  ELLIS_ASSERT_EQ(v1 / 2, 1);
+  ELLIS_ASSERT_EQ(2 / v1, 1);
   v1 += 1;
-  ELLIS_ASSERT(v1 == 3);
+  ELLIS_ASSERT_EQ(v1, 3);
   v1 -= 1;
-  ELLIS_ASSERT(v1 == 2);
+  ELLIS_ASSERT_EQ(v1, 2);
   v1 *= 2;
-  ELLIS_ASSERT(v1 == 4);
+  ELLIS_ASSERT_EQ(v1, 4);
   v1 /= 2;
-  ELLIS_ASSERT(v1 == 2);
+  ELLIS_ASSERT_EQ(v1, 2);
 
   v1 = 2.0;
-  ELLIS_ASSERT(v1 == 2.0);
-  ELLIS_ASSERT(dbl_equal(v1 + 1.0, 3.0));
-  ELLIS_ASSERT(dbl_equal(1.0 + v1, 3.0));
-  ELLIS_ASSERT(dbl_equal(v1 - 1.0, 1.0));
-  ELLIS_ASSERT(dbl_equal(1.0 - v1, -1.0));
-  ELLIS_ASSERT(dbl_equal(v1 * 2.0, 4.0));
-  ELLIS_ASSERT(dbl_equal(2.0 * v1, 4.0));
-  ELLIS_ASSERT(dbl_equal(v1 / 2.0, 1.0));
-  ELLIS_ASSERT(dbl_equal(2.0 / v1, 1.0));
+  ELLIS_ASSERT_EQ(v1, 2.0);
+  ELLIS_ASSERT_TRUE(dbl_equal(v1 + 1.0, 3.0));
+  ELLIS_ASSERT_TRUE(dbl_equal(1.0 + v1, 3.0));
+  ELLIS_ASSERT_TRUE(dbl_equal(v1 - 1.0, 1.0));
+  ELLIS_ASSERT_TRUE(dbl_equal(1.0 - v1, -1.0));
+  ELLIS_ASSERT_TRUE(dbl_equal(v1 * 2.0, 4.0));
+  ELLIS_ASSERT_TRUE(dbl_equal(2.0 * v1, 4.0));
+  ELLIS_ASSERT_TRUE(dbl_equal(v1 / 2.0, 1.0));
+  ELLIS_ASSERT_TRUE(dbl_equal(2.0 / v1, 1.0));
   v1 += 1.0;
-  ELLIS_ASSERT(dbl_equal(v1, 3.0));
+  ELLIS_ASSERT_TRUE(dbl_equal(v1, 3.0));
   v1 -= 1.0;
-  ELLIS_ASSERT(dbl_equal(v1, 2.0));
+  ELLIS_ASSERT_TRUE(dbl_equal(v1, 2.0));
   v1 *= 2.0;
-  ELLIS_ASSERT(dbl_equal(v1, 4.0));
+  ELLIS_ASSERT_TRUE(dbl_equal(v1, 4.0));
   v1 /= 2.0;
-  ELLIS_ASSERT(dbl_equal(v1, 2.0));
+  ELLIS_ASSERT_TRUE(dbl_equal(v1, 2.0));
 
   v1 = 1;
   node v2(2);
   v1 += v2;
-  ELLIS_ASSERT(v1 == 3);
+  ELLIS_ASSERT_EQ(v1, 3);
 
   v1 = 1.0;
   v2 = 2.0;
   v1 += v2;
-  ELLIS_ASSERT(dbl_equal(v1, 3.0));
+  ELLIS_ASSERT_TRUE(dbl_equal(v1, 3.0));
 
   v1 = 1;
   type_fail([&v1]()
@@ -243,16 +243,16 @@ static void strtest()
   using namespace ellis;
   node n1("hello");
   node n2(n1);
-  ELLIS_ASSERT(n1 == "hello");
+  ELLIS_ASSERT_EQ(n1, "hello");
   string s1 = (string)n1;
-  ELLIS_ASSERT(s1 == "hello");
+  ELLIS_ASSERT_EQ(s1, "hello");
   const char *cp1 = (const char *)n1;
   const char *cp2 = (const char *)n1;
-  ELLIS_ASSERT(cp1 == cp2);
-  ELLIS_ASSERT(strcmp(cp1, "hello") == 0);
+  ELLIS_ASSERT_EQ(cp1, cp2);
+  ELLIS_ASSERT_EQ(strcmp(cp1, "hello"), 0);
   n1.as_mutable_u8str().append(" world");
-  ELLIS_ASSERT(n1 == "hello world");
-  ELLIS_ASSERT(n2 != "hello world");
+  ELLIS_ASSERT_EQ(n1, "hello world");
+  ELLIS_ASSERT_NEQ(n2, "hello world");
 }
 
 static void arraytest()
@@ -263,23 +263,23 @@ static void arraytest()
 
   /* Behavior checks for an empty array. */
   auto empty_chk = [] (const node &n) {
-    ELLIS_ASSERT(n.is_type(type::ARRAY));
+    ELLIS_ASSERT_TRUE(n.is_type(type::ARRAY));
     const auto &ac = n.as_array();
-    ELLIS_ASSERT(ac.length() == 0);
-    ELLIS_ASSERT(ac.is_empty());
+    ELLIS_ASSERT_EQ(ac.length(), 0);
+    ELLIS_ASSERT_TRUE(ac.is_empty());
     bool hit = false;
     ac.foreach([&hit](const node &){hit = true;});
-    ELLIS_ASSERT(hit == false);
+    ELLIS_ASSERT_FALSE(hit);
     auto f = ac.filter([](const node &){return true;});
-    ELLIS_ASSERT(f.as_array().is_empty());
+    ELLIS_ASSERT_TRUE(f.as_array().is_empty());
     try {
       ac[0];
     } catch (const std::out_of_range &) {
       hit = true;
     }
-    ELLIS_ASSERT(hit == true);
+    ELLIS_ASSERT_EQ(hit, true);
     node n2(type::ARRAY);
-    ELLIS_ASSERT(n == n2);
+    ELLIS_ASSERT_EQ(n, n2);
   };
 
   empty_chk(en);
@@ -300,40 +300,40 @@ static void arraytest()
 
   /* Behavior checks for the custom array we just built. */
   auto contents_chk = [] (const node &n) {
-    ELLIS_ASSERT(n.is_type(type::ARRAY));
+    ELLIS_ASSERT_TRUE(n.is_type(type::ARRAY));
     const auto &ac = n.as_array();
-    ELLIS_ASSERT(ac.length() == 8);
-    ELLIS_ASSERT(!ac.is_empty());
-    ELLIS_ASSERT(ac[0] == "foo");
-    ELLIS_ASSERT(ac[1] == 4);
-    ELLIS_ASSERT(ac[2] == 4.4);
-    ELLIS_ASSERT(ac[3] == true);
-    ELLIS_ASSERT(ac[4] == type::NIL);
-    ELLIS_ASSERT(ac[5].get_type() == type::ARRAY);
-    ELLIS_ASSERT(ac[6].get_type() == type::MAP);
-    ELLIS_ASSERT(ac[7].get_type() == type::BINARY);
-    ELLIS_ASSERT(ac[7].as_binary().length() == sizeof(k_somedata));
+    ELLIS_ASSERT_EQ(ac.length(), 8);
+    ELLIS_ASSERT_TRUE(!ac.is_empty());
+    ELLIS_ASSERT_EQ(ac[0], "foo");
+    ELLIS_ASSERT_EQ(ac[1], 4);
+    ELLIS_ASSERT_EQ(ac[2], 4.4);
+    ELLIS_ASSERT_EQ(ac[3], true);
+    ELLIS_ASSERT_EQ(ac[4], type::NIL);
+    ELLIS_ASSERT_EQ(ac[5].get_type(), type::ARRAY);
+    ELLIS_ASSERT_EQ(ac[6].get_type(), type::MAP);
+    ELLIS_ASSERT_EQ(ac[7].get_type(), type::BINARY);
+    ELLIS_ASSERT_EQ(ac[7].as_binary().length(), sizeof(k_somedata));
     std::map<type, int> tc;
     ac.foreach([&tc](const node &x) {
         tc[x.get_type()]++;
       });
-    ELLIS_ASSERT(tc.size() == 8);
-    ELLIS_ASSERT(ac.filter([](const node &){return true;}) .as_array().length() == 8);
-    ELLIS_ASSERT(ac.filter([](const node &){return false;}).as_array().length() == 0);
+    ELLIS_ASSERT_EQ(tc.size(), 8);
+    ELLIS_ASSERT_EQ(ac.filter([](const node &){return true;}) .as_array().length(), 8);
+    ELLIS_ASSERT_EQ(ac.filter([](const node &){return false;}).as_array().length(), 0);
     for (auto t : { type::NIL , type::BOOL , type::INT64 , type::DOUBLE,
                     type::U8STR , type::ARRAY , type::BINARY , type::MAP }) {
-      ELLIS_ASSERT(ac.filter(
+      ELLIS_ASSERT_EQ(ac.filter(
             [t](const node &x)
             {
               return x.get_type() == t;
-            }).as_array().length() == 1);
+            }).as_array().length(), 1);
     }
   };
 
   /* Copy the newly filled array. */
   node en2(en);
-  ELLIS_ASSERT(en.as_array()[0].as_u8str().c_str()
-      == en2.as_array()[0].as_u8str().c_str());
+  ELLIS_ASSERT_EQ(en.as_array()[0].as_u8str().c_str(),
+      en2.as_array()[0].as_u8str().c_str());
   contents_chk(en);
   contents_chk(en2);
   /* Clear the original, verify the copy looks right and the original empty. */
@@ -348,14 +348,14 @@ static void arraytest()
   en2 = en;
   for (int i = 7; i >= 0; i--) {
     en2.as_mutable_array().erase(0);
-    ELLIS_ASSERT(en2.as_array().length() == (size_t)i);
+    ELLIS_ASSERT_EQ(en2.as_array().length(), (size_t)i);
   }
   empty_chk(en2);
   /* Reset the copy to original contents, and try deleting from right. */
   en2 = en;
   for (int i = 7; i >= 0; i--) {
     en2.as_mutable_array().erase(i);
-    ELLIS_ASSERT(en2.as_array().length() == (size_t)i);
+    ELLIS_ASSERT_EQ(en2.as_array().length(), (size_t)i);
   }
   empty_chk(en2);
   /* Make sure the original is still intact. */
@@ -378,23 +378,23 @@ static void binarytest()
   b4.as_mutable_binary().resize(sdlen);
   /* Node b5 starts out equal to b1 but is extended with a zero. */
   node b5(b1);
-  ELLIS_ASSERT(b5.as_binary().data() == b1.as_binary().data());
+  ELLIS_ASSERT_EQ(b5.as_binary().data(), b1.as_binary().data());
   b5.as_mutable_binary().resize(sdlen+1);
-  ELLIS_ASSERT(b5.as_binary().data() != b1.as_binary().data());
+  ELLIS_ASSERT_NEQ(b5.as_binary().data(), b1.as_binary().data());
 
   auto fn = [&b1, &b4, &b5, &sdlen](const node &n)
   {
     const auto &b = n.as_binary();
-    ELLIS_ASSERT(! b.is_empty());
-    ELLIS_ASSERT(b.length() == sdlen);
-    ELLIS_ASSERT(b.data() != nullptr);
-    ELLIS_ASSERT(b.data() != k_somedata);
-    ELLIS_ASSERT(memcmp(b.data(), k_somedata, sdlen) == 0);
-    ELLIS_ASSERT(n == b1);
-    ELLIS_ASSERT(n != b4);
-    ELLIS_ASSERT(n != b5);
-    ELLIS_ASSERT(b[0] == b[7]);
-    ELLIS_ASSERT(b[1] == 0x81);
+    ELLIS_ASSERT_FALSE(b.is_empty());
+    ELLIS_ASSERT_EQ(b.length(), sdlen);
+    ELLIS_ASSERT_NULL(b.data());
+    ELLIS_ASSERT_NEQ(b.data(), k_somedata);
+    ELLIS_ASSERT_EQ(memcmp(b.data(), k_somedata, sdlen), 0);
+    ELLIS_ASSERT_EQ(n, b1);
+    ELLIS_ASSERT_NEQ(n, b4);
+    ELLIS_ASSERT_NEQ(n, b5);
+    ELLIS_ASSERT_EQ(b[0], b[7]);
+    ELLIS_ASSERT_EQ(b[1],  0x81);
   };
 
   fn(b1);
@@ -407,11 +407,11 @@ static void binarytest()
   auto zchk = [](const node &n, size_t len)
   {
     const auto &b = n.as_binary();
-    ELLIS_ASSERT(b.length() == len);
+    ELLIS_ASSERT_EQ(b.length(), len);
     const byte *p = b.data();
     for (size_t i = 0; i < len; i++) {
-      ELLIS_ASSERT(p[i] == 0);
-      ELLIS_ASSERT(b[i] == 0);
+      ELLIS_ASSERT_EQ(p[i], 0);
+      ELLIS_ASSERT_EQ(b[i], 0);
     }
   };
 
@@ -425,24 +425,24 @@ static void maptest()
   using namespace ellis;
   node en(type::MAP);
   en.as_mutable_map().replace("foo", 5);  // should fail, nothing to replace
-  ELLIS_ASSERT(! en.as_map().has_key("foo"));   // no such key
+  ELLIS_ASSERT_FALSE(en.as_map().has_key("foo"));   // no such key
   en.as_mutable_map().insert("foo", 4);
-  ELLIS_ASSERT(en.as_map().has_key("foo"));     // now the key is there
+  ELLIS_ASSERT_TRUE(en.as_map().has_key("foo"));     // now the key is there
   en.as_mutable_map().insert("foo", 72);  // no effect here
-  ELLIS_ASSERT(en.as_map()["foo"] == 4);
-  ELLIS_ASSERT(en.as_map().length() == 1);
+  ELLIS_ASSERT_EQ(en.as_map()["foo"], 4);
+  ELLIS_ASSERT_EQ(en.as_map().length(), 1);
 
   node bar(type::MAP);
   en.as_mutable_map().set("bar", bar);
-  ELLIS_ASSERT(en.as_map().has_key("bar"));
-  ELLIS_ASSERT(en.as_map()["bar"].get_type() == type::MAP);
-  ELLIS_ASSERT(en.as_map()["bar"].is_type(type::MAP));
-  ELLIS_ASSERT(en.as_map()["bar"] == bar);
+  ELLIS_ASSERT_TRUE(en.as_map().has_key("bar"));
+  ELLIS_ASSERT_TRUE(en.as_map()["bar"].get_type() == type::MAP);
+  ELLIS_ASSERT_TRUE(en.as_map()["bar"].is_type(type::MAP));
+  ELLIS_ASSERT_EQ(en.as_map()["bar"], bar);
 
   /* Make sure COW works correctly. */
   bar.as_mutable_map().insert("somekey", true);
-  ELLIS_ASSERT(bar.as_map()["somekey"] == true);
-  ELLIS_ASSERT(! en.as_map()["bar"].as_map().has_key("somekey"));
+  ELLIS_ASSERT_TRUE(bar.as_map()["somekey"]);
+  ELLIS_ASSERT_FALSE(en.as_map()["bar"].as_map().has_key("somekey"));
 
   vector<string> e_keys;
   e_keys.push_back("foo");
@@ -450,10 +450,10 @@ static void maptest()
   vector<string> a_keys = en.as_map().keys();
   sort(e_keys.begin(), e_keys.end());
   sort(a_keys.begin(), a_keys.end());
-  ELLIS_ASSERT(e_keys == a_keys);
+  ELLIS_ASSERT_EQ(e_keys.data(), a_keys.data());
 
   node before = en;
-  ELLIS_ASSERT(before == en);
+  ELLIS_ASSERT_EQ(before, en);
 
   int foo_count = 0;
   auto count_fn = [&foo_count](const string &k, const node &)
@@ -463,7 +463,7 @@ static void maptest()
     }
   };
   en.as_map().foreach(count_fn);
-  ELLIS_ASSERT(foo_count == 1);
+  ELLIS_ASSERT_EQ(foo_count, 1);
 
   auto filter_fn = [](const string &k, const node &v)->bool
   {
@@ -475,8 +475,8 @@ static void maptest()
     }
   };
   node filtered = en.as_map().filter(filter_fn);
-  ELLIS_ASSERT(filtered.as_map().has_key("foo"));
-  ELLIS_ASSERT(filtered.as_map()["foo"] == 4);
+  ELLIS_ASSERT_TRUE(filtered.as_map().has_key("foo"));
+  ELLIS_ASSERT_EQ(filtered.as_map()["foo"], 4);
 
   /*
    * Do the destructive tests last to avoid previous tests having to worry about
@@ -497,35 +497,35 @@ static void maptest()
       did_fail = true;
     };
   en.as_mutable_map().merge(other.as_map(), add_policy::INSERT_ONLY, &failfn);
-  ELLIS_ASSERT(did_fail);
+  ELLIS_ASSERT_TRUE(did_fail);
   did_fail = false;
   en.as_mutable_map().merge(other.as_map(), add_policy::INSERT_OR_REPLACE,
       &failfn);
-  ELLIS_ASSERT(!did_fail);
+  ELLIS_ASSERT_FALSE(did_fail);
 
 
   /* Merge only missing keys. */
   en = before;
   en.as_mutable_map().merge(other.as_map(), add_policy::INSERT_ONLY, nullptr);
-  ELLIS_ASSERT(en.as_map().has_key("child"));
-  ELLIS_ASSERT(en.as_map()["child"].as_map().has_key("val"));
-  ELLIS_ASSERT(en.as_map()["child"].as_map()["val"] == 17);
-  ELLIS_ASSERT(en.as_map()["foo"] == 4);
+  ELLIS_ASSERT_TRUE(en.as_map().has_key("child"));
+  ELLIS_ASSERT_TRUE(en.as_map()["child"].as_map().has_key("val"));
+  ELLIS_ASSERT_EQ(en.as_map()["child"].as_map()["val"], 17);
+  ELLIS_ASSERT_EQ(en.as_map()["foo"], 4);
 
   /* Merge only existing keys. */
   en = before;
   en.as_mutable_map().merge(other.as_map(), add_policy::REPLACE_ONLY, nullptr);
-  ELLIS_ASSERT(! en.as_map().has_key("child"));
-  ELLIS_ASSERT(en.as_map()["foo"] == "clobbered");
+  ELLIS_ASSERT_FALSE(en.as_map().has_key("child"));
+  ELLIS_ASSERT_EQ(en.as_map()["foo"], "clobbered");
 
   /* Merge all keys. */
   en = before;
   en.as_mutable_map().merge(other.as_map(), add_policy::INSERT_OR_REPLACE,
       nullptr);
-  ELLIS_ASSERT(en.as_map().has_key("child"));
-  ELLIS_ASSERT(en.as_map()["child"].as_map().has_key("val"));
-  ELLIS_ASSERT(en.as_map()["child"].as_map()["val"] == 17);
-  ELLIS_ASSERT(en.as_map()["foo"] == "clobbered");
+  ELLIS_ASSERT_TRUE(en.as_map().has_key("child"));
+  ELLIS_ASSERT_TRUE(en.as_map()["child"].as_map().has_key("val"));
+  ELLIS_ASSERT_EQ(en.as_map()["child"].as_map()["val"], 17);
+  ELLIS_ASSERT_EQ(en.as_map()["foo"], "clobbered");
 
   /* Mutable foreach. */
   en = before;
@@ -537,17 +537,17 @@ static void maptest()
   };
   en.as_mutable_map().foreach_mutable(mut_foo_fn);
   node x = en.as_map()["foo"];
-  ELLIS_ASSERT(en.as_map()["foo"] == "fooval");
+  ELLIS_ASSERT_EQ(en.as_map()["foo"], "fooval");
 
-  ELLIS_ASSERT(en.as_map().has_key("foo"));
+  ELLIS_ASSERT_TRUE(en.as_map().has_key("foo"));
   en.as_mutable_map().erase("foo");
-  ELLIS_ASSERT(! en.as_map().has_key("foo"));
+  ELLIS_ASSERT_FALSE(en.as_map().has_key("foo"));
 
-  ELLIS_ASSERT(en.as_map().length() > 0);
-  ELLIS_ASSERT(! en.as_map().is_empty());
+  ELLIS_ASSERT_GT(en.as_map().length(), 0);
+  ELLIS_ASSERT_FALSE(en.as_map().is_empty());
   en.as_mutable_map().clear();
-  ELLIS_ASSERT(en.as_map().length() == 0);
-  ELLIS_ASSERT(en.as_map().is_empty());
+  ELLIS_ASSERT_EQ(en.as_map().length(), 0);
+  ELLIS_ASSERT_TRUE(en.as_map().is_empty());
 }
 
 static void pathtest()
@@ -558,8 +558,8 @@ static void pathtest()
   a.as_mutable_array().append("hi");
   node r(type::MAP);
   r.as_mutable_map().insert("foo", a);
-  ELLIS_ASSERT(r.at_path("{foo}[0]") == 4);
-  ELLIS_ASSERT(r.at_path("{foo}[1]") == "hi");
+  ELLIS_ASSERT_EQ(r.at_path("{foo}[0]"), 4);
+  ELLIS_ASSERT_EQ(r.at_path("{foo}[1]"), "hi");
   auto chk_fail = [&r](const char *path)
   {
     bool threw = false;
@@ -568,7 +568,7 @@ static void pathtest()
     } catch(const err &e) {
       threw = true;
     }
-    ELLIS_ASSERT(threw);
+    ELLIS_ASSERT_TRUE(threw);
   };
   chk_fail("?");
   chk_fail("{foo");
@@ -580,7 +580,7 @@ static void pathtest()
   chk_fail("{foo}[0][1]");
   chk_fail("{foo}[0]{1}");
   r.at_path_mutable("{foo}[0]") = 5;
-  ELLIS_ASSERT(r.at_path("{foo}[0]") == 5);
+  ELLIS_ASSERT_EQ(r.at_path("{foo}[0]"), 5);
 }
 
 int main()
