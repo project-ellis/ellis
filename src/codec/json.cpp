@@ -106,13 +106,13 @@ class stream_progress {
   unique_ptr<err> m_err;
 
 public:
-  stream_progress(unique_ptr<err> e) :
+  explicit stream_progress(unique_ptr<err> e) :
     m_status(stream_status::ERROR),
     m_err(std::move(e))
   {
   }
 
-  stream_progress(stream_status st) :
+  explicit stream_progress(stream_status st) :
     m_status(st),
     m_err()
   {
@@ -217,8 +217,8 @@ struct tok_nts_union {
     TOKTYPE m_tok;
     NTSTYPE m_nts;
   };
-  tok_nts_union(TOKTYPE x) : m_is_tok(true), m_tok(x) {}
-  tok_nts_union(NTSTYPE x) : m_is_tok(false), m_nts(x) {}
+  explicit tok_nts_union(TOKTYPE x) : m_is_tok(true), m_tok(x) {}
+  explicit tok_nts_union(NTSTYPE x) : m_is_tok(false), m_nts(x) {}
   bool is_tok() const { return m_is_tok; }
   TOKTYPE tok() const { ELLIS_ASSERT(m_is_tok); return m_tok; }
   NTSTYPE nts() const { ELLIS_ASSERT(!m_is_tok); return m_nts; }
@@ -589,6 +589,17 @@ public:
           new MAKE_ELLIS_ERR(err_code::TODO, msg)));
   }
 
+  stream_progress progmore()
+  {
+    return stream_progress(stream_status::MORE);
+  }
+
+  stream_progress progdone()
+  {
+    m_tokstate = json_tok_state::END;
+    return stream_progress(stream_status::DONE);
+  }
+
   stream_progress emit_token(json_tok tok)
   {
     if (tok == json_tok::ERROR) {
@@ -632,10 +643,10 @@ public:
   stream_progress accept_eos() {
     switch (m_tokstate) {
       case json_tok_state::INIT:
-        return {stream_status::MORE};
+        return progmore();
 
       case json_tok_state::END:
-        return {stream_status::DONE};
+        return progdone();
 
       case json_tok_state::ERROR:
         return progdoom("error previously encountered");
@@ -667,6 +678,7 @@ public:
           return emit_token(token_from_bareword());
         }
     }
+    ELLIS_ASSERT_UNREACHABLE();
   }
 
   stream_progress start_new_token(char ch) {
@@ -721,7 +733,7 @@ public:
     else {
       return progdoom("unexpeced char");
     }
-    return {stream_status::MORE};
+    return progmore();
   }
 
   /** Emit the given token type, and start on a new token beginning with the
@@ -954,7 +966,7 @@ public:
         break;
 
       case json_tok_state::END:
-        return {stream_status::DONE};
+        return progdone();
         break;
 
       case json_tok_state::ERROR:
@@ -962,7 +974,7 @@ public:
     }
     /* If we didn't return earlier, we are in the middle of a token and can
      * accept more input. */
-    return {stream_status::MORE};
+    return progmore();
   }
 };
 
