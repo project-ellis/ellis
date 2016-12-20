@@ -13,6 +13,7 @@
 #include <ellis/core/node.hpp>
 #include <ellis/core/stream_decoder.hpp>
 #include <ellis/core/stream_encoder.hpp>
+#include <sstream>
 
 namespace ellis {
 
@@ -22,7 +23,6 @@ class json_tokenizer;
 
 class json_decoder : public stream_decoder {
 
-  decoding_status m_status;
   std::unique_ptr<json_tokenizer> m_toker;
   std::unique_ptr<json_parser> m_parser;
   std::unique_ptr<err> m_err;
@@ -40,9 +40,12 @@ public:
 
 
 class json_encoder : public stream_encoder {
+  std::stringstream m_obuf;
   std::unique_ptr<err> m_err;
   size_t m_obufpos = 0;
   size_t m_obufend = 0;
+
+  void _clear_obuf();
 
 public:
   json_encoder();
@@ -50,6 +53,7 @@ public:
       byte *buf,
       size_t *bytecount) override;
   std::unique_ptr<err> extract_error() override;
+  void stream_out(const node &n, std::ostream &os);
   void reset(const node *new_node) override;
 };
 
