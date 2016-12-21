@@ -3,7 +3,6 @@
 ## Initial release to public
 
 M Msgpack codec
-J JSON encoder/decoder.
 * Name registration for encode/decode
 * Run doxygen for purposes of checking inline docs.
 * Doxygen consistency, including using comments from the C headers if/when
