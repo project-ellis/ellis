@@ -93,13 +93,58 @@ static void uni_cp_to_u8(
   }
 }
 
+
+/*  ____  _                              ____  _        _
+ * / ___|| |_ _ __ ___  __ _ _ __ ___   / ___|| |_ __ _| |_ _   _ ___
+ * \___ \| __| '__/ _ \/ _` | '_ ` _ \  \___ \| __/ _` | __| | | / __|
+ *  ___) | |_| | |  __/ (_| | | | | | |  ___) | || (_| | |_| |_| \__ \
+ * |____/ \__|_|  \___|\__,_|_| |_| |_| |____/ \__\__,_|\__|\__,_|___/
+ *
+ */
+
+
 // TODO: think about whether this really should supplant the
 // MUST_CONTINUE and MAY_CONTINUE logic of decoders.
+
+#define ELLIS_STREAM_STATUS_ENTRIES \
+  ELLISSS(CONT) \
+  ELLISSS(DONE) \
+  ELLISSS(ERROR) \
+  /* End of ELLIS_STREAM_STATUS_ENTRIES */
+
 enum class stream_status {
-  MORE,
-  DONE,
-  ERROR,
+#define ELLISSS(X) X,
+ELLIS_STREAM_STATUS_ENTRIES
+#undef ELLISSS
 };
+
+static const char * k_stream_status_names[] = {
+#define ELLISSS(X) #X,
+ELLIS_STREAM_STATUS_ENTRIES
+#undef ELLISSS
+};
+
+static inline const char * enum_name(stream_status x)
+{
+  return k_stream_status_names[(int)x];
+}
+
+
+/*  ____  _
+ * / ___|| |_ _ __ ___  __ _ _ __ ___
+ * \___ \| __| '__/ _ \/ _` | '_ ` _ \
+ *  ___) | |_| | |  __/ (_| | | | | | |
+ * |____/ \__|_|  \___|\__,_|_| |_| |_|
+ *
+ *  ____
+ * |  _ \ _ __ ___   __ _ _ __ ___  ___ ___
+ * | |_) | '__/ _ \ / _` | '__/ _ \/ __/ __|
+ * |  __/| | | (_) | (_| | | |  __/\__ \__ \
+ * |_|   |_|  \___/ \__, |_|  \___||___/___/
+ *                  |___/
+ *
+ * This is like stream_status, but it also holds the error details.
+ */
 
 class stream_progress {
   stream_status m_status;
@@ -144,67 +189,150 @@ public:
 };
 
 
+
+/*  _____     _              _                    _        _
+ * |_   _|__ | | _____ _ __ (_)_______ _ __   ___| |_ __ _| |_ ___
+ *   | |/ _ \| |/ / _ \ '_ \| |_  / _ \ '__| / __| __/ _` | __/ _ \
+ *   | | (_) |   <  __/ | | | |/ /  __/ |    \__ \ || (_| | ||  __/
+ *   |_|\___/|_|\_\___|_| |_|_/___\___|_|    |___/\__\__,_|\__\___|
+ *
+ */
+
+
+#define ELLIS_JSON_TOK_STATE_ENTRIES \
+  TOKSTAT(INIT)          /* Ready for new token. */                            \
+  TOKSTAT(STRING)        /* Inside a string. */                                \
+  TOKSTAT(ESC)           /* Quote escaping mark being applied. */              \
+  TOKSTAT(ESC_U1)        /* Expecting 1st unicode codepoint hex digit. */      \
+  TOKSTAT(ESC_U2)        /* Expecting 2nd unicode codepoint hex digit. */      \
+  TOKSTAT(ESC_U3)        /* Expecting 3rd unicode codepoint hex digit. */      \
+  TOKSTAT(ESC_U4)        /* Expecting 4th unicode codepoint hex digit. */      \
+  TOKSTAT(NEGSIGN)       /* Just got negative sign, need digit. */             \
+  TOKSTAT(ZERO)          /* Have initial zero (can follow with frac or e/E). */\
+  TOKSTAT(INT)           /* Have non-zero int (possibly negative). */          \
+  TOKSTAT(FRAC)          /* Have int followed by point, require frac digit. */ \
+  TOKSTAT(FRACMORE)      /* Accepting possibly more frac digits (or e/E). */   \
+  TOKSTAT(EXP)           /* Have e/E, require at least one digit. */           \
+  TOKSTAT(EXPSIGN)       /* Have e/E and sign, require at least one digit. */  \
+  TOKSTAT(EXPMORE)       /* Have e/E and digit, accept possibly more digits. */\
+  TOKSTAT(COMMENTSLASH2) /* Have first slash; waiting for second. */           \
+  TOKSTAT(COMMENT)       /* In a // comment; waiting for newline. */           \
+  TOKSTAT(BAREWORD)      /* Inside a bare word, might be true/false/null. */   \
+  TOKSTAT(END)           /* Parser said done; accept no more until reset. */   \
+  TOKSTAT(ERROR)         /* Encountered error; accept no more until reset. */  \
+  /* End of ELLIS_JSON_TOK_STATE_ENTRIES */
+
 enum class json_tok_state {
-  INIT,           /* Ready for new token. */
-  STRING,         /* Inside a string. */
-  ESC,            /* Quote escaping mark being applied. */
-  ESC_U1,         /* Expecting 1st unicode codepoint hex digit. */
-  ESC_U2,         /* Expecting 2nd unicode codepoint hex digit. */
-  ESC_U3,         /* Expecting 3rd unicode codepoint hex digit. */
-  ESC_U4,         /* Expecting 4th unicode codepoint hex digit. */
-  NEGSIGN,        /* Just got negative sign, need digit. */
-  ZERO,           /* Have initial zero (but can follow with frac or e/E). */
-  INT,            /* Have non-zero int (possibly negative). */
-  FRAC,           /* Have int followed by point, require frac digit. */
-  FRACMORE,       /* Accepting possibly more frac digits (or e/E). */
-  EXP,            /* Have e/E, require at least one digit. */
-  EXPSIGN,        /* Have e/E and sign, require at least one digit. */
-  EXPMORE,        /* Have e/E and digit, accepting possibly more digits. */
-  COMMENTSLASH2,  /* Have first slash; waiting for second. */
-  COMMENT,        /* In a // comment; waiting for newline. */
-  BAREWORD,       /* Inside a bare word, might be true/false/null. */
-  END,            /* Parser said completed; accept no more until reset. */
-  ERROR,          /* Encountered an error; accept no more until reset. */
+#define TOKSTAT(X) X,
+ELLIS_JSON_TOK_STATE_ENTRIES
+#undef TOKSTAT
 };
+
+static const char * k_json_tok_state_names[] = {
+#define TOKSTAT(X) #X,
+ELLIS_JSON_TOK_STATE_ENTRIES
+#undef TOKSTAT
+};
+
+static inline const char * enum_name(json_tok_state x)
+{
+  return k_json_tok_state_names[(int)x];
+}
+
+
+
+/*  _____     _                                    _
+ * |_   _|__ | | _____ _ __  ___    __ _ _ __   __| |
+ *   | |/ _ \| |/ / _ \ '_ \/ __|  / _` | '_ \ / _` |
+ *   | | (_) |   <  __/ | | \__ \ | (_| | | | | (_| |
+ *   |_|\___/|_|\_\___|_| |_|___/  \__,_|_| |_|\__,_|
+ *
+ *  _   _                   _                      _             _
+ * | \ | | ___  _ __       | |_ ___ _ __ _ __ ___ (_)_ __   __ _| |___
+ * |  \| |/ _ \| '_ \ _____| __/ _ \ '__| '_ ` _ \| | '_ \ / _` | / __|
+ * | |\  | (_) | | | |_____| ||  __/ |  | | | | | | | | | | (_| | \__ \
+ * |_| \_|\___/|_| |_|      \__\___|_|  |_| |_| |_|_|_| |_|\__,_|_|___/
+ *
+ */
+
 
 /** This emax function is a templated function meant to return the integer
  * corresponding to the maximum element in a particular simple enum class
  * (one which does not manually specify non-contiguous integral values),
  * by way of specializing the template for the particular class. */
+
 template <typename T>
 constexpr int emax();
 
+/* TODO: use emax as part of templatizing the LL parser for other
+ * uses besides JSON. */
+
+#define ELLIS_JSON_TOK_ENTRIES \
+  JSONTOK(LEFT_CURLY) \
+  JSONTOK(RIGHT_CURLY) \
+  JSONTOK(COLON) \
+  JSONTOK(COMMA) \
+  JSONTOK(LEFT_SQUARE) \
+  JSONTOK(RIGHT_SQUARE) \
+  JSONTOK(STRING) \
+  JSONTOK(INTEGER) \
+  JSONTOK(REAL) \
+  JSONTOK(TRUE) \
+  JSONTOK(FALSE) \
+  JSONTOK(NIL) \
+  JSONTOK(EOS) \
+  JSONTOK(ERROR) \
+  /* End of ELLIS_JSON_TOK_ENTRIES */
+
 enum class json_tok {
-  LEFT_CURLY,
-  RIGHT_CURLY,
-  COLON,
-  COMMA,
-  LEFT_SQUARE,
-  RIGHT_SQUARE,
-  STRING,
-  INTEGER,
-  REAL,
-  TRUE,
-  FALSE,
-  NIL,
-  EOS,
-  ERROR, /* Bad token. See also emax immediately following this enum. */
+#define JSONTOK(X) X,
+ELLIS_JSON_TOK_ENTRIES
+#undef JSONTOK
 };
 
+static const char * k_json_tok_names[] = {
+#define JSONTOK(X) #X,
+ELLIS_JSON_TOK_ENTRIES
+#undef JSONTOK
+};
+
+static inline const char * enum_name(json_tok x)
+{
+  return k_json_tok_names[(int)x];
+}
+
+// TODO: probably can find a way to do this automatically
 template <>
 constexpr int emax<json_tok>() { return (int)json_tok::ERROR; }
 
+#define ELLIS_JSON_NTS_ENTRIES \
+  JSONNTS(VAL) \
+  JSONNTS(ARR) \
+  JSONNTS(ARR_CONT) \
+  JSONNTS(ARR_ETC) \
+  JSONNTS(MAP) \
+  JSONNTS(MAP_CONT) \
+  JSONNTS(MAP_PAIR) \
+  JSONNTS(MAP_ETC) \
+  JSONNTS(ERROR) \
+  /* End of ELLIS_JSON_NTS_ENTRIES */
+
 enum class json_nts {
-  VAL,
-  ARR,
-  ARR_CONT,
-  ARR_ETC,
-  MAP,
-  MAP_CONT,
-  MAP_PAIR,
-  MAP_ETC,
-  ERROR,   /* See also emax immediately following this enum. */
+#define JSONNTS(X) X,
+ELLIS_JSON_NTS_ENTRIES
+#undef JSONNTS
 };
+
+static const char * k_json_nts_names[] = {
+#define JSONNTS(X) #X,
+ELLIS_JSON_NTS_ENTRIES
+#undef JSONNTS
+};
+
+static inline const char * enum_name(json_nts x)
+{
+  return k_json_nts_names[(int)x];
+}
 
 template <>
 constexpr int emax<json_nts>() { return (int)json_nts::ERROR; }
@@ -222,9 +350,23 @@ struct tok_nts_union {
   bool is_tok() const { return m_is_tok; }
   TOKTYPE tok() const { ELLIS_ASSERT(m_is_tok); return m_tok; }
   NTSTYPE nts() const { ELLIS_ASSERT(!m_is_tok); return m_nts; }
+  const char * name() const {
+    return m_is_tok ? enum_name(m_tok) : enum_name(m_nts);
+  }
 };
 
 using json_sym = tok_nts_union<json_tok, json_nts>;
+
+
+
+/*  ____                            ____  _        _
+ * |  _ \ __ _ _ __ ___  ___ _ __  / ___|| |_ __ _| |_ ___
+ * | |_) / _` | '__/ __|/ _ \ '__| \___ \| __/ _` | __/ _ \
+ * |  __/ (_| | |  \__ \  __/ |     ___) | || (_| | ||  __/
+ * |_|   \__,_|_|  |___/\___|_|    |____/ \__\__,_|\__\___|
+ *
+ */
+
 
 struct json_parser_state {
   vector<json_sym> m_syms;
@@ -242,7 +384,8 @@ struct json_parser_state {
     m_key.clear();
     m_syms.clear();
     m_nodes.clear();
-    m_ststat = stream_status::MORE;
+    m_ststat = stream_status::CONT;
+    m_syms.push_back(json_sym(json_nts::VAL));
   }
 
   unique_ptr<node> extract_node() {
@@ -253,6 +396,21 @@ struct json_parser_state {
   }
 };
 
+
+
+/*  ____                            ____        _
+ * |  _ \ __ _ _ __ ___  ___ _ __  |  _ \ _   _| | ___  ___
+ * | |_) / _` | '__/ __|/ _ \ '__| | |_) | | | | |/ _ \/ __|
+ * |  __/ (_| | |  \__ \  __/ |    |  _ <| |_| | |  __/\__ \
+ * |_|   \__,_|_|  |___/\___|_|    |_| \_\\__,_|_|\___||___/
+ *
+ */
+
+
+/** Production rules, ala BNF, but with rules for building AST.  However, for
+ * the moment we wish to constrain that no RHS can result in an "empty" token,
+ * to simplify implementation.
+ */
 struct json_parse_rule {
   json_nts m_lhs;
   const char * m_desc;
@@ -305,7 +463,10 @@ static const vector<json_parse_rule> g_rules {
     } },
   { json_nts::ARR, "ARR --> [ ARR_CONT",
     { json_sym(json_tok::LEFT_SQUARE), json_sym(json_nts::ARR_CONT) },
-    {} },
+    [](json_parser_state &state)
+    {
+      state.m_nodes.push_back(node(type::ARRAY));
+    } },
   { json_nts::ARR_CONT, "ARR_CONT --> ]",
     { json_sym(json_tok::RIGHT_SQUARE) },
     {} },
@@ -314,12 +475,22 @@ static const vector<json_parse_rule> g_rules {
     {} },
   { json_nts::ARR_ETC, "ARR_ETC --> ]",
     { json_sym(json_tok::RIGHT_SQUARE) },
-    {} },
+    [](json_parser_state &state)
+    {
+      auto n = state.m_nodes.back();
+      state.m_nodes.pop_back();
+      state.m_nodes.back().as_mutable_array().append(n);
+    } },
   { json_nts::ARR_ETC, "ARR_ETC --> , VAL ARR_ETC",
     { json_sym(json_tok::COMMA),
       json_sym(json_nts::VAL),
       json_sym(json_nts::ARR_ETC) },
-    {} }
+    [](json_parser_state &state)
+    {
+      auto n = state.m_nodes.back();
+      state.m_nodes.pop_back();
+      state.m_nodes.back().as_mutable_array().append(n);
+    } }
 };
 
 
@@ -355,6 +526,7 @@ class json_parser {
    */
   void _initialize_rule_matrix()
   {
+    ELLIS_LOG(NOTI, "Initializing json parse rule matrix");
     /* Initialize rule matrix with -1 values (i.e. no rule). */
     for (int ntsidx = 0; ntsidx <= emax<json_nts>(); ntsidx ++) {
       for (int tokidx = 0; tokidx <= emax<json_tok>(); tokidx ++) {
@@ -370,6 +542,8 @@ class json_parser {
       ELLIS_ASSERT_GTE(tokidx, 0);
       ELLIS_ASSERT_LTE(tokidx, emax<json_tok>());
       if (m_rulematrix[ntsidx][tokidx] == -1) {
+        ELLIS_LOG(INFO, "Updating rule matrix: NTS %d vs token %d uses rule %d",
+            ntsidx, tokidx, ruleidx);
         m_rulematrix[ntsidx][tokidx] = ruleidx;
         return true;
       }
@@ -384,6 +558,7 @@ class json_parser {
 
     /* Put all directly induced entries into rule matrix (i.e. an NTS maps
      * directly to an RHS starting with the given token). */
+    ELLIS_LOG(INFO, "Adding entries for rules direct to token");
     for (int ruleidx = 0; ruleidx < (int)m_rules.size(); ruleidx++) {
       const auto &rule = m_rules[ruleidx];
       ELLIS_ASSERT_GT(rule.m_rhs.size(), 0);
@@ -403,8 +578,9 @@ class json_parser {
      * We know this loop must terminate, because once we record a rule, we
      * don't allow conflicts, and there are a fixed number of cells in the
      * table. */
+    ELLIS_LOG(INFO, "Adding entries for rules replacing NTS with NTS");
     while (1) {
-      bool changes = false;
+      int changes = 0;
       for (int ruleidx = 0; ruleidx < (int)m_rules.size(); ruleidx++) {
         const auto &rule = m_rules[ruleidx];
         if (rule.m_rhs[0].is_tok()) {
@@ -416,12 +592,14 @@ class json_parser {
         for (int tokidx = 0; tokidx <= emax<json_tok>(); tokidx++) {
           if (m_rulematrix[rhidx][tokidx] >= 0) {
             if (update_map((int)rule.m_lhs, tokidx, ruleidx)) {
-              changes = true;
+              changes++;
             }
           }
         }
       }
-      if (!changes) {
+      ELLIS_LOG(INFO, "Passed through rule list with %d matrix changes",
+          changes);
+      if (changes == 0) {
         break;
       }
     }
@@ -431,18 +609,20 @@ public:
   explicit json_parser(const vector<json_parse_rule> &rules) :
     m_rules(rules)
   {
+    ELLIS_LOG(INFO, "Initializing json parser");
     _initialize_rule_matrix();
-    /* Start symbol stack with basic val NTS. */
-    m_state.m_syms.push_back(json_sym(json_nts::VAL));
+    reset();
   }
 
   void reset()
   {
+    ELLIS_LOG(INFO, "Resetting json parser");
     m_state.reset();
   }
 
   stream_progress progdoom(const char *msg)
   {
+    ELLIS_LOG(DBUG, "This json parse is doomed--%s", msg);
     /* TODO: improve this message as well as char position etc in caller. */
     ostringstream os;
     os << "parse error, m_syms:";
@@ -463,14 +643,16 @@ public:
 
   stream_progress progmore()
   {
-    m_state.m_ststat = stream_status::MORE;
-    return stream_progress(stream_status::MORE);
+    ELLIS_LOG(DBUG, "This json parse is continuing...");
+    m_state.m_ststat = stream_status::CONT;
+    return stream_progress(stream_status::CONT);
   }
 
   stream_progress progdone()
   {
+    ELLIS_LOG(DBUG, "This json parse is done!");
     m_state.m_ststat = stream_status::DONE;
-    return stream_progress(stream_status::MORE);
+    return stream_progress(stream_status::DONE);
   }
 
   /** Accept a new token, continue parsing and building the deserialized form.
@@ -481,6 +663,8 @@ public:
     m_state.m_thistok = tok;
     m_state.m_thistokstr = tokstr;
 
+    ELLIS_LOG(DBUG, "Parser accepting token %s (txt %s)",
+        enum_name(tok), tokstr);
     auto & stak = m_state.m_syms;
     if (stak.empty()) {
       return progdoom("parser stack underflow");
@@ -488,10 +672,17 @@ public:
     int loopMax = 2500;  // TODO: less arbitrary cycle detection
     /* Apply some rules until we consume the token. */
     for (int i = 0; i < loopMax; i++) {
+      ELLIS_LOG(DBUG, "Parse symbol stack: %s",
+        std::accumulate(
+          m_state.m_syms.begin(),
+          m_state.m_syms.end(),
+          string(),
+          [](string a, json_sym b) { return a + b.name() + ", "; }).c_str());
       auto & top = stak.back();
       if (top.is_tok()) {
         if (top.tok() == tok) {
-          /* Yay, matched the token! now move it out of the way. */
+          ELLIS_LOG(DBUG, "Yay, token %s matches top of stack--popping",
+              enum_name(tok));
           stak.pop_back();
           /* If this was the last thing on stack, then done parsing. */
           if (stak.empty()) {
@@ -500,22 +691,27 @@ public:
             return progmore();
           }
         } else {
+          ELLIS_LOG(DBUG, "Uh oh, token %s does not match top of stack (%s)",
+              enum_name(tok), enum_name(top.tok()));
           return progdoom("unexpected token");
         }
       }
       /* Top is a non-terminating symbol; lookup for this token. */
       ELLIS_ASSERT(! top.is_tok());
+      ELLIS_LOG(DBUG, "Looking up rule for applying token %s vs NTS %s",
+        enum_name(tok), enum_name(top.nts()));
       auto ruleidx = m_rulematrix[(int)(top.nts())][(int)tok];
       if (ruleidx < 0) {
         return progdoom("no applicable production rule for token");
       }
       ELLIS_ASSERT(ruleidx < (int)m_rules.size());
       const auto & rule = m_rules[ruleidx];
-      printf("Applying rule %d (%s)...\n", ruleidx, rule.m_desc);
+      ELLIS_LOG(DBUG, "Applying rule %d (%s)...", ruleidx, rule.m_desc);
       ELLIS_ASSERT(top.nts() == rule.m_lhs);
       stak.pop_back();
       /* Apply the code for this rule, if it is defined. */
       if (rule.m_fn) {
+        ELLIS_LOG(DBUG, "Running rule code");
         (rule.m_fn)(m_state);
       }
       /* Push back the translation of the LHS NTS in reverse order. */
@@ -528,6 +724,7 @@ public:
 
   unique_ptr<node> extract_node()
   {
+    ELLIS_LOG(DBUG, "Extracting parsed node");
     ELLIS_ASSERT(m_state.m_ststat == stream_status::DONE);
     ELLIS_ASSERT_EQ(m_state.m_nodes.size(), 1);
     unique_ptr<node> ret(new node(m_state.m_nodes[0]));
@@ -559,6 +756,7 @@ public:
 
   void _clear_txt()
   {
+    ELLIS_LOG(DBUG, "Clearing token txt");
     /* Clear the string stream. */
     m_txt.str("");
     /* Reset any stream state such as errors. */
@@ -584,6 +782,7 @@ public:
 
   stream_progress progdoom(const char *msg)
   {
+    ELLIS_LOG(DBUG, "This json tokenizer is doomed--%s", msg);
     m_tokstate = json_tok_state::ERROR;
     return stream_progress(unique_ptr<err>(
           new MAKE_ELLIS_ERR(err_code::TODO, msg)));
@@ -591,21 +790,25 @@ public:
 
   stream_progress progmore()
   {
-    return stream_progress(stream_status::MORE);
+    ELLIS_LOG(DBUG, "This json tokenizer is continuing");
+    return stream_progress(stream_status::CONT);
   }
 
   stream_progress progdone()
   {
+    ELLIS_LOG(DBUG, "This json tokenizer is done");
     m_tokstate = json_tok_state::END;
     return stream_progress(stream_status::DONE);
   }
 
   stream_progress emit_token(json_tok tok)
   {
+    ELLIS_LOG(DBUG, "Emitting token %s to parser", enum_name(tok));
     if (tok == json_tok::ERROR) {
       return progdoom("invalid token");
     }
     stream_progress rv = m_tokcb(tok, m_txt.str().c_str());
+    ELLIS_LOG(DBUG, "Post token emission cleanup");
     _clear_txt();
     if (rv.stat() == stream_status::ERROR) {
       m_tokstate = json_tok_state::ERROR;
@@ -623,24 +826,28 @@ public:
   {
     ELLIS_ASSERT(m_tokstate == json_tok_state::BAREWORD);
     auto str = m_txt.str();
+    json_tok rv;
     if (str == "true") {
-      return json_tok::TRUE;
+      rv = json_tok::TRUE;
     }
     else if (str == "false") {
-      return json_tok::FALSE;
+      rv = json_tok::FALSE;
     }
     else if (str == "null") {
-      return json_tok::NIL;
+      rv = json_tok::NIL;
     }
     else {
-      return json_tok::ERROR;
+      rv = json_tok::ERROR;
     }
-    ELLIS_ASSERT_UNREACHABLE();
+    ELLIS_LOG(DBUG, "Converted bareword %s to %s token",
+        m_txt.str().c_str(), enum_name(rv));
+    return rv;
   }
 
   /** Return the overall stream progress reflecting downstream consumption
    * of tokens pursuant to node construction. */
   stream_progress accept_eos() {
+    ELLIS_LOG(DBUG, "Tokenizer received EOS (end of stream)");
     switch (m_tokstate) {
       case json_tok_state::INIT:
         return progmore();
@@ -682,6 +889,7 @@ public:
   }
 
   stream_progress start_new_token(char ch) {
+    ELLIS_LOG(DBUG, "Starting new token based on character (%02X)", (int)ch);
     if (isspace(ch)) {
       /* do nothing--ignore whitespace here. */
     } else if (ch == '/') {
@@ -743,7 +951,7 @@ public:
       char nextch)
   {
     auto rv = emit_token(current_tok);
-    if (rv.stat() == stream_status::MORE) {
+    if (rv.stat() == stream_status::CONT) {
       /* Some patterns (e.g. 0,2) are acceptable but others (e.g. 0"hey")
        * may never occur in the language; still, it is the parser's job to deal
        * with such issues.  We'll start a new token if it looks like we
@@ -755,6 +963,8 @@ public:
   }
 
   stream_progress accept_char(char ch) {
+    ELLIS_LOG(DBUG, "Tokenizer accepting character (%02X), current state %s",
+        (int)ch, enum_name(m_tokstate));
     switch (m_tokstate) {
       case json_tok_state::INIT:
         return start_new_token(ch);
@@ -1048,9 +1258,11 @@ decoding_status json_decoder::consume_buffer(
     const byte *buf,
     size_t *bytecount)
 {
+  ELLIS_LOG(DBUG, "Consuming buffer of length %zu", *bytecount);
   const byte *p_end = buf + *bytecount;
   for (const byte *p = buf; p < p_end; p++) {
     auto st = m_toker->accept_char(*p);
+    ELLIS_LOG(DBUG, "Tokenizer state: %s", enum_name(st.stat()));
     if (st.stat() == stream_status::DONE) {
       *bytecount = p_end - p;
       return decoding_status::END;
@@ -1067,6 +1279,7 @@ decoding_status json_decoder::consume_buffer(
 
 unique_ptr<node> json_decoder::extract_node()
 {
+  ELLIS_LOG(DBUG, "Extracting node from decoder (will send EOS to tokenizer)");
   /* Send EOS to tokenizer. */
   auto st = m_toker->accept_eos();
 
@@ -1076,7 +1289,7 @@ unique_ptr<node> json_decoder::extract_node()
     }
     return nullptr;
   }
-  else if (st.stat() == stream_status::MORE) {
+  else if (st.stat() == stream_status::CONT) {
     if (! m_err) {
       m_err.reset(new MAKE_ELLIS_ERR(err_code::TODO, "no node"));
     }
@@ -1088,13 +1301,15 @@ unique_ptr<node> json_decoder::extract_node()
 
 unique_ptr<err> json_decoder::extract_error()
 {
+  ELLIS_LOG(DBUG, "Extracting error from decoder");
   return std::move(m_err);
 }
 
 void json_decoder::reset()
 {
-  m_toker.reset();
-  m_parser.reset();
+  ELLIS_LOG(DBUG, "Resetting decoder");
+  m_toker->reset();
+  m_parser->reset();
 }
 
 

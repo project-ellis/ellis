@@ -99,6 +99,7 @@ run_target('cppcheck', command: 'meson/cppcheck')
 tests = [
   ['ellistest', 'test/ellis_test.cpp'],
   ['codectest', 'test/codec_test.cpp'],
+  ['jsontest', 'test/json_test.cpp'],
   ['obdtest', 'test/obd_test.cpp']]
 foreach t : tests
   exe = executable(
