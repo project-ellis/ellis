@@ -221,11 +221,11 @@ do { \
  *   ELLIS_ASSERT_LTE(a, b);
  *   ELLIS_ASSERT_EQ(a, b);
  *   ELLIS_ASSERT_NEQ(a, b);
- *   ELLIS_ASSERT_GT(c, d);
- *   ELLIS_ASSERT_GTE(d, 1);
+ *   ELLIS_ASSERT_GT(a, b);
+ *   ELLIS_ASSERT_GTE(a, b);
  *   ELLIS_ASSERT_DBL_EQ(a, b);
- *   ELLIS_ASSERT_NULL(d);
- *   ELLIS_ASSERT_NOT_NULL(d);
+ *   ELLIS_ASSERT_NULL(p);
+ *   ELLIS_ASSERT_NOT_NULL(p);
  *
  * In case of failure, the system failure function will be called, with a
  * message showing the failed condition along with the specific values of
