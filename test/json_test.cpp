@@ -23,7 +23,7 @@ int main() {
 
   //set_system_log_prefilter(log_severity::DBUG);
   std::stringstream ss1;
-  ss1 << "[ 1, 2, 3 ]";
+  ss1 << "[ 1, 2, { \"hello\": \"world\" } ]";
   ss1.flush();
   auto s1 = ss1.str();
   auto n = load(cpp_input_stream(ss1), json_decoder());

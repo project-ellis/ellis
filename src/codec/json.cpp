@@ -388,6 +388,18 @@ struct json_parser_state {
     m_syms.push_back(json_sym(json_nts::VAL));
   }
 
+  void array_swallow() {
+    auto n = m_nodes.back();
+    m_nodes.pop_back();
+    m_nodes.back().as_mutable_array().append(n);
+  }
+
+  void map_swallow() {
+    auto n = m_nodes.back();
+    m_nodes.pop_back();
+    m_nodes.back().as_mutable_map().insert(m_key, n);
+  }
+
   unique_ptr<node> extract_node() {
     if (m_nodes.empty()) {
       return nullptr;
@@ -422,9 +434,9 @@ static const vector<json_parse_rule> g_rules {
   { json_nts::VAL, "VAL --> ARR",
     { json_sym(json_nts::ARR) },
     {} },
-  //{ json_nts::VAL, "VAL --> MAP",
-  //  { json_sym(json_nts::MAP) },
-  //  {} },
+  { json_nts::VAL, "VAL --> MAP",
+    { json_sym(json_nts::MAP) },
+    {} },
   { json_nts::VAL, "VAL --> string",
     { json_sym(json_tok::STRING) },
     [](json_parser_state &state)
@@ -462,7 +474,8 @@ static const vector<json_parse_rule> g_rules {
       state.m_nodes.push_back(node(type::NIL));
     } },
   { json_nts::ARR, "ARR --> [ ARR_CONT",
-    { json_sym(json_tok::LEFT_SQUARE), json_sym(json_nts::ARR_CONT) },
+    { json_sym(json_tok::LEFT_SQUARE),
+      json_sym(json_nts::ARR_CONT) },
     [](json_parser_state &state)
     {
       state.m_nodes.push_back(node(type::ARRAY));
@@ -471,15 +484,14 @@ static const vector<json_parse_rule> g_rules {
     { json_sym(json_tok::RIGHT_SQUARE) },
     {} },
   { json_nts::ARR_CONT, "ARR_CONT --> VAL ARR_ETC",
-    { json_sym(json_nts::VAL), json_sym(json_nts::ARR_ETC) },
+    { json_sym(json_nts::VAL),
+      json_sym(json_nts::ARR_ETC) },
     {} },
   { json_nts::ARR_ETC, "ARR_ETC --> ]",
     { json_sym(json_tok::RIGHT_SQUARE) },
     [](json_parser_state &state)
     {
-      auto n = state.m_nodes.back();
-      state.m_nodes.pop_back();
-      state.m_nodes.back().as_mutable_array().append(n);
+      state.array_swallow();
     } },
   { json_nts::ARR_ETC, "ARR_ETC --> , VAL ARR_ETC",
     { json_sym(json_tok::COMMA),
@@ -487,9 +499,42 @@ static const vector<json_parse_rule> g_rules {
       json_sym(json_nts::ARR_ETC) },
     [](json_parser_state &state)
     {
-      auto n = state.m_nodes.back();
-      state.m_nodes.pop_back();
-      state.m_nodes.back().as_mutable_array().append(n);
+      state.array_swallow();
+    } },
+  { json_nts::MAP, "MAP --> { MAP_CONT",
+    { json_sym(json_tok::LEFT_CURLY), json_sym(json_nts::MAP_CONT) },
+    [](json_parser_state &state)
+    {
+      state.m_nodes.push_back(node(type::MAP));
+    } },
+  { json_nts::MAP_CONT, "MAP_CONT --> }",
+    { json_sym(json_tok::RIGHT_CURLY) },
+    {} },
+  { json_nts::MAP_CONT, "MAP_CONT --> MAP_PAIR MAP_ETC",
+    { json_sym(json_nts::MAP_PAIR),
+      json_sym(json_nts::MAP_ETC) },
+    {} },
+  { json_nts::MAP_PAIR, "MAP_PAIR --> string : VAL",
+    { json_sym(json_tok::STRING),
+      json_sym(json_tok::COLON),
+      json_sym(json_nts::VAL) },
+    [](json_parser_state &state)
+    {
+      state.m_key = state.m_thistokstr;
+    } },
+  { json_nts::MAP_ETC, "MAP_ETC --> }",
+    { json_sym(json_tok::RIGHT_CURLY) },
+    [](json_parser_state &state)
+    {
+      state.map_swallow();
+    } },
+  { json_nts::MAP_ETC, "MAP_ETC --> , MAP_PAIR MAP_ETC",
+    { json_sym(json_tok::COMMA),
+      json_sym(json_nts::MAP_PAIR),
+      json_sym(json_nts::MAP_ETC) },
+    [](json_parser_state &state)
+    {
+      state.map_swallow();
     } }
 };
 
@@ -1372,7 +1417,7 @@ void json_encoder::stream_out(const node &n, std::ostream &os) {
       return;
 
     case type::U8STR:
-      os << (n.as_u8str());
+      os << '"' << (n.as_u8str()) << '"';
       return;
 
     case type::ARRAY:
@@ -1416,7 +1461,7 @@ void json_encoder::stream_out(const node &n, std::ostream &os) {
             os << ", ";
           }
           separate = true;
-          os << k << ": ";
+          os << '"' << k << '"' << ": ";
           stream_out(a[k], os);
         }
         os << " }";
