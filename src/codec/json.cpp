@@ -103,8 +103,7 @@ static void uni_cp_to_u8(
  */
 
 
-// TODO: think about whether this really should supplant the
-// MUST_CONTINUE and MAY_CONTINUE logic of decoders.
+// TODO: supplant the similar duplicated enums?
 
 #define ELLIS_STREAM_STATUS_ENTRIES \
   ELLISSS(CONT) \
@@ -1323,7 +1322,7 @@ decoding_status json_decoder::consume_buffer(
     }
   }
   *bytecount = 0;
-  return decoding_status::MUST_CONTINUE;
+  return decoding_status::CONTINUE;
 }
 
 decoding_status json_decoder::terminate_stream()

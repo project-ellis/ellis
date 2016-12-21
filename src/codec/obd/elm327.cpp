@@ -152,7 +152,7 @@ decoding_status elm327_decoder::consume_buffer(
 
   if (last_newline < end-1) {
     *bytecount = end - last_newline;
-    return decoding_status::MUST_CONTINUE;
+    return decoding_status::CONTINUE;
   }
 
   *bytecount = 0;

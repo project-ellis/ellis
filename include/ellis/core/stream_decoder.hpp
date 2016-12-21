@@ -16,15 +16,8 @@
 namespace ellis {
 
 
-// TODO: need one specific to stream_decoder that says MAY_CONTINUE and
-// MUST_CONTINUE, indicating that it the object may be terminated here or
-// may not be terminated here.  Add greedy param to consume_buffer, and
-// return remaining chars, for reinvocation...  Allows us to do a more
-// streaming/generator approach, and/or decode headers of huge objects.
-// Is there any need for analogous greedy param to encoders?
 enum class decoding_status {
-  MAY_CONTINUE,
-  MUST_CONTINUE,
+  CONTINUE,
   END,
   ERROR
 };
@@ -47,7 +40,7 @@ public:
    * If there has been a non-recoverable error in the decoding process, the
    * ERROR status will be returned; otherwise, if an ellis node has been
    * completely decoded, a status of END is returned; otherwise a status of
-   * MUST_CONTINUE will be returned (to indicate that additional bytes must be
+   * CONTINUE will be returned (to indicate that additional bytes must be
    * provided via additional calls to consume_buffer).
    *
    * If a status of END is returned, the constructed object may be obtained
@@ -80,7 +73,7 @@ public:
 
   /** Return the constructed node.
    *
-   * Only valid when decoder status is END or MAY_CONTINUE.
+   * Only valid when decoder status is END.
    */
   virtual std::unique_ptr<node> extract_node() = 0;
 
