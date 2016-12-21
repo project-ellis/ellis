@@ -247,8 +247,8 @@ do { \
 #define ELLIS_ASSERT_TRUE(x) ELLIS_ASSERT_EQ(x, true)
 #define ELLIS_ASSERT_FALSE(x) ELLIS_ASSERT_EQ(x, false)
 #define ELLIS_ASSERT_DBL_EQ(x, y) ELLIS_ASSERT_TRUE(dbl_equal(x, y))
-#define ELLIS_ASSERT_NULL(x) ::ellis::_assert_eq(x, nullptr, __FILE__, __LINE__, __FUNCTION__)
-#define ELLIS_ASSERT_NOT_NULL(x) ::ellis::_assert_neq(x, nullptr, __FILE__, __LINE__, __FUNCTION__)
+#define ELLIS_ASSERT_NULL(x) ELLIS_ASSERT_EQ(x, nullptr)
+#define ELLIS_ASSERT_NOT_NULL(x) ELLIS_ASSERT_NEQ(x, nullptr)
 
 
 /* Internal macro--leave alone.  We need unreachability hints to tell the
