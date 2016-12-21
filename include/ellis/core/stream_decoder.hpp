@@ -63,6 +63,11 @@ public:
       const byte *buf,
       size_t *bytecount) = 0;
 
+  /** Tell the decoder there are no more bytes coming.  The decoder will
+   * decide whether a node can be created based on prior bytes or whether
+   * there is an error due to truncation. */
+  virtual decoding_status terminate_stream() = 0;
+
   /** Check on the node being constructed.
    *
    * Whether there is any useful partially constructed node to see before

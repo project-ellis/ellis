@@ -447,7 +447,7 @@ static const vector<json_parse_rule> g_rules {
     { json_sym(json_tok::INTEGER) },
     [](json_parser_state &state)
     {
-      state.m_nodes.push_back(node(atoi(state.m_thistokstr)));
+      state.m_nodes.push_back(node(atol(state.m_thistokstr)));
     } },
   { json_nts::VAL, "VAL --> real",
     { json_sym(json_tok::REAL) },
@@ -587,8 +587,9 @@ class json_parser {
       ELLIS_ASSERT_GTE(tokidx, 0);
       ELLIS_ASSERT_LTE(tokidx, emax<json_tok>());
       if (m_rulematrix[ntsidx][tokidx] == -1) {
-        ELLIS_LOG(INFO, "Updating rule matrix: NTS %d vs token %d uses rule %d",
-            ntsidx, tokidx, ruleidx);
+        ELLIS_LOG(INFO, "Updating rule matrix: %s vs %s uses rule %d (%s)",
+            enum_name(json_nts(ntsidx)), enum_name(json_tok(tokidx)),
+            ruleidx, m_rules[ruleidx].m_desc);
         m_rulematrix[ntsidx][tokidx] = ruleidx;
         return true;
       }
@@ -979,7 +980,7 @@ public:
       m_txt << ch;
       m_tokstate = json_tok_state::INT;
     }
-    else if (ch == isalpha(ch)) {
+    else if (isalpha(ch)) {
       m_txt << ch;
       m_tokstate = json_tok_state::BAREWORD;
     }
@@ -1032,23 +1033,26 @@ public:
         if (ch == 'u') {
           m_tokstate = json_tok_state::ESC_U1;
         }
-        else if (ch == 'b') {
-          m_txt << '\b';
-        }
-        else if (ch == 'f') {
-          m_txt << '\f';
-        }
-        else if (ch == 'n') {
-          m_txt << '\n';
-        }
-        else if (ch == 'r') {
-          m_txt << '\r';
-        }
-        else if (ch == 't') {
-          m_txt << '\t';
-        }
         else {
-          m_txt << ch;
+          if (ch == 'b') {
+            m_txt << '\b';
+          }
+          else if (ch == 'f') {
+            m_txt << '\f';
+          }
+          else if (ch == 'n') {
+            m_txt << '\n';
+          }
+          else if (ch == 'r') {
+            m_txt << '\r';
+          }
+          else if (ch == 't') {
+            m_txt << '\t';
+          }
+          else {
+            m_txt << ch;
+          }
+          m_tokstate = json_tok_state::STRING;
         }
         break;
 
@@ -1322,24 +1326,29 @@ decoding_status json_decoder::consume_buffer(
   return decoding_status::MUST_CONTINUE;
 }
 
-unique_ptr<node> json_decoder::extract_node()
+decoding_status json_decoder::terminate_stream()
 {
-  ELLIS_LOG(DBUG, "Extracting node from decoder (will send EOS to tokenizer)");
   /* Send EOS to tokenizer. */
   auto st = m_toker->accept_eos();
 
   if (st.stat() == stream_status::ERROR) {
     if (! m_err) {
       m_err = st.extract_error();
+      return decoding_status::ERROR;
     }
-    return nullptr;
   }
   else if (st.stat() == stream_status::CONT) {
     if (! m_err) {
-      m_err.reset(new MAKE_ELLIS_ERR(err_code::TODO, "no node"));
+      m_err.reset(new MAKE_ELLIS_ERR(err_code::TODO, "truncated input"));
+      return decoding_status::ERROR;
     }
-    return nullptr;
   }
+  return decoding_status::END;
+}
+
+unique_ptr<node> json_decoder::extract_node()
+{
+  ELLIS_LOG(DBUG, "Extracting node from decoder (will send EOS to tokenizer)");
 
   return m_parser->extract_node();
 }
@@ -1413,7 +1422,7 @@ void json_encoder::stream_out(const node &n, std::ostream &os) {
       return;
 
     case type::DOUBLE:
-      os << (n.as_double());
+      os << std::to_string(n.as_double());
       return;
 
     case type::U8STR:

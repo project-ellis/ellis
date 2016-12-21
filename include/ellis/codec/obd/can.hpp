@@ -52,6 +52,8 @@ public:
       const byte *buf,
       size_t *bytecount) override;
 
+  decoding_status terminate_stream() override;
+
   std::unique_ptr<node> extract_node() override;
 
   std::unique_ptr<err> extract_error() override;

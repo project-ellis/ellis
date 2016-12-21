@@ -40,6 +40,11 @@ decoding_status delimited_text_decoder::consume_buffer(
   return decoding_status::MUST_CONTINUE;
 }
 
+decoding_status delimited_text_decoder::terminate_stream()
+{
+  return decoding_status::END;
+}
+
 unique_ptr<node> delimited_text_decoder::extract_node()
 {
   return std::move(m_node);

@@ -11,10 +11,9 @@ cpp_input_stream::cpp_input_stream(std::istream &is) : m_is(is) {
 bool cpp_input_stream::next_input_buf(byte **buf, size_t *bytecount) {
   if (m_pos < m_avail) {
     /* We have some leftover buffer from earlier.  Return that. */
-    *buf = m_buf + m_pos;
-    *bytecount = m_avail - m_pos;
-    return true;
+    goto give_buffer;
   }
+
   /* No more bytes in current block?  Then try to get another one. */
   if (! m_is) {
     // TODO: check fail bits?
@@ -22,6 +21,7 @@ bool cpp_input_stream::next_input_buf(byte **buf, size_t *bytecount) {
     m_err.reset(new MAKE_ELLIS_ERR(err_code::PARSING_ERROR, "end of file"));
     return false;
   }
+
   m_pos = 0;
   m_is.read((char*)m_buf, sizeof(m_buf));
   m_avail = (int)m_is.gcount();
@@ -31,8 +31,12 @@ bool cpp_input_stream::next_input_buf(byte **buf, size_t *bytecount) {
     m_err.reset(new MAKE_ELLIS_ERR(err_code::PARSING_ERROR, "end of file"));
     return false;
   }
-  *buf = m_buf;
-  *bytecount = m_avail;
+
+give_buffer:
+  *buf = m_buf + m_pos;
+  *bytecount = m_avail - m_pos;
+  /* Treat input as consumed unless put_back is called. */
+  m_pos = m_avail;
   return true;
 }
 

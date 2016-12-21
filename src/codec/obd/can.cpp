@@ -117,6 +117,12 @@ decoding_status can_decoder::consume_buffer(
 }
 
 
+decoding_status can_decoder::terminate_stream()
+{
+  return decoding_status::END;
+}
+
+
 std::unique_ptr<node> can_decoder::extract_node()
 {
   return std::move(m_node);

@@ -23,14 +23,7 @@ unique_ptr<node> load(
     /* Need another block; request it. */
     if (! in->next_input_buf(&buf, &buf_remain)) {
       /* No block available. */
-      if (st == decoding_status::MUST_CONTINUE) {
-        *err_ret = in->extract_input_error();
-        goto error_return;
-      }
-      else /* MAY_CONTINUE */ {
-        ELLIS_ASSERT(st == decoding_status::MAY_CONTINUE);
-        goto extract_return;
-      }
+      goto forcibly_terminate_input_stream;
     }
     /* Block obtained. */
     ELLIS_ASSERT(buf != nullptr);
@@ -55,6 +48,13 @@ unique_ptr<node> load(
     }
   }
   ELLIS_ASSERT_UNREACHABLE();
+
+forcibly_terminate_input_stream:
+  st = deco->terminate_stream();
+  if (st == decoding_status::ERROR) {
+    *err_ret = deco->extract_error();
+    goto error_return;
+  }
 
 extract_return:
   return deco->extract_node();
