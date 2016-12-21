@@ -358,7 +358,7 @@ static inline void _assert_##name( \
   const std::string &msg = \
     ELLIS_SSTRING("Assert: failed expression (" << expr << ") " \
     "with LHS = %s and RHS = %s"); \
-  (*::ellis::g_system_crash_fn)( \
+  (*ellis::g_system_crash_fn)( \
       file, \
       line, \
       function, \
