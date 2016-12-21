@@ -237,12 +237,12 @@ do { \
  *
  * Always evaluated, whether in debug or release build.
  */
-#define ELLIS_ASSERT_LT(x, y) ::ellis::_assert_lt(x, y, __FILE__, __LINE__, __FUNCTION__)
-#define ELLIS_ASSERT_LTE(x, y) ::ellis::_assert_lte(x, y, __FILE__, __LINE__, __FUNCTION__)
-#define ELLIS_ASSERT_EQ(x, y) ::ellis::_assert_eq(x, y, __FILE__, __LINE__, __FUNCTION__)
-#define ELLIS_ASSERT_NEQ(x, y) ::ellis::_assert_neq(x, y, __FILE__, __LINE__, __FUNCTION__)
-#define ELLIS_ASSERT_GT(x, y) ::ellis::_assert_gt(x, y, __FILE__, __LINE__, __FUNCTION__)
-#define ELLIS_ASSERT_GTE(x, y) ::ellis::_assert_gte(x, y, __FILE__, __LINE__, __FUNCTION__)
+#define ELLIS_ASSERT_LT(x, y) ::ellis::_assert_lt(#x "<" #y, x, y, __FILE__, __LINE__, __FUNCTION__)
+#define ELLIS_ASSERT_LTE(x, y) ::ellis::_assert_lte(#x "<=" #y, x, y, __FILE__, __LINE__, __FUNCTION__)
+#define ELLIS_ASSERT_EQ(x, y) ::ellis::_assert_eq(#x "==" #y, x, y, __FILE__, __LINE__, __FUNCTION__)
+#define ELLIS_ASSERT_NEQ(x, y) ::ellis::_assert_neq(#x "!=" #y, x, y, __FILE__, __LINE__, __FUNCTION__)
+#define ELLIS_ASSERT_GT(x, y) ::ellis::_assert_gt(#x ">" #y, x, y, __FILE__, __LINE__, __FUNCTION__)
+#define ELLIS_ASSERT_GTE(x, y) ::ellis::_assert_gte(#x ">=" #y, x, y, __FILE__, __LINE__, __FUNCTION__)
 
 #define ELLIS_ASSERT_TRUE(x) ELLIS_ASSERT_EQ(x, true)
 #define ELLIS_ASSERT_FALSE(x) ELLIS_ASSERT_EQ(x, false)
@@ -344,6 +344,7 @@ std::string _internal_make_str(const std::nullptr_t &);
 #define _INTERNAL_GEN_ASSERTS(op, name) \
 template <typename T, typename U> \
 static void _assert_##name( \
+    const char *expr, \
     const T &x, \
     const U &y, \
     const char *file, \
@@ -354,11 +355,14 @@ static void _assert_##name( \
     return; \
   } \
   \
+  const std::string &msg = \
+    ELLIS_SSTRING("Assert: failed expression (" << expr << ") " \
+    "with LHS = %s and RHS = %s"); \
   (*::ellis::g_system_crash_fn)( \
       file, \
       line, \
       function, \
-      "Assert failed: %s " #op " %s", \
+      msg.c_str(), \
       _internal_make_str(x).c_str(), \
       _internal_make_str(y).c_str()); \
   ELLIS_UNREACHABLE_HINT() \
