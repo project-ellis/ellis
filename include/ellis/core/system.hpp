@@ -343,7 +343,7 @@ std::string _internal_make_str(const std::nullptr_t &);
  */
 #define _INTERNAL_GEN_ASSERTS(op, name) \
 template <typename T, typename U> \
-static void _assert_##name( \
+static inline void _assert_##name( \
     const char *expr, \
     const T &x, \
     const U &y, \
