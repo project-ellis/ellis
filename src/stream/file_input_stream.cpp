@@ -1,6 +1,6 @@
 #include <ellis/stream/file_input_stream.hpp>
 
-#include <ellis_private/core/err.hpp>
+#include <ellis/core/err.hpp>
 #include <ellis_private/using.hpp>
 #include <fcntl.h>
 #include <sys/types.h>

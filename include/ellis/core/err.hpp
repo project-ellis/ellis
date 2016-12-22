@@ -17,6 +17,10 @@
 namespace ellis {
 
 
+#define MAKE_ELLIS_ERR(CODE, MSG) \
+  err(CODE, __FILE__, __LINE__, (MSG))
+
+
 enum class err_code {
   WRONG_TYPE = 4096,
   TYPE_MISMATCH = 4097,

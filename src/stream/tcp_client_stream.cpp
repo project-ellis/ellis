@@ -1,7 +1,7 @@
 #include <ellis/stream/tcp_client_stream.hpp>
 
 #include <ellis/core/defs.hpp>
-#include <ellis_private/core/err.hpp>
+#include <ellis/core/err.hpp>
 #include <ellis_private/using.hpp>
 
 namespace ellis {

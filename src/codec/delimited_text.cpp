@@ -1,7 +1,7 @@
 #include <ellis/codec/delimited_text.hpp>
 
 #include <ellis/core/array_node.hpp>
-#include <ellis_private/core/err.hpp>
+#include <ellis/core/err.hpp>
 #include <ellis_private/using.hpp>
 
 namespace ellis {
