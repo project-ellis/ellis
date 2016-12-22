@@ -26,6 +26,7 @@ class json_decoder : public stream_decoder {
   std::unique_ptr<json_tokenizer> m_toker;
   std::unique_ptr<json_parser> m_parser;
   std::unique_ptr<err> m_err;
+  std::unique_ptr<node> m_node;
 
 public:
   json_decoder();

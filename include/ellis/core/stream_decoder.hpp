@@ -58,9 +58,14 @@ public:
 
   /** Tell the decoder there are no more bytes coming.  The decoder will
    * decide whether a node can be created based on prior bytes or whether
-   * there is an error due to truncation. */
+   * there is an error due to truncation.
+   *
+   * @return must be either END or ERROR.
+   */
   virtual decoding_status terminate_stream() = 0;
+  // TODO virtual node_progress finalize() = 0;
 
+  // TODO: remove this.
   /** Check on the node being constructed.
    *
    * Whether there is any useful partially constructed node to see before
@@ -71,12 +76,14 @@ public:
    */
   virtual const node * peek_node() { return nullptr; }
 
+  // TODO: remove this.
   /** Return the constructed node.
    *
    * Only valid when decoder status is END.
    */
   virtual std::unique_ptr<node> extract_node() = 0;
 
+  // TODO: remove this.
   /** Return the error details.  Caller owns it now.
    *
    * Only valid when decoder status is ERROR.

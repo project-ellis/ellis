@@ -94,99 +94,138 @@ static void uni_cp_to_u8(
 }
 
 
-/*  ____  _                              ____  _        _
- * / ___|| |_ _ __ ___  __ _ _ __ ___   / ___|| |_ __ _| |_ _   _ ___
- * \___ \| __| '__/ _ \/ _` | '_ ` _ \  \___ \| __/ _` | __| | | / __|
- *  ___) | |_| | |  __/ (_| | | | | | |  ___) | || (_| | |_| |_| \__ \
- * |____/ \__|_|  \___|\__,_|_| |_| |_| |____/ \__\__,_|\__|\__,_|___/
- *
+/*  ____                                      ____  _        _
+ * |  _ \ _ __ ___   __ _ _ __ ___  ___ ___  / ___|| |_ __ _| |_ ___
+ * | |_) | '__/ _ \ / _` | '__/ _ \/ __/ __| \___ \| __/ _` | __/ _ \
+ * |  __/| | | (_) | (_| | | |  __/\__ \__ \  ___) | || (_| | ||  __/
+ * |_|   |_|  \___/ \__, |_|  \___||___/___/ |____/ \__\__,_|\__\___|
+ *                  |___/
  */
 
 
 // TODO: supplant the similar duplicated enums?
 
-#define ELLIS_STREAM_STATUS_ENTRIES \
-  ELLISSS(CONT) \
-  ELLISSS(DONE) \
-  ELLISSS(ERROR) \
-  /* End of ELLIS_STREAM_STATUS_ENTRIES */
+#define ELLIS_PROGRESS_STATE_ENTRIES \
+  ELLISSSS(CONTINUE) \
+  ELLISSSS(STOP) \
+  ELLISSSS(ERROR) \
+  /* End of ELLIS_PROGRESS_STATE_ENTRIES */
 
-enum class stream_status {
-#define ELLISSS(X) X,
-ELLIS_STREAM_STATUS_ENTRIES
-#undef ELLISSS
+enum class progress_state {
+#define ELLISSSS(X) X,
+ELLIS_PROGRESS_STATE_ENTRIES
+#undef ELLISSSS
 };
 
-static const char * k_stream_status_names[] = {
-#define ELLISSS(X) #X,
-ELLIS_STREAM_STATUS_ENTRIES
-#undef ELLISSS
+static const char * k_progress_state_names[] = {
+#define ELLISSSS(X) #X,
+ELLIS_PROGRESS_STATE_ENTRIES
+#undef ELLISSSS
 };
 
-static inline const char * enum_name(stream_status x)
+static inline const char * enum_name(progress_state x)
 {
-  return k_stream_status_names[(int)x];
+  return k_progress_state_names[(int)x];
 }
 
 
-/*  ____  _
- * / ___|| |_ _ __ ___  __ _ _ __ ___
- * \___ \| __| '__/ _ \/ _` | '_ ` _ \
- *  ___) | |_| | |  __/ (_| | | | | | |
- * |____/ \__|_|  \___|\__,_|_| |_| |_|
- *
- *  ____
+
+/*  ____
  * |  _ \ _ __ ___   __ _ _ __ ___  ___ ___
  * | |_) | '__/ _ \ / _` | '__/ _ \/ __/ __|
  * |  __/| | | (_) | (_| | | |  __/\__ \__ \
  * |_|   |_|  \___/ \__, |_|  \___||___/___/
  *                  |___/
- *
- * This is like stream_status, but it also holds the error details.
  */
 
-class stream_progress {
-  stream_status m_status;
-  unique_ptr<err> m_err;
+
+/** This class is used for returning the state of progress along with, if
+ * present, the details of any error encountered, or in the case of a complete
+ * result, the result as well.
+ */
+template <typename RESULT>
+class progress {
+  using uptr_res = std::unique_ptr<RESULT>;
+  using uptr_err = std::unique_ptr<err>;
+  progress_state m_state;
+  union {
+    uptr_res m_res;
+    uptr_err m_err;
+  };
 
 public:
-  explicit stream_progress(unique_ptr<err> e) :
-    m_status(stream_status::ERROR),
-    m_err(std::move(e))
+  explicit progress(uptr_err e) :
+    m_state(progress_state::ERROR)
   {
+    new (&m_err) uptr_err(std::move(e));
   }
 
-  explicit stream_progress(stream_status st) :
-    m_status(st),
-    m_err()
+  explicit progress(uptr_res r) :
+    m_state(progress_state::STOP)
   {
-    ELLIS_ASSERT(st != stream_status::ERROR);
+    new (&m_res) uptr_res(std::move(r));
   }
 
-  stream_progress(stream_progress &&o)
+  explicit progress(progress_state st) :
+    m_state(st)
+  {
+    ELLIS_ASSERT(st != progress_state::ERROR);
+    ELLIS_ASSERT(st != progress_state::STOP);
+  }
+
+  progress(progress &&o) noexcept
   {
     *this = std::move(o);
   }
 
-  stream_progress & operator=(stream_progress &&o)
+  ~progress() noexcept
+  {
+    if (m_state == progress_state::ERROR) {
+      m_err.~uptr_err();
+    }
+    else if (m_state == progress_state::STOP) {
+      m_res.~uptr_res();
+    }
+  }
+
+  progress & operator=(progress &&o) noexcept
   {
     if (this != &o) {
-      m_err = std::move(o.m_err);
-      m_status = o.m_status;
+      m_state = o.m_state;
+      o.m_state = progress_state::CONTINUE;
+      if (m_state == progress_state::ERROR) {
+        new (&m_err) uptr_err(std::move(o.m_err));
+      }
+      else if (m_state == progress_state::STOP) {
+        new (&m_res) uptr_res(std::move(o.m_res));
+      }
     }
     return *this;
   }
 
-  stream_status stat() const
+  progress_state state() const
   {
-    return m_status;
+    return m_state;
   }
 
-  unique_ptr<err> extract_error() {
-    return std::move(m_err);
+  uptr_err extract_error() {
+    if (m_state == progress_state::ERROR) {
+      return std::move(m_err);
+    } else {
+      return {};
+    }
+  }
+
+  uptr_res extract_result() {
+    if (m_state == progress_state::STOP) {
+      return std::move(m_res);
+    } else {
+      return {};
+    }
   }
 };
 
+using node_progress = progress<node>;
 
 
 /*  _____     _              _                    _        _
@@ -373,7 +412,7 @@ struct json_parser_state {
   string m_key;
   json_tok m_thistok;
   const char * m_thistokstr;
-  stream_status m_ststat;
+  progress_state m_ststat;
 
   json_parser_state() {
     reset();
@@ -383,7 +422,7 @@ struct json_parser_state {
     m_key.clear();
     m_syms.clear();
     m_nodes.clear();
-    m_ststat = stream_status::CONT;
+    m_ststat = progress_state::CONTINUE;
     m_syms.push_back(json_sym(json_nts::VAL));
   }
 
@@ -397,13 +436,6 @@ struct json_parser_state {
     auto n = m_nodes.back();
     m_nodes.pop_back();
     m_nodes.back().as_mutable_map().insert(m_key, n);
-  }
-
-  unique_ptr<node> extract_node() {
-    if (m_nodes.empty()) {
-      return nullptr;
-    }
-    return unique_ptr<node>(new node(m_nodes[0]));
   }
 };
 
@@ -665,7 +697,7 @@ public:
     m_state.reset();
   }
 
-  stream_progress progdoom(const char *msg)
+  node_progress progdoom(const char *msg)
   {
     ELLIS_LOG(DBUG, "This json parse is doomed--%s", msg);
     /* TODO: improve this message as well as char position etc in caller. */
@@ -681,30 +713,33 @@ public:
       }
     }
     os << " " << msg;
-    m_state.m_ststat = stream_status::ERROR;
-    return stream_progress(unique_ptr<err>(
+    m_state.m_ststat = progress_state::ERROR;
+    return node_progress(unique_ptr<err>(
           new MAKE_ELLIS_ERR(err_code::TODO, os.str())));
   }
 
-  stream_progress progmore()
+  node_progress progmore()
   {
     ELLIS_LOG(DBUG, "This json parse is continuing...");
-    m_state.m_ststat = stream_status::CONT;
-    return stream_progress(stream_status::CONT);
+    m_state.m_ststat = progress_state::CONTINUE;
+    return node_progress(progress_state::CONTINUE);
   }
 
-  stream_progress progdone()
+  node_progress progdone()
   {
     ELLIS_LOG(DBUG, "This json parse is done!");
-    m_state.m_ststat = stream_status::DONE;
-    return stream_progress(stream_status::DONE);
+    m_state.m_ststat = progress_state::STOP;
+    ELLIS_ASSERT_EQ(m_state.m_nodes.size(), 1);
+    unique_ptr<node> ret(new node(m_state.m_nodes[0]));
+    m_state.m_nodes.clear();
+    return node_progress(std::move(ret));
   }
 
   /** Accept a new token, continue parsing and building the deserialized form.
    *
    * Returns true if document has been successfully built.
    */
-  stream_progress accept_token(json_tok tok, const char *tokstr) {
+  node_progress accept_token(json_tok tok, const char *tokstr) {
     m_state.m_thistok = tok;
     m_state.m_thistokstr = tokstr;
 
@@ -766,16 +801,6 @@ public:
     }
     return progdoom("there is some sort of loop in the production rules");
   }
-
-  unique_ptr<node> extract_node()
-  {
-    ELLIS_LOG(DBUG, "Extracting parsed node");
-    ELLIS_ASSERT(m_state.m_ststat == stream_status::DONE);
-    ELLIS_ASSERT_EQ(m_state.m_nodes.size(), 1);
-    unique_ptr<node> ret(new node(m_state.m_nodes[0]));
-    m_state.m_nodes.clear();
-    return ret;
-  }
 };
 
 
@@ -791,7 +816,7 @@ public:
 
 class json_tokenizer {
 public:
-  using tokcb_t = std::function<stream_progress(
+  using tokcb_t = std::function<node_progress(
       json_tok &tok, const char *str)>;
   json_tok_state m_tokstate;
   std::ostringstream m_txt;
@@ -825,40 +850,33 @@ public:
     m_tokstate = json_tok_state::INIT;
   }
 
-  stream_progress progdoom(const char *msg)
+  node_progress progdoom(const char *msg)
   {
     ELLIS_LOG(DBUG, "This json tokenizer is doomed--%s", msg);
     m_tokstate = json_tok_state::ERROR;
-    return stream_progress(unique_ptr<err>(
+    return node_progress(unique_ptr<err>(
           new MAKE_ELLIS_ERR(err_code::TODO, msg)));
   }
 
-  stream_progress progmore()
+  node_progress progmore()
   {
     ELLIS_LOG(DBUG, "This json tokenizer is continuing");
-    return stream_progress(stream_status::CONT);
+    return node_progress(progress_state::CONTINUE);
   }
 
-  stream_progress progdone()
-  {
-    ELLIS_LOG(DBUG, "This json tokenizer is done");
-    m_tokstate = json_tok_state::END;
-    return stream_progress(stream_status::DONE);
-  }
-
-  stream_progress emit_token(json_tok tok)
+  node_progress emit_token(json_tok tok)
   {
     ELLIS_LOG(DBUG, "Emitting token %s to parser", enum_name(tok));
     if (tok == json_tok::ERROR) {
       return progdoom("invalid token");
     }
-    stream_progress rv = m_tokcb(tok, m_txt.str().c_str());
+    node_progress rv = m_tokcb(tok, m_txt.str().c_str());
     ELLIS_LOG(DBUG, "Post token emission cleanup");
     _clear_txt();
-    if (rv.stat() == stream_status::ERROR) {
+    if (rv.state() == progress_state::ERROR) {
       m_tokstate = json_tok_state::ERROR;
     }
-    else if (rv.stat() == stream_status::DONE) {
+    else if (rv.state() == progress_state::STOP) {
       m_tokstate = json_tok_state::END;
     }
     else {
@@ -891,14 +909,14 @@ public:
 
   /** Return the overall stream progress reflecting downstream consumption
    * of tokens pursuant to node construction. */
-  stream_progress accept_eos() {
+  node_progress accept_eos() {
     ELLIS_LOG(DBUG, "Tokenizer received EOS (end of stream)");
     switch (m_tokstate) {
       case json_tok_state::INIT:
         return progmore();
 
       case json_tok_state::END:
-        return progdone();
+        return progdoom("already returned result");
 
       case json_tok_state::ERROR:
         return progdoom("error previously encountered");
@@ -933,7 +951,7 @@ public:
     ELLIS_ASSERT_UNREACHABLE();
   }
 
-  stream_progress start_new_token(char ch) {
+  node_progress start_new_token(char ch) {
     ELLIS_LOG(DBUG, "Starting new token based on character (%02X)", (int)ch);
     if (isspace(ch)) {
       /* do nothing--ignore whitespace here. */
@@ -991,12 +1009,12 @@ public:
 
   /** Emit the given token type, and start on a new token beginning with the
    * given character. */
-  stream_progress advance_token(
+  node_progress advance_token(
       json_tok current_tok,
       char nextch)
   {
     auto rv = emit_token(current_tok);
-    if (rv.stat() == stream_status::CONT) {
+    if (rv.state() == progress_state::CONTINUE) {
       /* Some patterns (e.g. 0,2) are acceptable but others (e.g. 0"hey")
        * may never occur in the language; still, it is the parser's job to deal
        * with such issues.  We'll start a new token if it looks like we
@@ -1007,7 +1025,7 @@ public:
     }
   }
 
-  stream_progress accept_char(char ch) {
+  node_progress accept_char(char ch) {
     ELLIS_LOG(DBUG, "Tokenizer accepting character (%02X), current state %s",
         (int)ch, enum_name(m_tokstate));
     switch (m_tokstate) {
@@ -1020,7 +1038,7 @@ public:
           m_tokstate = json_tok_state::ESC;
         }
         else if (ch == '"') {
-          m_tokstate = json_tok_state::END;
+          m_tokstate = json_tok_state::INIT;
           return emit_token(json_tok::STRING);
         }
         else {
@@ -1224,7 +1242,7 @@ public:
         break;
 
       case json_tok_state::END:
-        return progdone();
+        return progdoom("already returned result");
         break;
 
       case json_tok_state::ERROR:
@@ -1310,12 +1328,13 @@ decoding_status json_decoder::consume_buffer(
   const byte *p_end = buf + *bytecount;
   for (const byte *p = buf; p < p_end; p++) {
     auto st = m_toker->accept_char(*p);
-    ELLIS_LOG(DBUG, "Tokenizer state: %s", enum_name(st.stat()));
-    if (st.stat() == stream_status::DONE) {
+    ELLIS_LOG(DBUG, "Tokenizer state: %s", enum_name(st.state()));
+    if (st.state() == progress_state::STOP) {
       *bytecount = p_end - p;
+      m_node = st.extract_result();
       return decoding_status::END;
     }
-    else if (st.stat() == stream_status::ERROR) {
+    else if (st.state() == progress_state::ERROR) {
       *bytecount = p_end - p;
       m_err = st.extract_error();
       return decoding_status::ERROR;
@@ -1330,17 +1349,20 @@ decoding_status json_decoder::terminate_stream()
   /* Send EOS to tokenizer. */
   auto st = m_toker->accept_eos();
 
-  if (st.stat() == stream_status::ERROR) {
+  if (st.state() == progress_state::ERROR) {
     if (! m_err) {
       m_err = st.extract_error();
       return decoding_status::ERROR;
     }
   }
-  else if (st.stat() == stream_status::CONT) {
+  else if (st.state() == progress_state::CONTINUE) {
     if (! m_err) {
       m_err.reset(new MAKE_ELLIS_ERR(err_code::TODO, "truncated input"));
       return decoding_status::ERROR;
     }
+  }
+  else {
+    m_node = st.extract_result();
   }
   return decoding_status::END;
 }
@@ -1349,7 +1371,7 @@ unique_ptr<node> json_decoder::extract_node()
 {
   ELLIS_LOG(DBUG, "Extracting node from decoder (will send EOS to tokenizer)");
 
-  return m_parser->extract_node();
+  return std::move(m_node);
 }
 
 unique_ptr<err> json_decoder::extract_error()
