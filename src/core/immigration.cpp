@@ -9,7 +9,7 @@ namespace ellis {
 
 unique_ptr<node> load(
     sync_input_stream *in,
-    stream_decoder *deco,
+    decoder *deco,
     unique_ptr<err> *err_ret)
 {
   ELLIS_ASSERT(err_ret != nullptr);

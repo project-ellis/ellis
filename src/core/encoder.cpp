@@ -1,4 +1,4 @@
-#include <ellis/core/stream_encoder.hpp>
+#include <ellis/core/encoder.hpp>
 
 #include <ellis/core/system.hpp>
 

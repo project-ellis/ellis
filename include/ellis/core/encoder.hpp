@@ -1,12 +1,12 @@
 /*
- * @file ellis/core/stream_encoder.hpp
+ * @file ellis/core/encoder.hpp
  *
  * @brief Ellis TBD C++ header.
  */
 
 #pragma once
-#ifndef ELLIS_CORE_STREAM_ENCODER_HPP_
-#define ELLIS_CORE_STREAM_ENCODER_HPP_
+#ifndef ELLIS_CORE_ENCODER_HPP_
+#define ELLIS_CORE_ENCODER_HPP_
 
 #include <ellis/core/defs.hpp>
 #include <ellis/core/disposition.hpp>
@@ -24,7 +24,7 @@ std::ostream & operator<<(std::ostream & os, const array_node & v);
  * This abstract base class (interface) is used to encode/pack/serialize
  * JSON-encoded data from an in-memory ellis node into the provided buffers.
  */
-class stream_encoder {
+class encoder {
 public:
   /**
    * This function is called by the data stream to tell the encoder it may
@@ -52,10 +52,10 @@ public:
    */
   virtual void reset(const node *new_node) = 0;
 
-  virtual ~stream_encoder() {}
+  virtual ~encoder() {}
 };
 
 
 }  /* namespace ellis */
 
-#endif  /* ELLIS_CORE_STREAM_ENCODER_HPP_ */
+#endif  /* ELLIS_CORE_ENCODER_HPP_ */

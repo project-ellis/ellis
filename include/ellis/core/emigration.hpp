@@ -10,7 +10,7 @@
 
 #include <ellis/core/err.hpp>
 #include <ellis/core/node.hpp>
-#include <ellis/core/stream_encoder.hpp>
+#include <ellis/core/encoder.hpp>
 #include <ellis/core/sync_output_stream.hpp>
 #include <memory>
 
@@ -28,7 +28,7 @@ namespace ellis {
 bool dump(
     const node *nod,
     sync_output_stream *out,
-    stream_encoder *enco,
+    encoder *enco,
     std::unique_ptr<err> *err_ret);
 
 

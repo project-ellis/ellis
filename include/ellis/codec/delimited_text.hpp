@@ -11,14 +11,14 @@
 #include <ellis/core/defs.hpp>
 #include <ellis/core/err.hpp>
 #include <ellis/core/node.hpp>
-#include <ellis/core/stream_decoder.hpp>
-#include <ellis/core/stream_encoder.hpp>
+#include <ellis/core/decoder.hpp>
+#include <ellis/core/encoder.hpp>
 #include <sstream>
 
 namespace ellis {
 
 
-class delimited_text_decoder : public stream_decoder {
+class delimited_text_decoder : public decoder {
   std::unique_ptr<node> m_node;
   std::ostringstream m_ss;
 
@@ -40,7 +40,7 @@ public:
 };
 
 
-class delimited_text_encoder : public stream_encoder {
+class delimited_text_encoder : public encoder {
   std::stringstream m_ss;
   size_t m_sspos = 0;
   size_t m_ssend = 0;

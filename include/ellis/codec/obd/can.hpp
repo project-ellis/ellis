@@ -15,14 +15,13 @@
 #include <ellis/core/defs.hpp>
 #include <ellis/core/err.hpp>
 #include <ellis/core/node.hpp>
-#include <ellis/core/stream_decoder.hpp>
-#include <ellis/core/stream_encoder.hpp>
+#include <ellis/core/decoder.hpp>
 
 namespace ellis {
 namespace obd {
 
 
-class can_decoder : public stream_decoder {
+class can_decoder : public decoder {
   std::unique_ptr<node> m_node;
   std::unique_ptr<err> m_err;
 

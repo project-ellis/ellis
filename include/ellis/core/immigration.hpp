@@ -9,7 +9,7 @@
 #define ELLIS_CORE_IMMIGRATION_HPP_
 
 #include <ellis/core/err.hpp>
-#include <ellis/core/stream_decoder.hpp>
+#include <ellis/core/decoder.hpp>
 #include <ellis/core/sync_input_stream.hpp>
 #include <memory>
 
@@ -28,7 +28,7 @@ namespace ellis {
  */
 std::unique_ptr<node> load(
     sync_input_stream *in,
-    stream_decoder *deco,
+    decoder *deco,
     std::unique_ptr<err> *err_ret);
 
 
@@ -54,14 +54,14 @@ std::unique_ptr<node> load(TSTREAM &&in, TDECODER &&deco)
 /** Synchronous (blocking) load from an open socket/fd. */
 std::unique_ptr<node> load_fd(
     int fd,
-    stream_decoder *deco,
+    decoder *deco,
     std::unique_ptr<err> *err_ret);
 
 
 /** Synchronous (blocking) load from a file. */
 std::unique_ptr<node> load_file(
     const char *filename,
-    stream_decoder *deco,
+    decoder *deco,
     std::unique_ptr<err> *err_ret);
 
 
@@ -69,14 +69,14 @@ std::unique_ptr<node> load_file(
 std::unique_ptr<node> load_mem(
     byte *buf,
     size_t len,
-    stream_decoder *deco,
+    decoder *deco,
     std::unique_ptr<err> *err_ret);
 
 
 /** Synchronous (blocking) load from a stream. */
 std::unique_ptr<node> load_stream(
     std::istream &is,
-    stream_decoder *deco,
+    decoder *deco,
     std::unique_ptr<err> *err_ret);
 
 

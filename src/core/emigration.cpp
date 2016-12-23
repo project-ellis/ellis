@@ -10,7 +10,7 @@ namespace ellis {
 bool dump(
     const node *nod,
     sync_output_stream *out,
-    stream_encoder *enco,
+    encoder *enco,
     unique_ptr<err> *err_ret)
 {
   enco->reset(nod);

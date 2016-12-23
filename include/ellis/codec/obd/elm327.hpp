@@ -15,13 +15,12 @@
 #include <ellis/core/defs.hpp>
 #include <ellis/core/err.hpp>
 #include <ellis/core/node.hpp>
-#include <ellis/core/stream_decoder.hpp>
-#include <ellis/core/stream_encoder.hpp>
+#include <ellis/core/decoder.hpp>
 
 namespace ellis {
 namespace obd {
 
-class elm327_decoder : public stream_decoder {
+class elm327_decoder : public decoder {
   std::unique_ptr<node> m_node;
 
   /** Makes an OBD II node from a given byte sequence.

@@ -11,8 +11,8 @@
 #include <ellis/core/defs.hpp>
 #include <ellis/core/err.hpp>
 #include <ellis/core/node.hpp>
-#include <ellis/core/stream_decoder.hpp>
-#include <ellis/core/stream_encoder.hpp>
+#include <ellis/core/decoder.hpp>
+#include <ellis/core/encoder.hpp>
 #include <sstream>
 
 namespace ellis {
@@ -21,7 +21,7 @@ namespace ellis {
 class json_parser;
 class json_tokenizer;
 
-class json_decoder : public stream_decoder {
+class json_decoder : public decoder {
 
   std::unique_ptr<json_tokenizer> m_toker;
   std::unique_ptr<json_parser> m_parser;
@@ -37,7 +37,7 @@ public:
 };
 
 
-class json_encoder : public stream_encoder {
+class json_encoder : public encoder {
   std::stringstream m_obuf;
   size_t m_obufpos = 0;
   size_t m_obufend = 0;
