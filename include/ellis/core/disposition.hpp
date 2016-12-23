@@ -122,6 +122,9 @@ public:
 
 /* Common types of dispositions. */
 
+using progress =
+  disposition<stream_state, bool, std::unique_ptr<err>>;
+
 using node_progress =
   disposition<stream_state, std::unique_ptr<node>, std::unique_ptr<err>>;
 

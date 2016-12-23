@@ -21,7 +21,6 @@ namespace ellis {
 class delimited_text_decoder : public stream_decoder {
   std::unique_ptr<node> m_node;
   std::ostringstream m_ss;
-  std::unique_ptr<err> m_err;
 
   void _clear_ss();
 
@@ -43,7 +42,6 @@ public:
 
 class delimited_text_encoder : public stream_encoder {
   std::stringstream m_ss;
-  std::unique_ptr<err> m_err;
   size_t m_sspos = 0;
   size_t m_ssend = 0;
 
@@ -51,15 +49,10 @@ class delimited_text_encoder : public stream_encoder {
 
 public:
   delimited_text_encoder();
-
   ~delimited_text_encoder();
-
-  encoding_status fill_buffer(
+  progress fill_buffer(
       byte *buf,
       size_t *bytecount) override;
-
-  std::unique_ptr<err> extract_error() override;
-
   void reset(const node *new_node) override;
 };
 

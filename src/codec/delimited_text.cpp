@@ -67,7 +67,7 @@ delimited_text_encoder::~delimited_text_encoder()
 {
 }
 
-encoding_status delimited_text_encoder::fill_buffer(
+progress delimited_text_encoder::fill_buffer(
     byte *buf,
     size_t *bytecount)
 {
@@ -77,14 +77,9 @@ encoding_status delimited_text_encoder::fill_buffer(
   m_sspos += actual_bc;
   *bytecount = actual_bc;
   if (m_sspos == m_ssend) {
-    return encoding_status::END;
+    return progress(true);
   }
-  return encoding_status::CONTINUE;
-}
-
-unique_ptr<err> delimited_text_encoder::extract_error()
-{
-  return std::move(m_err);
+  return progress(stream_state::CONTINUE);
 }
 
 void delimited_text_encoder::reset(const node *new_node)

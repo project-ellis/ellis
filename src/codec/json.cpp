@@ -1219,31 +1219,7 @@ void json_encoder::_clear_obuf() {
   m_obuf.clear();
 }
 
-json_encoder::json_encoder()
-{
-}
-
-encoding_status json_encoder::fill_buffer(
-    byte *buf,
-    size_t *bytecount)
-{
-  size_t ss_avail = m_obufend - m_obufpos;
-  size_t actual_bc = std::min(*bytecount, ss_avail);
-  m_obuf.read((char *)buf, actual_bc);
-  m_obufpos += actual_bc;
-  *bytecount = actual_bc;
-  if (m_obufpos == m_obufend) {
-    return encoding_status::END;
-  }
-  return encoding_status::CONTINUE;
-}
-
-unique_ptr<err> json_encoder::extract_error()
-{
-  return std::move(m_err);
-}
-
-void json_encoder::stream_out(const node &n, std::ostream &os) {
+void json_encoder::_stream_out(const node &n, std::ostream &os) {
   switch (n.get_type()) {
     case type::NIL:
       os << "null";
@@ -1275,7 +1251,7 @@ void json_encoder::stream_out(const node &n, std::ostream &os) {
             os << ", ";
           }
           separate = true;
-          stream_out(a[i], os);
+          _stream_out(a[i], os);
         }
         os << " ]";
       }
@@ -1289,7 +1265,7 @@ void json_encoder::stream_out(const node &n, std::ostream &os) {
         for (size_t i = 0; i < a.length(); i++) {
           byte b = a[i];
           os << "x" << hex_digit(b >> 8) << hex_digit(b & 15);
-          stream_out(a[i], os);
+          _stream_out(a[i], os);
         }
         os << "]";
       }
@@ -1307,7 +1283,7 @@ void json_encoder::stream_out(const node &n, std::ostream &os) {
           }
           separate = true;
           os << '"' << k << '"' << ": ";
-          stream_out(a[k], os);
+          _stream_out(a[k], os);
         }
         os << " }";
       }
@@ -1315,11 +1291,30 @@ void json_encoder::stream_out(const node &n, std::ostream &os) {
   }
 }
 
+json_encoder::json_encoder()
+{
+}
+
+progress json_encoder::fill_buffer(
+    byte *buf,
+    size_t *bytecount)
+{
+  size_t ss_avail = m_obufend - m_obufpos;
+  size_t actual_bc = std::min(*bytecount, ss_avail);
+  m_obuf.read((char *)buf, actual_bc);
+  m_obufpos += actual_bc;
+  *bytecount = actual_bc;
+  if (m_obufpos == m_obufend) {
+    return progress(true);
+  }
+  return progress(stream_state::CONTINUE);
+}
+
 void json_encoder::reset(const node *new_node)
 {
   _clear_obuf();
 
-  stream_out(*new_node, m_obuf);
+  _stream_out(*new_node, m_obuf);
   m_obuf.flush();
   m_obufpos = 0;
   m_obufend = m_obuf.tellp();

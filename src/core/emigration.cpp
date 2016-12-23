@@ -30,13 +30,13 @@ bool dump(
       return false;
     }
     // TODO: switch to switch
-    if (st == encoding_status::END) {
+    if (st.state() == stream_state::SUCCESS) {
       return true;
     }
-    else if (st == encoding_status::ERROR) {
-      *err_ret = std::move(enco->extract_error());
+    else if (st.state() == stream_state::ERROR) {
+      *err_ret = std::move(st.extract_error());
     }
-    else if (st == encoding_status::CONTINUE) {
+    else if (st.state() == stream_state::CONTINUE) {
       continue;
     }
     else {

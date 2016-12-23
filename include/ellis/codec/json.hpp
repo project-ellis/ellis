@@ -39,19 +39,17 @@ public:
 
 class json_encoder : public stream_encoder {
   std::stringstream m_obuf;
-  std::unique_ptr<err> m_err;
   size_t m_obufpos = 0;
   size_t m_obufend = 0;
 
   void _clear_obuf();
+  void _stream_out(const node &n, std::ostream &os);
 
 public:
   json_encoder();
-  encoding_status fill_buffer(
+  progress fill_buffer(
       byte *buf,
       size_t *bytecount) override;
-  std::unique_ptr<err> extract_error() override;
-  void stream_out(const node &n, std::ostream &os);
   void reset(const node *new_node) override;
 };
 
