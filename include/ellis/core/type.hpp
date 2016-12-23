@@ -34,14 +34,14 @@ enum class type {
   U8STR = 4,
   ARRAY = 5,
   BINARY = 6,
-  MAP = 7
+  MAP = 7,
+  enum_max = MAP
 };
 
 
 /**
  * Get a string description for a given type.
  */
-// TODO: rename to overloaded enum_name for template and macro convenience?
 const char *type_str(type t);
 
 
@@ -55,10 +55,13 @@ const char *type_str(type t);
  */
 
 
+/**
+ * An enum differentiating the various states of production/consumption.
+ */
 enum class stream_state {
-  CONTINUE,
-  SUCCESS,
-  ERROR,
+  CONTINUE,   //<<< Working intermediate state--more data needed--keep going.
+  SUCCESS,    //<<< An entity has completed (e.g. a value deserialized).
+  ERROR,      //<<< Production or consumption interrupted due to error.
   enum_max = ERROR
 };
 
@@ -68,6 +71,14 @@ enum class stream_state {
  */
 const char * enum_name(stream_state x);
 
+
+/**
+ * Iostream insertion operator for stream_state.
+ *
+ * This is here so that for example an ELLIS_ASSERT_EQ on two stream_state
+ * values can show the pretty names rather than numbers when the two states
+ * do not match.
+ */
 std::ostream & operator<<(std::ostream & os, const stream_state &s);
 
 

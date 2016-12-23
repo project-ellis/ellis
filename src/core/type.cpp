@@ -7,37 +7,6 @@
 namespace ellis {
 
 
-const char *type_str(type t)
-{
-  switch (t) {
-    case type::NIL:
-      return "NIL";
-
-    case type::BOOL:
-      return "BOOL";
-
-    case type::INT64:
-      return "INT64";
-
-    case type::DOUBLE:
-      return "DOUBLE";
-
-    case type::U8STR:
-      return "U8STR";
-
-    case type::ARRAY:
-      return "ARRAY";
-
-    case type::BINARY:
-      return "BINARY";
-
-    case type::MAP:
-      return "MAP";
-  }
-  ELLIS_ASSERT_UNREACHABLE();
-}
-
-
 /** We're going to do macro tricks here, while leaving the header clean.
  *
  * Thus the following list needs to match what's in the header, but we double
@@ -46,6 +15,39 @@ const char *type_str(type t)
  * enum, and we also have a switch statement that would yield a compiler
  * warning if there were a mismatch.   The static_assert protects us in case
  * the compiler warnings should ever not work as intended. */
+#define DATUM_TYPES \
+  ENTRY(NIL) \
+  ENTRY(BOOL) \
+  ENTRY(INT64) \
+  ENTRY(DOUBLE) \
+  ENTRY(U8STR) \
+  ENTRY(ARRAY) \
+  ENTRY(BINARY) \
+  ENTRY(MAP) \
+  /* End of DATUM_TYPES */
+
+/** A helper function to count the number of enums passed to it. */
+template<type... T>
+constexpr int count_args() { return sizeof...(T); }
+
+#define ENTRY(X) type::X,
+static_assert(count_args<DATUM_TYPES type::enum_max>()
+    == (int)type::enum_max + 2,
+    "DATUM_TYPES does not match type enum");
+#undef ENTRY
+
+const char *type_str(type x)
+{
+  switch (x) {
+#define ENTRY(X) case type::X: return #X;
+  DATUM_TYPES
+#undef ENTRY
+  }
+  ELLIS_ASSERT_UNREACHABLE();
+}
+
+
+/* Same tricks as above for a different type. */
 #define STREAM_STATES \
   ENTRY(CONTINUE) \
   ENTRY(SUCCESS) \
@@ -59,7 +61,7 @@ constexpr int count_args() { return sizeof...(T); }
 #define ENTRY(X) stream_state::X,
 static_assert(count_args<STREAM_STATES stream_state::enum_max>()
     == (int)stream_state::enum_max + 2,
-    "STREAM_STATES does not match stream_states enum");
+    "STREAM_STATES does not match stream_state enum");
 #undef ENTRY
 
 const char *enum_name(stream_state x)
