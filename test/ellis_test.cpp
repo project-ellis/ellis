@@ -150,7 +150,7 @@ static void primitivetest()
     try {
       fn();
     } catch(const err &e) {
-      if (e.code() == err_code::WRONG_TYPE) {
+      if (e.code() == err_code::TYPE_MISMATCH) {
         threw = true;
       }
     }
@@ -274,7 +274,7 @@ static void arraytest()
     ELLIS_ASSERT_TRUE(f.as_array().is_empty());
     try {
       ac[0];
-    } catch (const std::out_of_range &) {
+    } catch (const err &) {
       hit = true;
     }
     ELLIS_ASSERT_EQ(hit, true);

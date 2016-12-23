@@ -14,7 +14,8 @@ namespace ellis {
 file_input_stream::file_input_stream(const char *filename) {
   m_fd = open(filename, O_RDONLY);
   if (m_fd < 0) {
-    throw MAKE_ELLIS_ERR(TODO, filename);
+    // TODO: map errno for more specifics
+    THROW_ELLIS_ERR(IO, "bad pathname: " << filename);
   }
   //m_fdis.reset(new fd_input_stream(m_fd));
 }

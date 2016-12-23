@@ -18,20 +18,79 @@
 namespace ellis {
 
 
+/*   ____                           _
+ *  / ___|___  _ ____   _____ _ __ (_) ___ _ __   ___ ___
+ * | |   / _ \| '_ \ \ / / _ \ '_ \| |/ _ \ '_ \ / __/ _ \
+ * | |__| (_) | | | \ V /  __/ | | | |  __/ | | | (_|  __/
+ *  \____\___/|_| |_|\_/ \___|_| |_|_|\___|_| |_|\___\___|
+ *
+ *
+ *  _ __ ___   __ _  ___ _ __ ___  ___
+ * | '_ ` _ \ / _` |/ __| '__/ _ \/ __|
+ * | | | | | | (_| | (__| | | (_) \__ \
+ * |_| |_| |_|\__,_|\___|_|  \___/|___/
+ *
+ *
+ * (Using these macros will improve maintainability).
+ */
+
+// TODO: doxygen comments with examples.
 #define MAKE_ELLIS_ERR(CODE, MSG) \
-  err(err_code::CODE, __FILE__, __LINE__, ELLIS_SSTRING(MSG))
+  err(err_code::CODE, __FILE__, __LINE__, \
+      ELLIS_SSTRING("ERROR:" #CODE ": " << MSG))
+
+#define MAKE_UNIQUE_ELLIS_ERR(CODE, MSG) \
+  std::make_unique<ellis::err>(err_code::CODE, __FILE__, __LINE__, \
+      ELLIS_SSTRING("ERROR:" #CODE ": " << MSG))
+
+#define THROW_ELLIS_ERR(CODE, MSG) \
+  throw MAKE_ELLIS_ERR(CODE, MSG)
+
+
+
+/*  _____                                     _
+ * | ____|_ __ _ __ ___  _ __    ___ ___   __| | ___  ___
+ * |  _| | '__| '__/ _ \| '__|  / __/ _ \ / _` |/ _ \/ __|
+ * | |___| |  | | | (_) | |    | (_| (_) | (_| |  __/\__ \
+ * |_____|_|  |_|  \___/|_|     \___\___/ \__,_|\___||___/
+ *
+ */
 
 
 enum class err_code {
-  WRONG_TYPE = 4096,
-  TYPE_MISMATCH = 4097,
-  PARSING_ERROR = 4098,
-  NOT_MERGED = 4099,
-  PATH_ERROR = 4100,
-  TODO = 4101,  // for rapid prototyping only, do not leave these in code...
-  CODEC_INTERNAL = 4102,
-  INVALID_PARAM = 4103,
+  /* Abnormal errors, which usually require bug fixes. */
+  TODO = 4101,          //<<< For rapid prototyping only, must replace...
+  INTERNAL = 4102,      //<<< A non-asserting internal problem (e.g. in codec).
+
+  /* Probably the fault of the callee. */
+  COLLISION = 4201,     //<<< Unexpected collision that should not occur.
+  OVER_LOAD = 4202,     //<<< System too busy, but request might succeed later.
+  OVER_CAPACITY = 4203, //<<< Capacity has been exhausted, e.g. storage space.
+  IO = 4204,            //<<< I/O error.
+
+  /* Probably the fault of the caller. */
+  TYPE_MISMATCH = 4301, //<<< Parameter(s) have bad or mismatched type.
+  INVALID_ARGS = 4302,  //<<< Parameter(s) are invalid (singly or collectively).
+  POLICY_FAIL = 4303,   //<<< Violation of policy (e.g. map merge policy).
+  NOT_PERMITTED = 4304, //<<< Insufficient privileges.
+  NO_SUCH = 4305,       //<<< The specified entity is non-existant.
+  ALREADY = 4306,       //<<< The specified entity already present.
+  EXPIRED = 4307,       //<<< Expiration exceeded, or timeout expired.
+  SCHEMA_FAIL = 4308,   //<<< Violation of schema.
+  PARSE_FAIL = 4309,    //<<< Invalid bytestream presented to decoder.
+  TRANSLATE_FAIL = 4310,//<<< Encoding format can not express the value(s).
+  PATH_FAIL = 4311,     //<<< Invalid path.
 };
+
+
+
+/*  _____                             _     _           _
+ * | ____|_ __ _ __ ___  _ __    ___ | |__ (_) ___  ___| |_
+ * |  _| | '__| '__/ _ \| '__|  / _ \| '_ \| |/ _ \/ __| __|
+ * | |___| |  | | | (_) | |    | (_) | |_) | |  __/ (__| |_
+ * |_____|_|  |_|  \___/|_|     \___/|_.__// |\___|\___|\__|
+ *                                       |__/
+ */
 
 
 class err : public std::runtime_error {

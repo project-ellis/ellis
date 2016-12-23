@@ -30,7 +30,7 @@ byte hex_val(byte val)
   }
   else {
     const string &msg = ELLIS_SSTRING("value " << val << " is not a valid hex char");
-    throw MAKE_ELLIS_ERR(PARSING_ERROR, msg);
+    THROW_ELLIS_ERR(PARSE_FAIL, msg);
   }
 }
 
@@ -53,22 +53,22 @@ node elm327_decoder::make_obd_node(const byte *start, size_t bytecount)
   static constexpr size_t smallest_node = sizeof("MM PP")-1;
   static constexpr size_t largest_node = sizeof("MM PP AA BB CC DD")-1;
   if (bytecount < smallest_node) {
-    const string &msg = ELLIS_SSTRING("OBD II node length " << bytecount << " is too small");
-    throw MAKE_ELLIS_ERR(PARSING_ERROR, msg);
+    THROW_ELLIS_ERR(PARSE_FAIL,
+        "OBD II node length " << bytecount << " is too small");
   }
   else if (bytecount > largest_node) {
-    const string &msg = ELLIS_SSTRING("OBD II node length " << bytecount << " is too large");
-    throw MAKE_ELLIS_ERR(PARSING_ERROR, msg);
+    THROW_ELLIS_ERR(PARSE_FAIL,
+        "OBD II node length " << bytecount << " is too large");
   }
   const byte *end = start + bytecount;
   for (const byte *p = start; p <= end-2; p += 3) {
     if (! ( isxdigit(*p) && isxdigit(*(p+1)) ) ) {
-      const string &msg = ELLIS_SSTRING("OBD II node has non-hex digits");
-      throw MAKE_ELLIS_ERR(PARSING_ERROR, msg);
+      THROW_ELLIS_ERR(PARSE_FAIL,
+          "OBD II node has non-hex digits");
     }
     if ((p < end-2) && (*(p+2) != ' ')) {
-      const string &msg = ELLIS_SSTRING("OBD II node is not space-separated");
-      throw MAKE_ELLIS_ERR(PARSING_ERROR, msg);
+      THROW_ELLIS_ERR(PARSE_FAIL,
+          "OBD II node is not space-separated");
     }
   }
 
@@ -115,9 +115,8 @@ node_progress elm327_decoder::consume_buffer(
     size_t *bytecount)
 {
   if (bytecount == nullptr || *bytecount == 0) {
-    return node_progress(make_unique<err>(MAKE_ELLIS_ERR(
-            PARSING_ERROR,
-            "Cannot parse empty OBD II node")));
+    return node_progress(MAKE_UNIQUE_ELLIS_ERR(PARSE_FAIL,
+            "Cannot parse empty OBD II node"));
   }
 
   /* We assume that if there are multiple responses coming from the ELM327, then

@@ -23,7 +23,7 @@ namespace ellis {
 #define VERIFY_TYPE(typ) \
   do { \
     if (get_type() != type::typ) { \
-      throw MAKE_ELLIS_ERR(WRONG_TYPE, "not " #typ); \
+      THROW_ELLIS_ERR(TYPE_MISMATCH, "not " #typ); \
     } \
   } while (0)
 
@@ -104,9 +104,9 @@ bool operator op(const node &a, const node &b) \
     return a.as_double() op b.as_double(); \
   } \
   else { \
-    const string &msg = ELLIS_SSTRING("types " << type_str(a_type) << " and " << type_str(b_type) << "can't be " #verb); \
-    throw MAKE_ELLIS_ERR( \
-        TYPE_MISMATCH, msg); \
+    THROW_ELLIS_ERR( TYPE_MISMATCH, \
+        "types " << type_str(a_type) << " and " << type_str(b_type) \
+        << "can't be " #verb); \
   } \
 }
 
@@ -132,8 +132,9 @@ node operator op(const node &a, const node &b) \
     return node(a.as_double() op b.as_double()); \
   } \
   else { \
-    const string &msg = ELLIS_SSTRING("types " << type_str(a_type) << " and " << type_str(b_type) << "can't be " #verb); \
-    throw MAKE_ELLIS_ERR( TYPE_MISMATCH, msg); \
+    THROW_ELLIS_ERR( TYPE_MISMATCH, \
+        "types " << type_str(a_type) << " and " << type_str(b_type) \
+        << "can't be " #verb); \
   } \
 } \
 node node::operator op##=(const node &o) \
@@ -147,8 +148,9 @@ node node::operator op##=(const node &o) \
     as_mutable_double() += o.as_double(); \
   } \
   else { \
-    const string &msg = ELLIS_SSTRING("types " << type_str(this_type) << " and " << type_str(o_type) << "can't be " #verb); \
-    throw MAKE_ELLIS_ERR( TYPE_MISMATCH, msg); \
+    THROW_ELLIS_ERR( TYPE_MISMATCH, \
+        "types " << type_str(this_type) << " and " << type_str(o_type) \
+        << "can't be " #verb); \
   } \
   return *this; \
 }
@@ -653,10 +655,9 @@ const node & node::at_path(const std::string &path) const
 
 #define BOOM(msg) \
   do { \
-    const string &err_msg = ELLIS_SSTRING( \
+    THROW_ELLIS_ERR(PATH_FAIL, \
       "path access failure at position " << (curr - path_start) \
       << " of path " << path << ": " << msg); \
-    throw MAKE_ELLIS_ERR(PATH_ERROR, err_msg); \
   } while (0)
 
   const node *v = this;

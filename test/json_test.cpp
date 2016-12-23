@@ -84,7 +84,7 @@ int main() {
     bool threw = false;
     try {
       load(c, dec);
-    } catch (err e) {
+    } catch (const err &e) {
       threw = true;
     }
     ELLIS_ASSERT(threw);

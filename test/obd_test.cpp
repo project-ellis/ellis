@@ -17,7 +17,7 @@ int main() {
     try {
       fn();
     } catch(const err &e) {
-      if (e.code() == err_code::PARSING_ERROR) {
+      if (e.code() == err_code::PARSE_FAIL) {
         threw = true;
       }
     }

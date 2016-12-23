@@ -1,7 +1,7 @@
 #include <ellis/core/array_node.hpp>
 
+#include <ellis/core/err.hpp>
 #include <ellis/core/node.hpp>
-#include <ellis/core/system.hpp>
 #include <ellis_private/core/payload.hpp>
 #include <ellis_private/using.hpp>
 
@@ -24,7 +24,7 @@ array_node::~array_node()
 node& array_node::operator[](size_t index)
 {
   if (index >= GETARR.size()) {
-    throw std::out_of_range("array index out of bounds");
+    THROW_ELLIS_ERR(INVALID_ARGS, "array index out of bounds");
   }
   return GETARR[index];
 }
@@ -33,7 +33,7 @@ node& array_node::operator[](size_t index)
 const node& array_node::operator[](size_t index) const
 {
   if (index >= GETARR.size()) {
-    throw std::out_of_range("array index out of bounds");
+    THROW_ELLIS_ERR(INVALID_ARGS, "array index out of bounds");
   }
   return GETARR[index];
 }

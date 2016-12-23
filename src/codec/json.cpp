@@ -11,9 +11,6 @@
 // TODO: support binary blobs
 
 
-#define ETHROW(CODE, MSG) throw new MAKE_ELLIS_ERR(CODE, MSG)
-
-
 namespace ellis {
 
 
@@ -36,9 +33,8 @@ static inline int unhex_digit(byte b)
     return b - 'a' + 10;
   }
   else {
-    throw new MAKE_ELLIS_ERR(INVALID_PARAM,
-        "invalid hex char");
-        //"invalid hex char (dec " << (unsigned int)b << ")");
+    THROW_ELLIS_ERR(INVALID_ARGS,
+        "not a hexadecimal char (dec " << (unsigned int)b << ")");
   }
 }
 
@@ -47,9 +43,8 @@ static const char * k_hexdigits = "0123456789abcdef";
 static inline char hex_digit(int i)
 {
   if (i < 0 || i > 15) {
-    throw new MAKE_ELLIS_ERR(INVALID_PARAM,
-        "hex digit index is out of range");
-        //"hex digit index (dec " << i << ") is out of range");
+    THROW_ELLIS_ERR(INVALID_ARGS,
+        "digit (dec " << i << ") out of hexadecimal range");
   }
   return k_hexdigits[i];
 }
@@ -481,7 +476,16 @@ class json_parser {
       }
       else {
         /* Uh oh, it's already equal to set to a different rule! */
-        ETHROW(CODEC_INTERNAL, "rule matrix conflict");
+        THROW_ELLIS_ERR(INTERNAL,
+            "rule conflict: rule matrix for NTS ("
+            << enum_name(json_nts(ntsidx))
+            << ") vs token ("
+            << enum_name(json_tok(tokidx))
+            << ") covered by two different rules ("
+            << ruleidx <<
+            " and "
+            << m_rulematrix[ntsidx][tokidx]
+            << ")");
       }
     };
 
@@ -495,9 +499,7 @@ class json_parser {
         /* Skip rules that don't lead directly to initial tokens. */
         continue;
       }
-      if (! update_map((int)rule.m_lhs, (int)(rule.m_rhs[0].tok()), ruleidx)) {
-        ETHROW(CODEC_INTERNAL, "multiple rules map NTS directly to same token");
-      }
+      update_map((int)rule.m_lhs, (int)(rule.m_rhs[0].tok()), ruleidx);
     }
 
     /* Update rule matrix with indirectly induced entries (i.e. an NTS maps
@@ -560,7 +562,7 @@ public:
     }
     os << " " << msg;
     return node_progress(unique_ptr<err>(
-          new MAKE_ELLIS_ERR(PARSING_ERROR, os.str())));
+          new MAKE_ELLIS_ERR(PARSE_FAIL, os.str())));
   }
 
   node_progress progmore()
@@ -698,7 +700,7 @@ public:
     ELLIS_LOG(DBUG, "This json tokenizer is doomed--%s", msg);
     m_tokstate = json_tok_state::ERROR;
     return node_progress(unique_ptr<err>(
-          new MAKE_ELLIS_ERR(PARSING_ERROR, msg)));
+          new MAKE_ELLIS_ERR(PARSE_FAIL, msg)));
   }
 
   node_progress progmore()
@@ -1171,8 +1173,8 @@ node_progress json_decoder::cleave()
 
   ELLIS_LOG(DBUG, "Tokenizer state: %s", enum_name(st.state()));
   if (st.state() == stream_state::CONTINUE) {
-    return node_progress(make_unique<err>(
-          MAKE_ELLIS_ERR(PARSING_ERROR, "truncated input")));
+    return node_progress(
+          MAKE_UNIQUE_ELLIS_ERR(PARSE_FAIL, "truncated input"));
   }
   return st;
 }

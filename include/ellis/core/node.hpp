@@ -314,25 +314,25 @@ class node {
 
   /** Get contents as an bool.
    *
-   * Will throw WRONG_TYPE error if type is not convertible.
+   * Will throw TYPE_MISMATCH error if type is not convertible.
    */
   const bool & as_bool() const;
 
   /** Get contents as an int64_t.
    *
-   * Will throw WRONG_TYPE error if type is not convertible.
+   * Will throw TYPE_MISMATCH error if type is not convertible.
    */
   const int64_t & as_int64() const;
 
   /** Get contents as a double.
    *
-   * Will throw WRONG_TYPE error if type is not convertible.
+   * Will throw TYPE_MISMATCH error if type is not convertible.
    */
   const double & as_double() const;
 
   /** Provide access to UTF-8 string contents.
    *
-   * Will throw WRONG_TYPE error if type is not U8STR.
+   * Will throw TYPE_MISMATCH error if type is not U8STR.
    */
   const std::string & as_u8str() const;
   const char * as_u8cstr() const;
@@ -341,7 +341,7 @@ class node {
    *
    * See array_node.hpp for more information.
    *
-   * Will throw WRONG_TYPE error if type is not ARRAY.
+   * Will throw TYPE_MISMATCH error if type is not ARRAY.
    */
   const array_node & as_array() const;
 
@@ -349,7 +349,7 @@ class node {
    *
    * See map_node.hpp for more information.
    *
-   * Will throw WRONG_TYPE error if type is not MAP.
+   * Will throw TYPE_MISMATCH error if type is not MAP.
    */
   const map_node & as_map() const;
 
@@ -357,7 +357,7 @@ class node {
    *
    * See binary_node.hpp for more information.
    *
-   * Will throw WRONG_TYPE error if type is not BINARY.
+   * Will throw TYPE_MISMATCH error if type is not BINARY.
    */
   const binary_node & as_binary() const;
 
