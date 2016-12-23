@@ -130,6 +130,7 @@ enum class json_tok_state {
 #define TOKSTAT(X) X,
 ELLIS_JSON_TOK_STATE_ENTRIES
 #undef TOKSTAT
+  enum_max = ERROR
 };
 
 static const char * k_json_tok_state_names[] = {
@@ -160,17 +161,6 @@ static inline const char * enum_name(json_tok_state x)
  */
 
 
-/** This emax function is a templated function meant to return the integer
- * corresponding to the maximum element in a particular simple enum class
- * (one which does not manually specify non-contiguous integral values),
- * by way of specializing the template for the particular class. */
-
-template <typename T>
-constexpr int emax();
-
-/* TODO: use emax as part of templatizing the LL parser for other
- * uses besides JSON. */
-
 #define ELLIS_JSON_TOK_ENTRIES \
   JSONTOK(LEFT_CURLY) \
   JSONTOK(RIGHT_CURLY) \
@@ -192,6 +182,7 @@ enum class json_tok {
 #define JSONTOK(X) X,
 ELLIS_JSON_TOK_ENTRIES
 #undef JSONTOK
+  enum_max = ERROR
 };
 
 static const char * k_json_tok_names[] = {
@@ -204,10 +195,6 @@ static inline const char * enum_name(json_tok x)
 {
   return k_json_tok_names[(int)x];
 }
-
-// TODO: probably can find a way to do this automatically
-template <>
-constexpr int emax<json_tok>() { return (int)json_tok::ERROR; }
 
 #define ELLIS_JSON_NTS_ENTRIES \
   JSONNTS(VAL) \
@@ -225,6 +212,7 @@ enum class json_nts {
 #define JSONNTS(X) X,
 ELLIS_JSON_NTS_ENTRIES
 #undef JSONNTS
+  enum_max = ERROR
 };
 
 static const char * k_json_nts_names[] = {
@@ -237,9 +225,6 @@ static inline const char * enum_name(json_nts x)
 {
   return k_json_nts_names[(int)x];
 }
-
-template <>
-constexpr int emax<json_nts>() { return (int)json_nts::ERROR; }
 
 
 template <typename TOKTYPE, typename NTSTYPE>
@@ -450,7 +435,7 @@ class json_parser {
   /* The rule matrix tells you which rule to apply when you have a particular
    * NTS (non-terminating symbol) on the top of the stack, and you are
    * presented with a particular token (i.e. terminating symbol). */
-  array<array<int, emax<json_tok>()+1 >, emax<json_nts>()+1 > m_rulematrix;
+  array<array<int, (int)json_tok::enum_max+1 >, (int)json_nts::enum_max+1 > m_rulematrix;
 
   /** Initialize the rule matrix based on the rules.
    *
@@ -468,8 +453,8 @@ class json_parser {
   {
     ELLIS_LOG(NOTI, "Initializing json parse rule matrix");
     /* Initialize rule matrix with -1 values (i.e. no rule). */
-    for (int ntsidx = 0; ntsidx <= emax<json_nts>(); ntsidx ++) {
-      for (int tokidx = 0; tokidx <= emax<json_tok>(); tokidx ++) {
+    for (int ntsidx = 0; ntsidx <= (int)json_nts::enum_max; ntsidx ++) {
+      for (int tokidx = 0; tokidx <= (int)json_tok::enum_max; tokidx ++) {
         m_rulematrix[ntsidx][tokidx] = -1;
       }
     }
@@ -478,9 +463,9 @@ class json_parser {
      * rule matrix.  Returns true iff rule matrix was updated. */
     auto update_map = [this](int ntsidx, int tokidx, int ruleidx) {
       ELLIS_ASSERT_GTE(ntsidx, 0);
-      ELLIS_ASSERT_LTE(ntsidx, emax<json_nts>());
+      ELLIS_ASSERT_LTE(ntsidx, (int)json_nts::enum_max);
       ELLIS_ASSERT_GTE(tokidx, 0);
-      ELLIS_ASSERT_LTE(tokidx, emax<json_tok>());
+      ELLIS_ASSERT_LTE(tokidx, (int)json_tok::enum_max);
       if (m_rulematrix[ntsidx][tokidx] == -1) {
         ELLIS_LOG(INFO, "Updating rule matrix: %s vs %s uses rule %d (%s)",
             enum_name(json_nts(ntsidx)), enum_name(json_tok(tokidx)),
@@ -530,7 +515,7 @@ class json_parser {
         }
         int rhidx = (int)(rule.m_rhs[0].nts());
         /* Loop over all the tokens that the intermediate NTS can reach. */
-        for (int tokidx = 0; tokidx <= emax<json_tok>(); tokidx++) {
+        for (int tokidx = 0; tokidx <= (int)json_tok::enum_max; tokidx++) {
           if (m_rulematrix[rhidx][tokidx] >= 0) {
             if (update_map((int)rule.m_lhs, tokidx, ruleidx)) {
               changes++;
