@@ -30,7 +30,7 @@ byte hex_val(byte val)
   }
   else {
     const string &msg = ELLIS_SSTRING("value " << val << " is not a valid hex char");
-    throw MAKE_ELLIS_ERR(err_code::PARSING_ERROR, msg);
+    throw MAKE_ELLIS_ERR(PARSING_ERROR, msg);
   }
 }
 
@@ -54,21 +54,21 @@ node elm327_decoder::make_obd_node(const byte *start, size_t bytecount)
   static constexpr size_t largest_node = sizeof("MM PP AA BB CC DD")-1;
   if (bytecount < smallest_node) {
     const string &msg = ELLIS_SSTRING("OBD II node length " << bytecount << " is too small");
-    throw MAKE_ELLIS_ERR(err_code::PARSING_ERROR, msg);
+    throw MAKE_ELLIS_ERR(PARSING_ERROR, msg);
   }
   else if (bytecount > largest_node) {
     const string &msg = ELLIS_SSTRING("OBD II node length " << bytecount << " is too large");
-    throw MAKE_ELLIS_ERR(err_code::PARSING_ERROR, msg);
+    throw MAKE_ELLIS_ERR(PARSING_ERROR, msg);
   }
   const byte *end = start + bytecount;
   for (const byte *p = start; p <= end-2; p += 3) {
     if (! ( isxdigit(*p) && isxdigit(*(p+1)) ) ) {
       const string &msg = ELLIS_SSTRING("OBD II node has non-hex digits");
-      throw MAKE_ELLIS_ERR(err_code::PARSING_ERROR, msg);
+      throw MAKE_ELLIS_ERR(PARSING_ERROR, msg);
     }
     if ((p < end-2) && (*(p+2) != ' ')) {
       const string &msg = ELLIS_SSTRING("OBD II node is not space-separated");
-      throw MAKE_ELLIS_ERR(err_code::PARSING_ERROR, msg);
+      throw MAKE_ELLIS_ERR(PARSING_ERROR, msg);
     }
   }
 
@@ -116,7 +116,7 @@ node_progress elm327_decoder::consume_buffer(
 {
   if (bytecount == nullptr || *bytecount == 0) {
     return node_progress(make_unique<err>(MAKE_ELLIS_ERR(
-            err_code::PARSING_ERROR,
+            PARSING_ERROR,
             "Cannot parse empty OBD II node")));
   }
 

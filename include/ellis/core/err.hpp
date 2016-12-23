@@ -10,6 +10,7 @@
 #ifndef ELLIS_CORE_ERR_HPP_
 #define ELLIS_CORE_ERR_HPP_
 
+#include <ellis/core/system.hpp>
 #include <stdexcept>
 #include <string>
 
@@ -18,7 +19,7 @@ namespace ellis {
 
 
 #define MAKE_ELLIS_ERR(CODE, MSG) \
-  err(CODE, __FILE__, __LINE__, (MSG))
+  err(err_code::CODE, __FILE__, __LINE__, ELLIS_SSTRING(MSG))
 
 
 enum class err_code {
@@ -27,7 +28,9 @@ enum class err_code {
   PARSING_ERROR = 4098,
   NOT_MERGED = 4099,
   PATH_ERROR = 4100,
-  TODO = 4101  // for rapid prototyping only, do not leave these in code...
+  TODO = 4101,  // for rapid prototyping only, do not leave these in code...
+  CODEC_INTERNAL = 4102,
+  INVALID_PARAM = 4103,
 };
 
 

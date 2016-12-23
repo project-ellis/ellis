@@ -23,7 +23,7 @@ namespace ellis {
 #define VERIFY_TYPE(typ) \
   do { \
     if (get_type() != type::typ) { \
-      throw MAKE_ELLIS_ERR(err_code::WRONG_TYPE, "not " #typ); \
+      throw MAKE_ELLIS_ERR(WRONG_TYPE, "not " #typ); \
     } \
   } while (0)
 
@@ -106,7 +106,7 @@ bool operator op(const node &a, const node &b) \
   else { \
     const string &msg = ELLIS_SSTRING("types " << type_str(a_type) << " and " << type_str(b_type) << "can't be " #verb); \
     throw MAKE_ELLIS_ERR( \
-        err_code::TYPE_MISMATCH, msg); \
+        TYPE_MISMATCH, msg); \
   } \
 }
 
@@ -133,7 +133,7 @@ node operator op(const node &a, const node &b) \
   } \
   else { \
     const string &msg = ELLIS_SSTRING("types " << type_str(a_type) << " and " << type_str(b_type) << "can't be " #verb); \
-    throw MAKE_ELLIS_ERR( err_code::TYPE_MISMATCH, msg); \
+    throw MAKE_ELLIS_ERR( TYPE_MISMATCH, msg); \
   } \
 } \
 node node::operator op##=(const node &o) \
@@ -148,7 +148,7 @@ node node::operator op##=(const node &o) \
   } \
   else { \
     const string &msg = ELLIS_SSTRING("types " << type_str(this_type) << " and " << type_str(o_type) << "can't be " #verb); \
-    throw MAKE_ELLIS_ERR( err_code::TYPE_MISMATCH, msg); \
+    throw MAKE_ELLIS_ERR( TYPE_MISMATCH, msg); \
   } \
   return *this; \
 }
@@ -656,7 +656,7 @@ const node & node::at_path(const std::string &path) const
     const string &err_msg = ELLIS_SSTRING( \
       "path access failure at position " << (curr - path_start) \
       << " of path " << path << ": " << msg); \
-    throw MAKE_ELLIS_ERR(err_code::PATH_ERROR, err_msg); \
+    throw MAKE_ELLIS_ERR(PATH_ERROR, err_msg); \
   } while (0)
 
   const node *v = this;

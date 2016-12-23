@@ -11,7 +11,7 @@
 // TODO: support binary blobs
 
 
-#define ETHROW(CODE, MSG) throw new MAKE_ELLIS_ERR(err_code::CODE, MSG)
+#define ETHROW(CODE, MSG) throw new MAKE_ELLIS_ERR(CODE, MSG)
 
 
 namespace ellis {
@@ -24,21 +24,21 @@ static char ord(int n)
   return (char)(unsigned char)n;
 }
 
-static inline int unhex_digit(char ch)
+static inline int unhex_digit(byte b)
 {
-  if (ch >= 0 && ch <= 9) {
-    return ch - '0';
+  if (b >= '0' && b <= '9') {
+    return b - '0';
   }
-  else if (ch >= 'A' && ch <= 'F') {
-    return ch - 'A';
+  else if (b >= 'A' && b <= 'F') {
+    return b - 'A' + 10;
   }
-  else if (ch >= 'a' && ch <= 'f') {
-    return ch - 'a';
+  else if (b >= 'a' && b <= 'f') {
+    return b - 'a' + 10;
   }
   else {
-    ELLIS_ASSERT_UNREACHABLE();
-    // TODO: or, we could return -1, but then we have to make sure the callers
-    // all check for this... need a plan that isn't error prone.
+    throw new MAKE_ELLIS_ERR(INVALID_PARAM,
+        "invalid hex char");
+        //"invalid hex char (dec " << (unsigned int)b << ")");
   }
 }
 
@@ -46,8 +46,11 @@ static const char * k_hexdigits = "0123456789abcdef";
 
 static inline char hex_digit(int i)
 {
-  ELLIS_ASSERT_GTE(i, 0);
-  ELLIS_ASSERT_LTE(i, 15);
+  if (i < 0 || i > 15) {
+    throw new MAKE_ELLIS_ERR(INVALID_PARAM,
+        "hex digit index is out of range");
+        //"hex digit index (dec " << i << ") is out of range");
+  }
   return k_hexdigits[i];
 }
 
@@ -478,7 +481,7 @@ class json_parser {
       }
       else {
         /* Uh oh, it's already equal to set to a different rule! */
-        ETHROW(TODO, "rule matrix conflict");
+        ETHROW(CODEC_INTERNAL, "rule matrix conflict");
       }
     };
 
@@ -493,7 +496,7 @@ class json_parser {
         continue;
       }
       if (! update_map((int)rule.m_lhs, (int)(rule.m_rhs[0].tok()), ruleidx)) {
-        ETHROW(TODO, "multiple rules map NTS directly to same token");
+        ETHROW(CODEC_INTERNAL, "multiple rules map NTS directly to same token");
       }
     }
 
@@ -551,19 +554,13 @@ public:
     ELLIS_LOG(DBUG, "This json parse is doomed--%s", msg);
     /* TODO: improve this message as well as char position etc in caller. */
     ostringstream os;
-    os << "parse error, m_syms:";
+    os << "parse error, parsing symbol stack was:";
     for (auto sym : m_state.m_syms) {
-      if (sym.is_tok()) {
-        /* TODO: string tables for enums. */
-        os << " TOK." << (int)(sym.tok());
-      }
-      else {
-        os << " NTS." << (int)(sym.nts());
-      }
+      os << " " << sym.name();
     }
     os << " " << msg;
     return node_progress(unique_ptr<err>(
-          new MAKE_ELLIS_ERR(err_code::TODO, os.str())));
+          new MAKE_ELLIS_ERR(PARSING_ERROR, os.str())));
   }
 
   node_progress progmore()
@@ -701,7 +698,7 @@ public:
     ELLIS_LOG(DBUG, "This json tokenizer is doomed--%s", msg);
     m_tokstate = json_tok_state::ERROR;
     return node_progress(unique_ptr<err>(
-          new MAKE_ELLIS_ERR(err_code::TODO, msg)));
+          new MAKE_ELLIS_ERR(PARSING_ERROR, msg)));
   }
 
   node_progress progmore()
@@ -1175,7 +1172,7 @@ node_progress json_decoder::cleave()
   ELLIS_LOG(DBUG, "Tokenizer state: %s", enum_name(st.state()));
   if (st.state() == stream_state::CONTINUE) {
     return node_progress(make_unique<err>(
-          MAKE_ELLIS_ERR(err_code::TODO, "truncated input")));
+          MAKE_ELLIS_ERR(PARSING_ERROR, "truncated input")));
   }
   return st;
 }

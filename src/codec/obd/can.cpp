@@ -62,7 +62,7 @@ node can_decoder::make_obd_node(const void *start)
     /* In SAE Standard, we must have 3 <= extra bytes <= 6. */
     const string &msg = ELLIS_SSTRING(
         "Non-SAE standard extra bytes field: " << resp->extra_bytes);
-    throw MAKE_ELLIS_ERR(err_code::PARSING_ERROR, msg);
+    throw MAKE_ELLIS_ERR(PARSING_ERROR, msg);
   }
   double dec_val = decode_value(resp->pid, data);
 
@@ -85,7 +85,7 @@ node_progress can_decoder::consume_buffer(
 {
   if (bytecount == nullptr || *bytecount == 0) {
   return node_progress(make_unique<err>(MAKE_ELLIS_ERR(
-        err_code::PARSING_ERROR, "Cannot parse empty OBD II node")));
+        PARSING_ERROR, "Cannot parse empty OBD II node")));
   }
 
   /* ECU responses are 8 bytes long. */
@@ -119,7 +119,7 @@ node_progress can_decoder::consume_buffer(
 node_progress can_decoder::cleave()
 {
   return node_progress(make_unique<err>(MAKE_ELLIS_ERR(
-        err_code::PARSING_ERROR, "TODO: martin verify should fail")));
+        PARSING_ERROR, "TODO: martin verify should fail")));
 }
 
 

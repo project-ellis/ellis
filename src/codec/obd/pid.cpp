@@ -80,7 +80,7 @@ std::string get_mode_string(uint16_t mode)
   if (mode < 0x40) {
     /* 0x40 should be added to the mode, so something is wrong. */
     const string &msg = ELLIS_SSTRING("Unknown mode " << mode);
-    throw MAKE_ELLIS_ERR(err_code::PARSING_ERROR, msg);
+    throw MAKE_ELLIS_ERR(PARSING_ERROR, msg);
   }
   else if (mode == 0x41) {
     return string("current");
@@ -91,7 +91,7 @@ std::string get_mode_string(uint16_t mode)
   else {
     /* We currently support only SAE Standard modes. */
     const string &msg = ELLIS_SSTRING("Non-SAE standard mode " << mode);
-    throw MAKE_ELLIS_ERR(err_code::PARSING_ERROR, msg);
+    throw MAKE_ELLIS_ERR(PARSING_ERROR, msg);
   }
 }
 
@@ -101,7 +101,7 @@ const char * get_pid_string(uint16_t pid)
   auto it = g_pid_map.find(pid);
   if (it == g_pid_map.end()) {
     const string &msg = ELLIS_SSTRING("Unrecognized PID " << pid);
-    throw MAKE_ELLIS_ERR(err_code::PARSING_ERROR, msg);
+    throw MAKE_ELLIS_ERR(PARSING_ERROR, msg);
   }
 
   return it->second.description;
