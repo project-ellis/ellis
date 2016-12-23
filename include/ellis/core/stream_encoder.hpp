@@ -9,6 +9,7 @@
 #define ELLIS_CORE_STREAM_ENCODER_HPP_
 
 #include <ellis/core/defs.hpp>
+#include <ellis/core/disposition.hpp>
 #include <ellis/core/err.hpp>
 #include <ellis/core/node.hpp>
 #include <memory>

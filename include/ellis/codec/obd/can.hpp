@@ -48,15 +48,11 @@ public:
    * In particular:
    * https://en.wikipedia.org/wiki/OBD-II_PIDs#Response
    */
-  decoding_status consume_buffer(
+  node_progress consume_buffer(
       const byte *buf,
       size_t *bytecount) override;
 
-  decoding_status terminate_stream() override;
-
-  std::unique_ptr<node> extract_node() override;
-
-  std::unique_ptr<err> extract_error() override;
+  node_progress cleave() override;
 
   void reset() override;
 };

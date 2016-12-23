@@ -15,14 +15,14 @@ unique_ptr<node> load(
   ELLIS_ASSERT(err_ret != nullptr);
   deco->reset();
   unique_ptr<node> rv;
-  auto st = decoding_status::CONTINUE;
-  while (st == decoding_status::CONTINUE) {
+  auto st = node_progress(stream_state::CONTINUE);
+  while (st.state() == stream_state::CONTINUE) {
     byte *buf = nullptr;
     size_t buf_remain = 0;
     /* Need another block; request it. */
     if (! in->next_input_buf(&buf, &buf_remain)) {
       /* No block available. */
-      st = deco->terminate_stream();
+      st = deco->cleave();
     }
     else {
       /* Block obtained. */
@@ -31,18 +31,18 @@ unique_ptr<node> load(
       /* Give block to decoder. */
       st = deco->consume_buffer(buf, &buf_remain);
     }
-    switch (st) {
-      case decoding_status::ERROR:
+    switch (st.state()) {
+      case stream_state::ERROR:
         in->put_back(buf_remain);
-        *err_ret = deco->extract_error();
+        *err_ret = st.extract_error();
         ELLIS_ASSERT(*err_ret);
         return nullptr;
 
-      case decoding_status::END:
+      case stream_state::SUCCESS:
         in->put_back(buf_remain);
-        return deco->extract_node();
+        return st.extract_value();
 
-      case decoding_status::CONTINUE:
+      case stream_state::CONTINUE:
         /* All the input should have been used; we're going to get more. */
         ELLIS_ASSERT_EQ(buf_remain, 0);
         break;

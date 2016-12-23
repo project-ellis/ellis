@@ -23,7 +23,6 @@ namespace obd {
 
 class elm327_decoder : public stream_decoder {
   std::unique_ptr<node> m_node;
-  std::unique_ptr<err> m_err;
 
   /** Makes an OBD II node from a given byte sequence.
    *
@@ -52,15 +51,11 @@ public:
    * https://en.wikipedia.org/wiki/ELM327
    * or more official sources :).
    */
-  decoding_status consume_buffer(
+  node_progress consume_buffer(
       const byte *buf,
       size_t *bytecount) override;
 
-  decoding_status terminate_stream() override;
-
-  std::unique_ptr<node> extract_node() override;
-
-  std::unique_ptr<err> extract_error() override;
+  node_progress cleave() override;
 
   void reset() override;
 };

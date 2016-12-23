@@ -3,4 +3,4 @@
 cd "$MESON_SOURCE_ROOT"
 exec clang-tidy $(find src -name '*.cpp') \
   -checks=*,-clang-analyzer-alpha.deadcode.UnreachableCode,-google-build-using-namespace,-google-readability-casting,-llvm-include-order \
-  -- -std=c++11 -Iinclude
+  -- -std=c++14 -Iinclude

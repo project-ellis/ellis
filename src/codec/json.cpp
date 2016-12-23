@@ -775,7 +775,7 @@ public:
    * disposition reflecting downstream consumption of tokens pursuant to node
    * reconstruction).
    */
-  node_progress stop() {
+  node_progress cleave() {
     ELLIS_LOG(DBUG, "Tokenizer received EOS (end of stream)");
     switch (m_tokstate) {
       case json_tok_state::INIT:
@@ -1163,48 +1163,7 @@ json_decoder::~json_decoder()
 {
 }
 
-//void json_decoder::_take_token(json_tok tok)
-//{
-//  /* Extract appropriate node. */
-//  unique_ptr<node> new_node;
-//  if (tok == json_tok::STRING) {
-//    new_node.reset(new node(m_txt.str()));
-//  }
-//  else if (tok == json_tok::INTEGER) {
-//    auto str = m_txt.str();
-//    char *endptr;
-//    new_node.reset(new node(strtol(str.c_str(), &endptr, 10)));
-//    if (endptr == str.c_str()) {
-//      // TODO: error
-//    }
-//  }
-//  else if (tok == json_tok::REAL) {
-//    auto str = m_txt.str();
-//    char *endptr;
-//    new_node.reset(new node(strtod(str.c_str(), &endptr)));
-//    if (endptr == str.c_str()) {
-//      // TODO: error
-//    }
-//  }
-//  else if (tok == json_tok::BAREWORD) {
-//    auto str == m_txt.str();
-//    if (str == "true") {
-//      new_node.reset(new node(true));
-//    }
-//    else if (str == "false") {
-//      new_node.reset(new node(false));
-//    }
-//    else if (str == "null") {
-//      new_node.reset(new node(type::NIL));
-//    }
-//    else {
-//      // TODO: error
-//    }
-//  }
-//
-//}
-
-decoding_status json_decoder::consume_buffer(
+node_progress json_decoder::consume_buffer(
     const byte *buf,
     size_t *bytecount)
 {
@@ -1213,55 +1172,27 @@ decoding_status json_decoder::consume_buffer(
   for (const byte *p = buf; p < p_end; p++) {
     auto st = m_toker->accept_char(*p);
     ELLIS_LOG(DBUG, "Tokenizer state: %s", enum_name(st.state()));
-    if (st.state() == stream_state::SUCCESS) {
+    if (st.state() == stream_state::SUCCESS
+        || st.state() == stream_state::ERROR) {
       *bytecount = p_end - p;
-      m_node = st.extract_value();
-      return decoding_status::END;
-    }
-    else if (st.state() == stream_state::ERROR) {
-      *bytecount = p_end - p;
-      m_err = st.extract_error();
-      return decoding_status::ERROR;
+      return st;
     }
   }
   *bytecount = 0;
-  return decoding_status::CONTINUE;
+  return node_progress(stream_state::CONTINUE);
 }
 
-decoding_status json_decoder::terminate_stream()
+node_progress json_decoder::cleave()
 {
   /* Send EOS to tokenizer. */
-  auto st = m_toker->stop();
+  auto st = m_toker->cleave();
 
-  if (st.state() == stream_state::ERROR) {
-    if (! m_err) {
-      m_err = st.extract_error();
-      return decoding_status::ERROR;
-    }
+  ELLIS_LOG(DBUG, "Tokenizer state: %s", enum_name(st.state()));
+  if (st.state() == stream_state::CONTINUE) {
+    return node_progress(make_unique<err>(
+          MAKE_ELLIS_ERR(err_code::TODO, "truncated input")));
   }
-  else if (st.state() == stream_state::CONTINUE) {
-    if (! m_err) {
-      m_err.reset(new MAKE_ELLIS_ERR(err_code::TODO, "truncated input"));
-      return decoding_status::ERROR;
-    }
-  }
-  else {
-    m_node = st.extract_value();
-  }
-  return decoding_status::END;
-}
-
-unique_ptr<node> json_decoder::extract_node()
-{
-  ELLIS_LOG(DBUG, "Extracting node from decoder (will send EOS to tokenizer)");
-
-  return std::move(m_node);
-}
-
-unique_ptr<err> json_decoder::extract_error()
-{
-  ELLIS_LOG(DBUG, "Extracting error from decoder");
-  return std::move(m_err);
+  return st;
 }
 
 void json_decoder::reset()

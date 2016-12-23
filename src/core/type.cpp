@@ -73,4 +73,10 @@ const char *enum_name(stream_state x)
 }
 
 
+std::ostream & operator<<(std::ostream & os, const stream_state &s)
+{
+  return os << enum_name(s);
+}
+
+
 }  /* namespace ellis */

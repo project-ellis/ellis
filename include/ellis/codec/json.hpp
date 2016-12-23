@@ -25,18 +25,14 @@ class json_decoder : public stream_decoder {
 
   std::unique_ptr<json_tokenizer> m_toker;
   std::unique_ptr<json_parser> m_parser;
-  std::unique_ptr<err> m_err;
-  std::unique_ptr<node> m_node;
 
 public:
   json_decoder();
   ~json_decoder();
-  decoding_status consume_buffer(
+  node_progress consume_buffer(
       const byte *buf,
       size_t *bytecount) override;
-  decoding_status terminate_stream() override;
-  std::unique_ptr<node> extract_node() override;
-  std::unique_ptr<err> extract_error() override;
+  node_progress cleave() override;
   void reset() override;
 };
 

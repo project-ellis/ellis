@@ -9,6 +9,7 @@
 #define ELLIS_CORE_TYPE_HPP_
 
 #include <memory>
+#include <ostream>
 
 namespace ellis {
 
@@ -66,6 +67,8 @@ enum class stream_state {
  * Get a string version of the given enum value.
  */
 const char * enum_name(stream_state x);
+
+std::ostream & operator<<(std::ostream & os, const stream_state &s);
 
 
 }  /* namespace ellis */

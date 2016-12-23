@@ -29,6 +29,7 @@ using std::function;
 using std::list;
 using std::make_pair;
 using std::make_shared;
+using std::make_unique;
 using std::map;
 using std::ostringstream;
 using std::pair;

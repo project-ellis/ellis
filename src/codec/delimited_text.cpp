@@ -19,7 +19,7 @@ delimited_text_decoder::delimited_text_decoder() :
 {
 }
 
-decoding_status delimited_text_decoder::consume_buffer(
+node_progress delimited_text_decoder::consume_buffer(
     const byte *buf,
     size_t *bytecount)
 {
@@ -35,29 +35,19 @@ decoding_status delimited_text_decoder::consume_buffer(
   }
   *bytecount = 0;
   if (m_ss.tellp() == 0) {
-    return decoding_status::END;
+    return node_progress(std::move(m_node));
   }
-  return decoding_status::CONTINUE;
+  return node_progress(stream_state::CONTINUE);
 }
 
-decoding_status delimited_text_decoder::terminate_stream()
+node_progress delimited_text_decoder::cleave()
 {
-  return decoding_status::END;
-}
-
-unique_ptr<node> delimited_text_decoder::extract_node()
-{
-  return std::move(m_node);
-}
-
-unique_ptr<err> delimited_text_decoder::extract_error()
-{
-  return std::move(m_err);
+  return node_progress(std::move(m_node));
 }
 
 void delimited_text_decoder::reset()
 {
-  m_node->as_mutable_array().clear();
+  m_node.reset(new node(type::ARRAY));
   _clear_ss();
 }
 

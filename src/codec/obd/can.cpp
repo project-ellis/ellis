@@ -14,6 +14,7 @@ namespace ellis {
 namespace obd {
 
 
+
 struct ecu_response {
   byte extra_bytes;
   byte mode;
@@ -78,20 +79,19 @@ node can_decoder::make_obd_node(const void *start)
 }
 
 
-decoding_status can_decoder::consume_buffer(
+node_progress can_decoder::consume_buffer(
     const byte *buf,
     size_t *bytecount)
 {
   if (bytecount == nullptr || *bytecount == 0) {
-    m_err.reset(
-      new MAKE_ELLIS_ERR(err_code::PARSING_ERROR, "Cannot parse empty OBD II node"));
-    return decoding_status::ERROR;
+  return node_progress(make_unique<err>(MAKE_ELLIS_ERR(
+        err_code::PARSING_ERROR, "Cannot parse empty OBD II node")));
   }
 
   /* ECU responses are 8 bytes long. */
   if (*bytecount < 8) {
     *bytecount = 0;
-    return decoding_status::CONTINUE;
+    return node_progress(stream_state::CONTINUE);
   }
 
   const byte *end = buf + *bytecount;
@@ -101,43 +101,31 @@ decoding_status can_decoder::consume_buffer(
       m_node->as_mutable_array().append(n);
     }
     catch (const err &e) {
-      m_err.reset(new err(e));
-      return decoding_status::ERROR;
+      return node_progress(make_unique<err>(e));
     }
   }
 
   if ((*bytecount % 8) != 0) {
     *bytecount = *bytecount - (8*(*bytecount/8));
-    return decoding_status::CONTINUE;
+    return node_progress(stream_state::CONTINUE);
   }
   else {
     *bytecount = 0;
-    return decoding_status::END;
+    return node_progress(std::move(m_node));
   }
 }
 
 
-decoding_status can_decoder::terminate_stream()
+node_progress can_decoder::cleave()
 {
-  return decoding_status::END;
-}
-
-
-std::unique_ptr<node> can_decoder::extract_node()
-{
-  return std::move(m_node);
-}
-
-
-std::unique_ptr<err> can_decoder::extract_error()
-{
-  return std::move(m_err);
+  return node_progress(make_unique<err>(MAKE_ELLIS_ERR(
+        err_code::PARSING_ERROR, "TODO: martin verify should fail")));
 }
 
 
 void can_decoder::reset()
 {
-  m_node->as_mutable_map().clear();
+  m_node.reset(new node(type::ARRAY));
 }
 
 

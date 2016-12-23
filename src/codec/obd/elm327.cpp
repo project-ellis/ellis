@@ -110,14 +110,14 @@ node elm327_decoder::make_obd_node(const byte *start, size_t bytecount)
 }
 
 
-decoding_status elm327_decoder::consume_buffer(
+node_progress elm327_decoder::consume_buffer(
     const byte *buf,
     size_t *bytecount)
 {
   if (bytecount == nullptr || *bytecount == 0) {
-    m_err.reset(
-      new MAKE_ELLIS_ERR(err_code::PARSING_ERROR, "Cannot parse empty OBD II node"));
-    return decoding_status::ERROR;
+    return node_progress(make_unique<err>(MAKE_ELLIS_ERR(
+            err_code::PARSING_ERROR,
+            "Cannot parse empty OBD II node")));
   }
 
   /* We assume that if there are multiple responses coming from the ELM327, then
@@ -143,8 +143,7 @@ decoding_status elm327_decoder::consume_buffer(
       m_node->as_mutable_array().append(n);
     }
     catch (const err &e) {
-      m_err.reset(new err(e));
-      return decoding_status::ERROR;
+      return node_progress(make_unique<err>(e));
     }
 
     start = p + 1;
@@ -152,35 +151,23 @@ decoding_status elm327_decoder::consume_buffer(
 
   if (last_newline < end-1) {
     *bytecount = end - last_newline;
-    return decoding_status::CONTINUE;
+    return node_progress(stream_state::CONTINUE);
   }
 
   *bytecount = 0;
-  return decoding_status::END;
+  return node_progress(std::move(m_node));
 }
 
 
-decoding_status elm327_decoder::terminate_stream()
+node_progress elm327_decoder::cleave()
 {
-  return decoding_status::END;
-}
-
-
-std::unique_ptr<node> elm327_decoder::extract_node()
-{
-  return std::move(m_node);
-}
-
-
-std::unique_ptr<err> elm327_decoder::extract_error()
-{
-  return std::move(m_err);
+  return node_progress(std::move(m_node));
 }
 
 
 void elm327_decoder::reset()
 {
-  m_node->as_mutable_map().clear();
+  m_node.reset(new node(type::ARRAY));
 }
 
 
