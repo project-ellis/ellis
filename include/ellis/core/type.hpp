@@ -1,17 +1,26 @@
 /*
- * @file ellis/core/type.h
+ * @file ellis/core/type.hpp
  *
  * @brief Ellis types C++ header.
- *
- * This is the C++ header for Ellis types.
  */
 
 #pragma once
 #ifndef ELLIS_CORE_TYPE_HPP_
 #define ELLIS_CORE_TYPE_HPP_
 
+#include <memory>
 
 namespace ellis {
+
+
+/*  ____        _                     _____
+ * |  _ \  __ _| |_ _   _ _ __ ___   |_   _|   _ _ __   ___
+ * | | | |/ _` | __| | | | '_ ` _ \    | || | | | '_ \ / _ \
+ * | |_| | (_| | |_| |_| | | | | | |   | || |_| | |_) |  __/
+ * |____/ \__,_|\__|\__,_|_| |_| |_|   |_| \__, | .__/ \___|
+ *                                         |___/|_|
+ */
+
 
 /**
  * An enum containing all the Ellis data types.
@@ -31,7 +40,32 @@ enum class type {
 /**
  * Get a string description for a given type.
  */
+// TODO: rename to overloaded enum_name for template and macro convenience?
 const char *type_str(type t);
+
+
+
+/*  ____  _                              ____  _        _
+ * / ___|| |_ _ __ ___  __ _ _ __ ___   / ___|| |_ __ _| |_ ___
+ * \___ \| __| '__/ _ \/ _` | '_ ` _ \  \___ \| __/ _` | __/ _ \
+ *  ___) | |_| | |  __/ (_| | | | | | |  ___) | || (_| | ||  __/
+ * |____/ \__|_|  \___|\__,_|_| |_| |_| |____/ \__\__,_|\__\___|
+ *
+ */
+
+
+enum class stream_state {
+  CONTINUE,
+  SUCCESS,
+  ERROR,
+  enum_max = ERROR
+};
+
+
+/**
+ * Get a string version of the given enum value.
+ */
+const char * enum_name(stream_state x);
 
 
 }  /* namespace ellis */
