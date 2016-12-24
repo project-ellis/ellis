@@ -11,13 +11,53 @@
     - *sudo install -o root -g root -m755 ninja /usr/bin/ninja*
 
 ## Build instructions
+
 ```
 mkdir build
 cd build
 meson ..
 ninja
 ```
-If you want to build from a directory besides *build*, you can run *ninja -C
-build*. Note additionally that if you prefer a directory besides build, you can
-use that too; meson doesn't care what directory you build from, as long as it
-gets its own directory.
+
+You can use `ninja` to rerun the build at any time, from any directory you like.
+
+For instance, to rebuild from the top level directory, use the ninja `-C`
+option to lead ninja to the build directory:
+
+```
+ninja -C build
+```
+
+Also, there is nothing special about the directory name `build`.  If you
+prefer a different name than `build`, this is not a problem, and you
+can have different build directories with different configurations; meson and
+ninja don't care.
+
+### Run tests
+
+```
+ninja test-valgrind
+```
+
+### Run all static analysis and style checking
+
+(Be aware that the below includes calls to cppcheck, clang-check, and clang-tidy,
+which requires that you have such things installed on your system).
+
+```
+ninja check
+```
+
+If you don't have clang installed, for instance, you can just run the
+`cppcheck` target.
+
+### Compiling via clang instead of gcc
+
+It's the usual meson methodology:
+
+```
+mkdir build.clang
+cd !$
+CC=clang CXX=clang++ meson ..
+ninja
+```
