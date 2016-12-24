@@ -1227,17 +1227,23 @@ void json_encoder::_stream_out(const node &n, std::ostream &os) {
 
     case type::ARRAY:
       {
-        os << "[ ";
+        os << "[";
         const auto &a = n.as_array();
         bool separate = false;
         for (size_t i = 0; i < a.length(); i++) {
           if (separate) {
             os << ", ";
           }
+          else {
+            os << " ";
+          }
           separate = true;
           _stream_out(a[i], os);
         }
-        os << " ]";
+        if (separate) {
+          os << " ";
+        }
+        os << "]";
       }
       return;
 
@@ -1257,7 +1263,7 @@ void json_encoder::_stream_out(const node &n, std::ostream &os) {
 
     case type::MAP:
       {
-        os << "{ ";
+        os << "{";
         const auto &a = n.as_map();
         bool separate = false;
         auto keys = a.keys();
@@ -1265,11 +1271,17 @@ void json_encoder::_stream_out(const node &n, std::ostream &os) {
           if (separate) {
             os << ", ";
           }
+          else {
+            os << " ";
+          }
           separate = true;
           os << '"' << k << '"' << ": ";
           _stream_out(a[k], os);
         }
-        os << " }";
+        if (separate) {
+          os << " ";
+        }
+        os << "}";
       }
       return;
   }

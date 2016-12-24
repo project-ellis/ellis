@@ -50,9 +50,9 @@ int main() {
   // ser_deser(R"("s\"im\"ple")");
   // ser_deser(R"("sim\nple")");
   // ser_deser(R"("sim\u2388ple")");
-  ser_deser(R"({  })");
-  ser_deser(R"({ "map": {  } })");
-  ser_deser(R"({ "map": [  ] })");
+  ser_deser(R"({})");
+  ser_deser(R"({ "map": {} })");
+  ser_deser(R"({ "map": [] })");
   ser_deser(R"({ "map": [ 0 ] })");
   ser_deser(R"({ "map": [ 1, 2 ] })");
   ser_deser(R"({ "map": null })");
@@ -60,8 +60,8 @@ int main() {
   ser_deser(R"({ "map": false })");
   ser_deser(R"({ "map": 42 })");
   ser_deser(R"({ "map": 42.200000 })");
-  ser_deser(R"([  ])");
-  ser_deser(R"([ [  ] ])");
+  ser_deser(R"([])");
+  ser_deser(R"([ [] ])");
   ser_deser(R"([ 1, 2, { "hello": "world" } ])");
 
   auto dec_fail = [&dec](const string &s) {
