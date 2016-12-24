@@ -34,15 +34,42 @@ namespace ellis {
  * (Using these macros will improve maintainability).
  */
 
-// TODO: doxygen comments with examples.
+
+/**
+ * Make an instance of ellis::err, using the provided error code and text.
+ *
+ * File, line, and function are automatically supplied based on the
+ * location in the code that called MAKE_ELLIS_ERR.
+ *
+ * The text may be a simple string, or a series << of << items to be sent to
+ * a stringstream in order to create the string, ala ELLIS_LOGS.
+ *
+ * For example:
+ *
+ *   e = MAKE_ELLIS_ERR(INVALID_ARGS, "x=" << x << " clashes w/ t=" << t);
+ *
+ * For throwing an ellis:err, please use the THROW_ELLIS_ERR macro below.
+ */
 #define MAKE_ELLIS_ERR(CODE, MSG) \
-  err(err_code::CODE, __FILE__, __LINE__, \
+  ellis::err(ellis::err_code::CODE, \
+      __FILE__, __LINE__, __FUNCTION__, \
       ELLIS_SSTRING("ERROR:" #CODE ": " << MSG))
 
+/**
+ * Make a unique_ptr to an ellis::err object.
+ *
+ * See MAKE_ELLIS_ERR, which is similar, for additional info.
+ */
 #define MAKE_UNIQUE_ELLIS_ERR(CODE, MSG) \
-  std::make_unique<ellis::err>(err_code::CODE, __FILE__, __LINE__, \
+  std::make_unique<ellis::err>(ellis::err_code::CODE, \
+      __FILE__, __LINE__, __FUNCTION__, \
       ELLIS_SSTRING("ERROR:" #CODE ": " << MSG))
 
+/**
+ * Throw an ellis:err.
+ *
+ * See MAKE_ELLIS_ERR, which is similar, for additional info.
+ */
 #define THROW_ELLIS_ERR(CODE, MSG) \
   throw MAKE_ELLIS_ERR(CODE, MSG)
 
@@ -99,12 +126,14 @@ public:
   err_code m_code;
   std::string m_file;
   int m_line;
+  std::string m_func;
 
 public:
   err(
       err_code code,
       const std::string &file,
       int line,
+      const std::string &func,
       const std::string &msg);
   err(const err &) = default;
   ~err();
@@ -122,6 +151,10 @@ public:
   /** Returns the line number of the location in the code that created the
    * error. */
   int line() const;
+
+  /** Returns the function name of the location in the code that created the
+   * error. */
+  std::string func() const;
 
   /** Returns the human-readable message associated with the error.  */
   std::string msg() const;
