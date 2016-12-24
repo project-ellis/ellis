@@ -17,67 +17,107 @@
 namespace ellis {
 
 
-/** Synchronous (blocking) load of an ellis node from the given input stream,
+/**
+ * Synchronous (blocking) load of an ellis node from the given input stream,
  * using the given decoder.
  *
  * On success, returns the newly constructed node.
  *
- * On failure, returns nullptr, and sets err_ret.
- *
- * @pre err_ret is not NULL.
+ * On failure, throws an ellis::err.
  */
 std::unique_ptr<node> load(
     sync_input_stream *in,
-    decoder *deco,
-    std::unique_ptr<err> *err_ret);
+    decoder *deco);
 
 
-/** Alternate versions that take references or rvalue references.
+/**
+ * Alternate templated version(s) of load (see above) that take regular
+ * references or rvalue references.
  *
- * This allows for the convenience of on-the-fly instantiation of particular
- * streams and codecs within the function call.
+ * Using rvalue references allows for construction of the codec and/or
+ * stream during function argument evaluation, for on-the-fly instantiation of
+ * a temporary stream and/or decoder, as a matter of convenience.
  *
- * TODO: reference search term regarding universal reference stuff.
+ * Using regular references allows for enduring codec or stream objects whose
+ * state is tracked across multiple calls.
+ *
+ * This flexibility is achieved via universal references (&&in and &&deco):
+ * https://isocpp.org/blog/2012/11/universal-references-in-c11-scott-meyers
  */
 template<typename TSTREAM, typename TDECODER>
 std::unique_ptr<node> load(TSTREAM &&in, TDECODER &&deco)
 {
-  std::unique_ptr<err> e;
-  std::unique_ptr<node> rv = load(&in, &deco, &e);
-  if (e) {
-    throw *e;
-  }
-  return rv;
+  return load((sync_input_stream*)&in, (decoder*)&deco);
 }
 
 
-/** Synchronous (blocking) load from an open socket/fd. */
+/**
+ * Synchronous (blocking) load from an open socket/fd.
+ *
+ * Similar behavior to load() above.
+ */
 std::unique_ptr<node> load_fd(
     int fd,
-    decoder *deco,
-    std::unique_ptr<err> *err_ret);
+    decoder *deco);
+
+/* See universal references above. */
+template<typename TDECODER>
+std::unique_ptr<node> load_fd(int fd, TDECODER &&deco)
+{
+  return load_fd(fd, (decoder*)&deco);
+}
 
 
-/** Synchronous (blocking) load from a file. */
+/**
+ * Synchronous (blocking) load from a file.
+ *
+ * Similar behavior to load() above.
+ */
 std::unique_ptr<node> load_file(
     const char *filename,
-    decoder *deco,
-    std::unique_ptr<err> *err_ret);
+    decoder *deco);
+
+/* See universal references above. */
+template<typename TDECODER>
+std::unique_ptr<node> load_file(const char *filename, TDECODER &&deco)
+{
+  return load_file(filename, (decoder*)&deco);
+}
 
 
-/** Synchronous (blocking) load from a memory buffer. */
+/**
+ * Synchronous (blocking) load from a memory buffer.
+ *
+ * Similar behavior to load() above.
+ */
 std::unique_ptr<node> load_mem(
-    byte *buf,
+    const void *buf,
     size_t len,
-    decoder *deco,
-    std::unique_ptr<err> *err_ret);
+    decoder *deco);
+
+/* See universal references above. */
+template<typename TDECODER>
+std::unique_ptr<node> load_mem(const void *buf, size_t len, TDECODER &&deco)
+{
+  return load_mem(buf, len, (decoder*)&deco);
+}
 
 
-/** Synchronous (blocking) load from a stream. */
+/**
+ * Synchronous (blocking) load from a stream.
+ *
+ * Similar behavior to load() above.
+ */
 std::unique_ptr<node> load_stream(
     std::istream &is,
-    decoder *deco,
-    std::unique_ptr<err> *err_ret);
+    decoder *deco);
+
+/* See universal references above. */
+template<typename TDECODER>
+std::unique_ptr<node> load_stream(std::istream &is, TDECODER &&deco)
+{
+  return load_stream(is, (decoder*)&deco);
+}
 
 
 }  /* namespace ellis */

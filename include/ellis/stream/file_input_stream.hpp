@@ -22,13 +22,10 @@ class file_input_stream : public sync_input_stream {
 
 public:
   file_input_stream(const char *filename);
-
   ~file_input_stream();
 
-  bool next_input_buf(byte **buf, size_t *bytecount) override;
-
+  bool next_input_buf(const byte **buf, size_t *bytecount) override;
   void put_back(size_t bytecount) override;
-
   std::unique_ptr<err> extract_input_error() override;
 };
 

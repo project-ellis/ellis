@@ -28,7 +28,7 @@ file_input_stream::~file_input_stream() {
   }
 }
 
-bool file_input_stream::next_input_buf(byte **buf, size_t *bytecount) {
+bool file_input_stream::next_input_buf(const byte **buf, size_t *bytecount) {
   return m_fdis->next_input_buf(buf, bytecount);
 }
 

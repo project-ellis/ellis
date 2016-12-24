@@ -22,10 +22,11 @@ class cpp_input_stream : public sync_input_stream {
   int m_avail = 0;
   int m_pos = 0;
   std::unique_ptr<err> m_err;
+
 public:
   cpp_input_stream(std::istream &is);
 
-  bool next_input_buf(byte **buf, size_t *bytecount) override;
+  bool next_input_buf(const byte **buf, size_t *bytecount) override;
 
   void put_back(size_t bytecount) override;
 

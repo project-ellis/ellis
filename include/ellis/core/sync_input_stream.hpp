@@ -30,7 +30,7 @@ public:
    *   true  --> Data is available (and has been returned).
    *   false --> Data is unavailable (check extract_input_error() for details).
    */
-  virtual bool next_input_buf(byte **buf, size_t *bytecount) = 0;
+  virtual bool next_input_buf(const byte **buf, size_t *bytecount) = 0;
 
   /** Put back data at the end of the block last returned from next_block(). */
   virtual void put_back(size_t bytecount) = 0;

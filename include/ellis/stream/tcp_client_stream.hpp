@@ -25,7 +25,7 @@ public:
 
   ~tcp_stream();
 
-  bool next_input_buf(byte **buf, size_t *bytecount) override;
+  bool next_input_buf(const byte **buf, size_t *bytecount) override;
 
   void put_back(size_t bytecount) override;
 

@@ -8,7 +8,7 @@ namespace ellis {
 cpp_input_stream::cpp_input_stream(std::istream &is) : m_is(is) {
 }
 
-bool cpp_input_stream::next_input_buf(byte **buf, size_t *bytecount) {
+bool cpp_input_stream::next_input_buf(const byte **buf, size_t *bytecount) {
   if (m_pos < m_avail) {
     /* We have some leftover buffer from earlier.  Return that. */
     goto give_buffer;
