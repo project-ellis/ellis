@@ -33,25 +33,7 @@ prefer a different name than `build`, this is not a problem, and you
 can have different build directories with different configurations; meson and
 ninja don't care.
 
-### Run tests
-
-```
-ninja test-valgrind
-```
-
-### Run all static analysis and style checking
-
-(Be aware that the below includes calls to cppcheck, clang-check, and clang-tidy,
-which requires that you have such things installed on your system).
-
-```
-ninja check
-```
-
-If you don't have clang installed, for instance, you can just run the
-`cppcheck` target.
-
-### Compiling via clang instead of gcc
+### Compiling with clang instead of gcc
 
 It's the usual meson methodology:
 
@@ -61,3 +43,21 @@ cd !$
 CC=clang CXX=clang++ meson ..
 ninja
 ```
+
+### Running tests
+
+```
+ninja test-valgrind
+```
+
+### Running all static analysis and style checking
+
+(Be aware that the below includes calls to cppcheck, clang-check, and clang-tidy,
+which requires that you have such things installed on your system).
+
+```
+ninja check
+```
+
+If you don't have clang installed, for instance, you can use the individual
+`cppcheck` target.
