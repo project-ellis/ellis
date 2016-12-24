@@ -7,7 +7,7 @@
 #include <ellis/core/map_node.hpp>
 #include <ellis/core/system.hpp>
 #include <ellis_private/using.hpp>
-#include <ellis/stream/cpp_input_stream.hpp>
+#include <ellis/stream/mem_input_stream.hpp>
 #include <ellis/stream/cpp_output_stream.hpp>
 #include <sstream>
 
@@ -21,15 +21,11 @@ int main() {
 
   auto ser_deser = [&dec, &enc](const string & s) {
     ELLIS_LOG(NOTI, "===========================================");
-    std::stringstream ss1;
-    ss1 << s;
-    ss1.flush();
-    auto s1 = ss1.str();
-    auto n = load(cpp_input_stream(ss1), dec);
+    auto n = load_mem(s.c_str(), s.size(), dec);
     std::stringstream ss2;
     dump(n.get(), cpp_output_stream(ss2), enc);
     auto s2 = ss2.str();
-    ELLIS_ASSERT_EQ(s1, s2);
+    ELLIS_ASSERT_EQ(s, s2);
   };
 
   ser_deser("null");
@@ -67,20 +63,9 @@ int main() {
   ser_deser(R"([  ])");
   ser_deser(R"([ [  ] ])");
   ser_deser(R"([ 1, 2, { "hello": "world" } ])");
-  // std::stringstream ss1;
-  // ss1 << "[ 1, 2, { \"hello\": \"world\" } ]";
-  // ss1.flush();
-  // auto s1 = ss1.str();
-  // auto n = load(cpp_input_stream(ss1), json_decoder());
-  // std::stringstream ss2;
-  // dump(n.get(), cpp_output_stream(ss2), json_encoder());
-  // auto s2 = ss2.str();
-  // ELLIS_ASSERT_EQ(s1, s2);
+
   auto dec_fail = [&dec](const string &s) {
-    std::stringstream ss1;
-    ss1 << s;
-    ss1.flush();
-    cpp_input_stream c(ss1);
+    mem_input_stream c(s.c_str(), s.size());
     bool threw = false;
     try {
       load(c, dec);

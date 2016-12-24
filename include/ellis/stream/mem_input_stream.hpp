@@ -20,7 +20,7 @@ namespace ellis {
 class mem_input_stream : public sync_input_stream {
   const byte *m_buf;
   size_t m_len;
-  size_t m_pos;
+  size_t m_pos = 0;
   std::unique_ptr<err> m_err;
 
 public:
