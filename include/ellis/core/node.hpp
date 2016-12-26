@@ -136,10 +136,6 @@ class node {
    *
    */
 
-  /** TODO: is this supposed to be related to _release_contents() and if
-   * so why public?  Unimplemented.  Remove unless there is a purpose. */
-  void release();
-
   ~node();
 
 

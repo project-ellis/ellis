@@ -10,7 +10,6 @@
 
 #include <ellis/core/defs.hpp>
 #include <ellis/core/err.hpp>
-#include <ellis/core/node.hpp>
 #include <ellis/core/sync_input_stream.hpp>
 
 namespace ellis {

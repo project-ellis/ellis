@@ -11,7 +11,6 @@
 
 
 #include <algorithm>
-#include <assert.h>  // TODO: replace with system assert/fatal
 #include <deque>
 #include <list>
 #include <map>
