@@ -34,7 +34,7 @@ public:
       const byte *buf,
       size_t *bytecount) override;
 
-  node_progress cleave() override;
+  node_progress chop() override;
 
   void reset() override;
 };

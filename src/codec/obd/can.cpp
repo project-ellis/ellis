@@ -115,7 +115,7 @@ node_progress can_decoder::consume_buffer(
 }
 
 
-node_progress can_decoder::cleave()
+node_progress can_decoder::chop()
 {
   return node_progress(MAKE_UNIQUE_ELLIS_ERR(PARSE_FAIL,
           "TODO: martin verify should fail"));

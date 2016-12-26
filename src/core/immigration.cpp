@@ -24,7 +24,7 @@ unique_ptr<node> load(
     /* Need another block; request it. */
     if (! in->next_input_buf(&buf, &buf_remain)) {
       /* No block available. */
-      st = deco->cleave();
+      st = deco->chop();
     }
     else {
       /* Block obtained. */

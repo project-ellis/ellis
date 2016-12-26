@@ -759,7 +759,7 @@ public:
    * disposition reflecting downstream consumption of tokens pursuant to node
    * reconstruction).
    */
-  node_progress cleave() {
+  node_progress chop() {
     ELLIS_LOG(DBUG, "Tokenizer received EOS (end of stream)");
     switch (m_tokstate) {
       case json_tok_state::INIT:
@@ -1166,10 +1166,10 @@ node_progress json_decoder::consume_buffer(
   return node_progress(stream_state::CONTINUE);
 }
 
-node_progress json_decoder::cleave()
+node_progress json_decoder::chop()
 {
   /* Send EOS to tokenizer. */
-  auto st = m_toker->cleave();
+  auto st = m_toker->chop();
 
   ELLIS_LOG(DBUG, "Tokenizer state: %s", enum_name(st.state()));
   if (st.state() == stream_state::CONTINUE) {

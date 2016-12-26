@@ -158,7 +158,7 @@ node_progress elm327_decoder::consume_buffer(
 }
 
 
-node_progress elm327_decoder::cleave()
+node_progress elm327_decoder::chop()
 {
   return node_progress(std::move(m_node));
 }

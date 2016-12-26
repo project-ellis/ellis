@@ -59,7 +59,7 @@ public:
    *
    * @return must be either SUCCESS (with value) or ERROR (with details).
    */
-  virtual node_progress cleave() = 0;
+  virtual node_progress chop() = 0;
 
   /**
    * Reset the encoder to start encoding a new ellis node.

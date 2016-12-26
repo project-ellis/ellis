@@ -40,7 +40,7 @@ node_progress delimited_text_decoder::consume_buffer(
   return node_progress(stream_state::CONTINUE);
 }
 
-node_progress delimited_text_decoder::cleave()
+node_progress delimited_text_decoder::chop()
 {
   return node_progress(std::move(m_node));
 }
