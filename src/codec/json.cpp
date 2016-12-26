@@ -1222,7 +1222,38 @@ void json_encoder::_stream_out(const node &n, std::ostream &os) {
       return;
 
     case type::U8STR:
-      os << '"' << (n.as_u8str()) << '"';
+      {
+        os << '"';
+        const auto &s = n.as_u8str();
+        for (auto &ch : s) {
+          if (ch == '"' || ch == '\\' || ch == '/') {
+            os << '\\' << ch;
+          }
+          else if (ch == '\b') {
+            os << '\\' << 'b';
+          }
+          else if (ch == '\f') {
+            os << '\\' << 'f';
+          }
+          else if (ch == '\n') {
+            os << '\\' << 'n';
+          }
+          else if (ch == '\r') {
+            os << '\\' << 'r';
+          }
+          else if (ch == '\t') {
+            os << '\\' << 't';
+          }
+          else if ((unsigned)ch <= 0x1f) {
+            unsigned char u = (unsigned char)ch;
+            os << "\\u00" << hex_digit(u >> 4) << hex_digit(u & 15);
+          }
+          else {
+            os << ch;
+          }
+        }
+        os << '"';
+      }
       return;
 
     case type::ARRAY:

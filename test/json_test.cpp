@@ -46,10 +46,9 @@ int main() {
   // ser_deser("-0.25e-1");
   ser_deser(R"("")");
   ser_deser(R"("simple")");
-  // TODO: enable this test after fix quoting inside strings
-  // ser_deser(R"("s\"im\"ple")");
-  // ser_deser(R"("sim\nple")");
-  // ser_deser(R"("sim\u2388ple")");
+  ser_deser(R"("s\"im\"ple")");
+  ser_deser(R"("sim\nple")");
+  ser_deser(R"("sim★ple")");
   ser_deser(R"({})");
   ser_deser(R"({ "map": {} })");
   ser_deser(R"({ "map": [] })");
