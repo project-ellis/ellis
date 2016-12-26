@@ -7,11 +7,10 @@
 namespace ellis {
 
 
-bool dump(
+void dump(
     const node *nod,
     sync_output_stream *out,
-    encoder *enco,
-    unique_ptr<err> *err_ret)
+    encoder *enco)
 {
   enco->reset(nod);
   while (1) {
@@ -19,32 +18,26 @@ bool dump(
     size_t bytecount = 0;
     /* Request a buffer to fill data into. */
     if (! out->next_output_buf(&buf, &bytecount)) {
-      *err_ret = std::move(out->extract_output_error());
-      return false;
+      throw *(out->extract_output_error());
     }
     /* Have encoder fill the buffer. */
     auto st = enco->fill_buffer(buf, &bytecount);
     /* Emit whatever we were given to emit, regardless of error status. */
     if (! out->emit(bytecount)) {
-      *err_ret = std::move(out->extract_output_error());
-      return false;
+      throw *(out->extract_output_error());
     }
-    // TODO: switch to switch
-    if (st.state() == stream_state::SUCCESS) {
-      return true;
-    }
-    else if (st.state() == stream_state::ERROR) {
-      *err_ret = std::move(st.extract_error());
-    }
-    else if (st.state() == stream_state::CONTINUE) {
-      continue;
-    }
-    else {
-      ELLIS_ASSERT_UNREACHABLE();
+    switch (st.state()) {
+      case stream_state::SUCCESS:
+        return;
+
+      case stream_state::ERROR:
+        throw *(st.extract_error());
+
+      case stream_state::CONTINUE:
+        break;  /* but continue loop */
     }
   }
   ELLIS_ASSERT_UNREACHABLE();
-  return nullptr;
 }
 
 

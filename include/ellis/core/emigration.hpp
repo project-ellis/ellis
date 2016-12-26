@@ -18,35 +18,27 @@
 namespace ellis {
 
 
-/** Synchronous (blocking) dump of an ellis node to the given output stream,
+/**
+ * Synchronous (blocking) dump of an ellis node to the given output stream,
  * using the given encoder.
  *
- * On success, true.
- *
- * On failure, returns false, and sets err_ret.
+ * On failure, throws an ellis::err.
  */
-bool dump(
+void dump(
     const node *nod,
     sync_output_stream *out,
-    encoder *enco,
-    std::unique_ptr<err> *err_ret);
+    encoder *enco);
 
 
-/** Alternate versions that take references or rvalue references.
+/**
+ * Alternate versions that take references or rvalue references.
  *
- * This allows for the convenience of on-the-fly instantiation of particular
- * streams and codecs within the function call.
- *
- * TODO: reference search term regarding universal reference stuff.
+ * See the comments in immigration.hpp regarding universal references.
  */
 template<typename TSTREAM, typename TENCODER>
 void dump(const node *nod, TSTREAM &&out, TENCODER &&enco)
 {
-  std::unique_ptr<err> e;
-  dump(nod, &out, &enco, &e);
-  if (e) {
-    throw *e;
-  }
+  dump(nod, (sync_output_stream*)&out, (encoder*)&enco);
 }
 
 
