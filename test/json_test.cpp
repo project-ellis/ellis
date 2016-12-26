@@ -22,10 +22,15 @@ int main() {
   auto ser_deser = [&dec, &enc](const string & s) {
     ELLIS_LOG(NOTI, "===========================================");
     auto n = load_mem(s.c_str(), s.size(), dec);
-    std::stringstream ss2;
-    dump(n.get(), cpp_output_stream(ss2), enc);
-    auto s2 = ss2.str();
+    size_t len2 = s.size() * 2 + 1;
+    unique_ptr<char[]> buf2 (new char[len2]);
+    dump_mem(n.get(), buf2.get(), len2, enc);
+    auto s2 = std::string(buf2.get());
     ELLIS_ASSERT_EQ(s, s2);
+    std::stringstream ss3;
+    dump(n.get(), cpp_output_stream(ss3), enc);
+    auto s3 = ss3.str();
+    ELLIS_ASSERT_EQ(s, s3);
   };
 
   ser_deser("null");

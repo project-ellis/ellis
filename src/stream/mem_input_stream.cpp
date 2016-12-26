@@ -5,6 +5,7 @@
 
 namespace ellis {
 
+
 mem_input_stream::mem_input_stream(const void *buf, size_t len) :
   m_buf((const byte *)buf), m_len(len)
 {
@@ -19,7 +20,7 @@ bool mem_input_stream::next_input_buf(const byte **buf, size_t *bytecount) {
     m_pos = m_len;
     return true;
   } else {
-    m_err.reset(new MAKE_ELLIS_ERR(IO, "end of stream reached"));
+    m_err.reset(new MAKE_ELLIS_ERR(IO, "end of memory stream reached"));
     return false;
   }
 }

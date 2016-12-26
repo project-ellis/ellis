@@ -47,6 +47,7 @@ public_headers = [
   'include/ellis/stream/file_input_stream.hpp',
   'include/ellis/stream/file_output_stream.hpp',
   'include/ellis/stream/mem_input_stream.hpp',
+  'include/ellis/stream/mem_output_stream.hpp',
   'include/ellis/stream/tcp_client_stream.hpp']
 install_headers(public_headers, subdir: 'ellis')
 
@@ -73,6 +74,7 @@ src = [
   'src/stream/file_input_stream.cpp',
   'src/stream/file_output_stream.cpp',
   'src/stream/mem_input_stream.cpp',
+  'src/stream/mem_output_stream.cpp',
   'src/stream/tcp_client_stream.cpp']
 lib = shared_library(
   'ellis',

@@ -42,6 +42,79 @@ void dump(const node *nod, TSTREAM &&out, TENCODER &&enco)
 }
 
 
+/**
+ * Synchronous (blocking) dump to an open socket/fd.
+ *
+ * Similar behavior to dump() above.
+ */
+void dump_fd(
+    const node *nod,
+    int fd,
+    encoder *enco);
+
+/* See universal references above. */
+template<typename TENCODER>
+void dump_fd(const node *nod, int fd, TENCODER &&enco)
+{
+  dump_fd(nod, fd, (encoder*)&enco);
+}
+
+
+/**
+ * Synchronous (blocking) dump to a file.
+ *
+ * Similar behavior to dump() above.
+ */
+void dump_file(
+    const node *nod,
+    const char *filename,
+    encoder *enco);
+
+/* See universal references above. */
+template<typename TENCODER>
+void dump_file(const node *nod, const char *filename, TENCODER &&enco)
+{
+  dump_file(nod, filename, (encoder*)&enco);
+}
+
+
+/**
+ * Synchronous (blocking) dump to a memory buffer.
+ *
+ * Similar behavior to dump() above.
+ */
+void dump_mem(
+    const node *nod,
+    void *buf,
+    size_t len,
+    encoder *enco);
+
+/* See universal references above. */
+template<typename TENCODER>
+void dump_mem(const node *nod, void *buf, size_t len, TENCODER &&enco)
+{
+  dump_mem(nod, buf, len, (encoder*)&enco);
+}
+
+
+/**
+ * Synchronous (blocking) dump to a stream.
+ *
+ * Similar behavior to dump() above.
+ */
+void dump_stream(
+    const node *nod,
+    std::ostream &os,
+    encoder *enco);
+
+/* See universal references above. */
+template<typename TENCODER>
+void dump_stream(const node *nod, std::ostream &os, TENCODER &&enco)
+{
+  dump_stream(nod, os, (encoder*)&enco);
+}
+
+
 }  /* namespace ellis */
 
 #endif  /* ELLIS_CORE_EMIGRATION_HPP_ */
