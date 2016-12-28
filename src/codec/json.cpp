@@ -7,6 +7,7 @@
 #include <ellis/core/system.hpp>
 #include <ellis_private/using.hpp>
 #include <array>
+#include <numeric>
 
 // TODO: support binary blobs
 
