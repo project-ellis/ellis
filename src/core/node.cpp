@@ -329,7 +329,8 @@ void node::_grab_contents(const node& other)
     m_pay->m_refcount++;
   }
   else {
-    memcpy(m_pad, other.m_pad, offsetof(node, m_type) - offsetof(node, m_pad));
+    memcpy(m_pad, other.m_pad,  // NOLINT
+        offsetof(node, m_type) - offsetof(node, m_pad));
   }
 }
 
@@ -555,8 +556,15 @@ void node::deep_copy(const node &o)
         break;
     }
   }
+  // TODO: this looks like it has a bug with handling of strings.  Seems like
+  // it's best to go ahead and make u8str_node and treat uniformly same
+  // as map_node, array_node, and binary_node.  This will produce the
+  // simplest code and fewest bugs, also probably best memory density
+  // in the long term (given custom implementations for the different
+  // payload types).
   else {
-    memcpy(m_pad, tmp.m_pad, offsetof(node, m_type) - offsetof(node, m_pad));
+    memcpy(m_pad, tmp.m_pad,  // NOLINT
+        offsetof(node, m_type) - offsetof(node, m_pad));
   }
 }
 
