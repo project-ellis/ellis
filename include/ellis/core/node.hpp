@@ -47,7 +47,7 @@ struct payload;
  */
 class node {
 
-  using pad_t = char[8];  /* pad covers union--checked via static_assert */
+  using pad_t = char[1];
   union {
     bool m_boo;
     double m_dbl;

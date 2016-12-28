@@ -329,10 +329,7 @@ void node::_grab_contents(const node& other)
     m_pay->m_refcount++;
   }
   else {
-    static_assert(
-        sizeof(m_pad) == offsetof(node, m_type),
-        "Uh oh, m_pad does not seem to cover entire union...");
-    memcpy(m_pad, other.m_pad, sizeof(m_pad));
+    memcpy(m_pad, other.m_pad, offsetof(node, m_type) - offsetof(node, m_pad));
   }
 }
 
@@ -559,7 +556,7 @@ void node::deep_copy(const node &o)
     }
   }
   else {
-    memcpy(m_pad, tmp.m_pad, sizeof(pad_t));
+    memcpy(m_pad, tmp.m_pad, offsetof(node, m_type) - offsetof(node, m_pad));
   }
 }
 

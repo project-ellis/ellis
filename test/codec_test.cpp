@@ -8,6 +8,8 @@
 #include <ellis/stream/cpp_output_stream.hpp>
 #include <sstream>
 
+// TODO: Use mkstemp to create a temporary file, write to the fd, read from it,
+// and close.
 
 int main() {
   using namespace ellis;
