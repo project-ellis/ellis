@@ -27,6 +27,11 @@ We allow derived types, but a derived type has a single derivation path with
 no branching that leads back to a base type.  Derived maps can add further
 constraints on existing keys.
 
+IDEA: have an optional conversion (undefined by default) that allows fixing a
+type mismatch on a sub-element, by way of a conversion function.  Note: the
+conversion function must run immediately, and may fail, resulting in schema
+match failure.
+
 Base types of EllisNode
 * array
 * binary
@@ -63,6 +68,10 @@ Base types of EllisNode
     "ext.bin128bit": {
         "type": "binary",
         "constraint": [ "eq", ["len"], 16 ]
+        "fixup" : {
+          "TODO" : "totally not thought out, see optional conversion above"
+          "ext.base64str" : "base64decode"
+        }
     },
 
 

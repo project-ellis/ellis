@@ -285,6 +285,8 @@ void node::_zap_contents(type t)
      * Use malloc/free here to make sure we don't accidentally call a union
      * constructor or similar via new/delete.
      */
+    // TODO: this is wasteful because it always allocates the max memory that
+    // any payload might take.
     m_pay = (payload*)malloc(sizeof(*m_pay));
     m_pay->m_refcount = 1;
     switch (type(m_type)) {
