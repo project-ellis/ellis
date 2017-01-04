@@ -21,6 +21,7 @@ namespace ellis {
 class array_node;
 class binary_node;
 class map_node;
+class u8str_node;
 struct payload;
 
 
@@ -66,17 +67,18 @@ class node {
   const bool        & _as_bool() const;
   const int64_t     & _as_int64() const;
   const double      & _as_double() const;
-  const std::string & _as_u8str() const;
+  const std::string & _as_u8string() const;
   const array_node  & _as_array() const;
   const map_node    & _as_map() const;
+  const u8str_node    & _as_u8str() const;
   const binary_node & _as_binary() const;
   bool        & _as_mutable_bool();
   int64_t     & _as_mutable_int64();
   double      & _as_mutable_double();
-  std::string & _as_mutable_u8str();
   array_node  & _as_mutable_array();
   map_node    & _as_mutable_map();
   binary_node & _as_mutable_binary();
+  u8str_node & _as_mutable_u8str();
 
  public:
 
@@ -279,7 +281,6 @@ class node {
   operator unsigned int() const;
   operator int64_t() const;
   operator double() const;
-  explicit operator std::string() const;
   explicit operator const char *() const;
 
 
@@ -326,13 +327,6 @@ class node {
    */
   const double & as_double() const;
 
-  /** Provide access to UTF-8 string contents.
-   *
-   * Will throw TYPE_MISMATCH error if type is not U8STR.
-   */
-  const std::string & as_u8str() const;
-  const char * as_u8cstr() const;
-
   /** Provide access to array functionality.
    *
    * See array_node.hpp for more information.
@@ -348,6 +342,14 @@ class node {
    * Will throw TYPE_MISMATCH error if type is not MAP.
    */
   const map_node & as_map() const;
+
+  /** Provide access to u8str functionality.
+   *
+   * See u8str_node.hpp for more information.
+   *
+   * Will throw TYPE_MISMATCH error if type is not U8STR.
+   */
+  const u8str_node & as_u8str() const;
 
   /** Provide access to binary blob contents.
    *
@@ -373,15 +375,16 @@ class node {
   bool        & as_mutable_bool();
   int64_t     & as_mutable_int64();
   double      & as_mutable_double();
-  std::string & as_mutable_u8str();
   array_node  & as_mutable_array();
   map_node    & as_mutable_map();
   binary_node & as_mutable_binary();
+  u8str_node & as_mutable_u8str();
   node & at_path_mutable(const std::string &path);
 
   friend class array_node;
   friend class binary_node;
   friend class map_node;
+  friend class u8str_node;
 };
 
 

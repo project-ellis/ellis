@@ -5,6 +5,7 @@
 #include <ellis/core/disposition.hpp>
 #include <ellis/core/map_node.hpp>
 #include <ellis/core/system.hpp>
+#include <ellis/core/u8str_node.hpp>
 #include <ellis_private/using.hpp>
 #include <array>
 #include <numeric>
@@ -1225,7 +1226,8 @@ void json_encoder::_stream_out(const node &n, std::ostream &os) {
     case type::U8STR:
       {
         os << '"';
-        const auto &s = n.as_u8str();
+        // TODO: iterators over u8str_node
+        const string s(n.as_u8str().c_str());
         for (auto &ch : s) {
           if (ch == '"' || ch == '\\' || ch == '/') {
             os << '\\' << ch;

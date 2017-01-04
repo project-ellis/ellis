@@ -22,6 +22,7 @@ namespace payload_types {
   using arr_t = std::vector<node>;
   using map_t = std::unordered_map<std::string, node>;
   using bin_t = std::vector<byte>;
+  using str_t = std::string;
   using refcount_t = unsigned;
 }
 
@@ -32,6 +33,7 @@ struct payload {
     payload_types::arr_t m_arr;
     payload_types::map_t m_map;
     payload_types::bin_t m_bin;
+    payload_types::str_t m_str;
   };
 };
 

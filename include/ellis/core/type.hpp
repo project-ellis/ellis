@@ -35,6 +35,7 @@ enum class type {
   ARRAY = 5,
   BINARY = 6,
   MAP = 7,
+  refcntd = U8STR,
   enum_max = MAP
 };
 

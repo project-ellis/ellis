@@ -2,6 +2,7 @@
 
 #include <ellis/core/array_node.hpp>
 #include <ellis/core/err.hpp>
+#include <ellis/core/u8str_node.hpp>
 #include <ellis_private/using.hpp>
 
 namespace ellis {

@@ -8,6 +8,7 @@
 #include <ellis/core/map_node.hpp>
 #include <ellis/core/node.hpp>
 #include <ellis/core/system.hpp>
+#include <ellis/core/u8str_node.hpp>
 #include <ellis_private/using.hpp>
 #include <stdio.h>
 #include <string.h>
@@ -244,7 +245,7 @@ static void strtest()
   node n1("hello");
   node n2(n1);
   ELLIS_ASSERT_EQ(n1, "hello");
-  string s1 = (string)n1;
+  auto s1 = (const char *)n1;
   ELLIS_ASSERT_EQ(s1, "hello");
   const char *cp1 = (const char *)n1;
   const char *cp2 = (const char *)n1;
@@ -332,8 +333,8 @@ static void arraytest()
 
   /* Copy the newly filled array. */
   node en2(en);
-  ELLIS_ASSERT_EQ(en.as_array()[0].as_u8str().c_str(),
-      en2.as_array()[0].as_u8str().c_str());
+  ELLIS_ASSERT_EQ(en.as_array()[0].as_u8str(),
+      en2.as_array()[0].as_u8str());
   contents_chk(en);
   contents_chk(en2);
   /* Clear the original, verify the copy looks right and the original empty. */

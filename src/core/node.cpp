@@ -6,7 +6,7 @@
 #include <ellis/core/map_node.hpp>
 #include <ellis/core/system.hpp>
 #include <ellis/core/type.hpp>
-#include <ellis/core/err.hpp>
+#include <ellis/core/u8str_node.hpp>
 #include <ellis_private/core/payload.hpp>
 #include <ellis_private/using.hpp>
 #include <stddef.h>
@@ -49,17 +49,6 @@ node& node::operator=(typ o) \
   _release_contents(); \
   m_type = (int)type::e_typ; \
   m_##short_typ = o; \
-  return *this; \
-}
-
-
-/* Sadly, string is special-cased because of its COW semantics. */
-#define OPFUNC_ASSIGN_STR(typ) \
-node& node::operator=(typ o) \
-{ \
-  _release_contents(); \
-  m_type = (int)type::U8STR; \
-  new (&m_str) std::string(o); \
   return *this; \
 }
 
@@ -246,24 +235,21 @@ node::operator typ() const \
 }
 
 
-/** The lowest numerical enum value of any type for which refcount is used. */
-static const int k_lowest_rc = 5;
-
-static_assert((int)type::BOOL   <  k_lowest_rc, "refcount check broken");
-static_assert((int)type::NIL    <  k_lowest_rc, "refcount check broken");
-static_assert((int)type::BOOL   <  k_lowest_rc, "refcount check broken");
-static_assert((int)type::INT64  <  k_lowest_rc, "refcount check broken");
-static_assert((int)type::DOUBLE <  k_lowest_rc, "refcount check broken");
-static_assert((int)type::U8STR  <  k_lowest_rc, "refcount check broken");
-static_assert((int)type::ARRAY  >= k_lowest_rc, "refcount check broken");
-static_assert((int)type::BINARY >= k_lowest_rc, "refcount check broken");
-static_assert((int)type::MAP    >= k_lowest_rc, "refcount check broken");
+static_assert((int)type::BOOL   <  (int)type::refcntd, "refcount check broken");
+static_assert((int)type::NIL    <  (int)type::refcntd, "refcount check broken");
+static_assert((int)type::BOOL   <  (int)type::refcntd, "refcount check broken");
+static_assert((int)type::INT64  <  (int)type::refcntd, "refcount check broken");
+static_assert((int)type::DOUBLE <  (int)type::refcntd, "refcount check broken");
+static_assert((int)type::U8STR  >= (int)type::refcntd, "refcount check broken");
+static_assert((int)type::ARRAY  >= (int)type::refcntd, "refcount check broken");
+static_assert((int)type::BINARY >= (int)type::refcntd, "refcount check broken");
+static_assert((int)type::MAP    >= (int)type::refcntd, "refcount check broken");
 
 
 /** Does this type enum value represent a type for which refcount is used? */
 static inline bool _is_refcounted(int t)
 {
-  return t >= k_lowest_rc;
+  return t >= (int)type::refcntd;
 }
 
 
@@ -277,10 +263,7 @@ void node::_zap_contents(type t)
   using namespace ::ellis::payload_types;
 
   m_type = (int)t;
-  if (type(m_type) == type::U8STR) {
-    new (&m_str) std::string();
-  }
-  else if (_is_refcounted(m_type)) {
+  if (_is_refcounted(m_type)) {
     /*
      * Use malloc/free here to make sure we don't accidentally call a union
      * constructor or similar via new/delete.
@@ -300,6 +283,10 @@ void node::_zap_contents(type t)
 
       case type::MAP:
         new (&(m_pay->m_map)) map_t();
+        break;
+
+      case type::U8STR:
+        new (&(m_pay->m_str)) str_t();
         break;
 
       default:
@@ -322,11 +309,7 @@ void node::_zap_contents(type t)
 void node::_grab_contents(const node& other)
 {
   m_type = other.m_type;
-  if (type(m_type) == type::U8STR) {
-    /* In-place string copy constructor. */
-    new (&m_str) std::string(other.m_str);
-  }
-  else if (_is_refcounted(m_type)) {
+  if (_is_refcounted(m_type)) {
     m_pay = other.m_pay;
     m_pay->m_refcount++;
   }
@@ -345,10 +328,7 @@ void node::_grab_contents(const node& other)
 void node::_release_contents()
 {
   using namespace ::ellis::payload_types;
-  if (type(m_type) == type::U8STR) {
-    m_str.~basic_string<char>();
-  }
-  else if (_is_refcounted(m_type)) {
+  if (_is_refcounted(m_type)) {
     m_pay->m_refcount--;
     if (m_pay->m_refcount == 0) {
       switch (type(m_type)) {
@@ -362,6 +342,10 @@ void node::_release_contents()
 
         case type::MAP:
           m_pay->m_map.~map_t();
+          break;
+
+        case type::U8STR:
+          m_pay->m_str.~str_t();
           break;
 
         default:
@@ -404,8 +388,7 @@ OPFUNCS_EQ_PRIMITIVE(double, DOUBLE, dbl)
 OPFUNCS_EQ_PRIMITIVE(int, INT64, int)
 OPFUNCS_EQ_PRIMITIVE(unsigned int, INT64, int)
 OPFUNCS_EQ_PRIMITIVE(int64_t, INT64, int)
-OPFUNCS_EQ_PRIMITIVE(const char *, U8STR, str)
-OPFUNCS_EQ_PRIMITIVE(const std::string &, U8STR, str)
+//OPFUNCS_EQ_PRIMITIVE(const std::string &, U8STR, str)
 
 
 OPFUNC_ASSIGN_PRIMITIVE(bool, boo, BOOL)
@@ -413,17 +396,15 @@ OPFUNC_ASSIGN_PRIMITIVE(double, dbl, DOUBLE)
 OPFUNC_ASSIGN_PRIMITIVE(int, int, INT64)
 OPFUNC_ASSIGN_PRIMITIVE(unsigned int, int, INT64)
 OPFUNC_ASSIGN_PRIMITIVE(int64_t, int, INT64)
-OPFUNC_ASSIGN_STR(const char *)
-OPFUNC_ASSIGN_STR(const std::string &)
 
 ASFUNCS_PRIMITIVE(bool, bool, BOOL, boo)
 ASFUNCS_PRIMITIVE(double, double, DOUBLE, dbl)
 ASFUNCS_PRIMITIVE(int64_t, int64, INT64, int)
-ASFUNCS_PRIMITIVE(std::string, u8str, U8STR, str)
 
 ASFUNCS_CONTAINER(array, array_node, ARRAY)
 ASFUNCS_CONTAINER(map, map_node, MAP)
 ASFUNCS_CONTAINER(binary, binary_node, BINARY)
+ASFUNCS_CONTAINER(u8str, u8str_node, U8STR)
 
 
 OPFUNC_CAST_PRIMITIVE(bool, bool)
@@ -431,12 +412,10 @@ OPFUNC_CAST_PRIMITIVE(double, double)
 OPFUNC_CAST_PRIMITIVE(int, int64)
 OPFUNC_CAST_PRIMITIVE(unsigned int, int64)
 OPFUNC_CAST_PRIMITIVE(int64_t, int64)
-OPFUNC_CAST_PRIMITIVE(std::string, u8str)
 
 node::operator const char *() const
 {
-  const auto & s = as_u8str();
-  return s.c_str();
+  return as_u8str().c_str();
 }
 
 
@@ -492,14 +471,14 @@ node::node(double d)
 node::node(const std::string& s)
 {
   _zap_contents(type::U8STR);
-  m_str = s;
+  _as_mutable_u8str().assign(s.c_str());
 }
 
 
 node::node(const char *s)
 {
   _zap_contents(type::U8STR);
-  m_str = s;
+  _as_mutable_u8str().assign(s);
 }
 
 
@@ -552,18 +531,16 @@ void node::deep_copy(const node &o)
         m_pay->m_map = tmp.m_pay->m_map;
         break;
 
+      case type::U8STR:
+        m_pay->m_str = tmp.m_pay->m_str;
+        break;
+
       default:
         /* Never hit, due to _is_refcounted. */
         ELLIS_ASSERT_UNREACHABLE();
         break;
     }
   }
-  // TODO: this looks like it has a bug with handling of strings.  Seems like
-  // it's best to go ahead and make u8str_node and treat uniformly same
-  // as map_node, array_node, and binary_node.  This will produce the
-  // simplest code and fewest bugs, also probably best memory density
-  // in the long term (given custom implementations for the different
-  // payload types).
   else {
     memcpy(m_pad, tmp.m_pad,  // NOLINT
         offsetof(node, m_type) - offsetof(node, m_pad));
@@ -588,6 +565,24 @@ node& node::operator=(node&& rhs)
 }
 
 
+node& node::operator=(const char *s)
+{
+  _release_contents();
+  _zap_contents(type::U8STR);
+  _as_mutable_u8str().assign(s);
+  return *this;
+}
+
+
+node& node::operator=(const std::string &s)
+{
+  _release_contents();
+  _zap_contents(type::U8STR);
+  _as_mutable_u8str().assign(s.c_str());
+  return *this;
+}
+
+
 bool node::operator==(const node &o) const
 {
   if (m_type != o.m_type) {
@@ -606,9 +601,6 @@ bool node::operator==(const node &o) const
     case type::NIL:
       return true;  /* Both nil, nothing more to say. */
 
-    case type::U8STR:
-      return m_str == o.m_str;
-
     case type::ARRAY:
       return _as_array() == o._as_array();
 
@@ -617,6 +609,10 @@ bool node::operator==(const node &o) const
 
     case type::MAP:
       return _as_map() == o._as_map();
+
+    case type::U8STR:
+      return _as_u8str() == o._as_u8str();
+
   }
   /* Never reached. */
   ELLIS_ASSERT_UNREACHABLE();
@@ -627,6 +623,36 @@ bool node::operator==(const node &o) const
 bool node::operator!=(const node &o) const
 {
   return not (*this == o);
+}
+
+
+bool node::operator==(const char *s) const
+{
+  if (type(m_type) != type::U8STR) {
+    return false;
+  }
+  return strcmp(_as_u8str().c_str(), s) == 0;
+}
+
+
+bool node::operator!=(const char *s) const
+{
+  return not (*this == s);
+}
+
+
+bool node::operator==(const string &s) const
+{
+  if (type(m_type) != type::U8STR) {
+    return false;
+  }
+  return s == _as_u8str().c_str();
+}
+
+
+bool node::operator!=(const string &s) const
+{
+  return not (*this == s);
 }
 
 
