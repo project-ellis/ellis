@@ -19,7 +19,7 @@ bool mem_output_stream::next_output_buf(byte **buf, size_t *bytecount) {
     *bytecount = m_len - 1 - m_pos;
     return true;
   } else {
-    m_err.reset(new MAKE_ELLIS_ERR(IO, "end of memory stream reached"));
+    m_err = MAKE_UNIQUE_ELLIS_ERR(IO, "end of memory stream reached");
     return false;
   }
 }

@@ -10,8 +10,8 @@ namespace ellis {
 tcp_stream::tcp_stream(UNUSED const char *host, UNUSED const char *port) {
   // int fd = tcpclientopen(host, port);  // if only that easy
   // TODO: throw exception on tcpclientopen
-  // m_fdis.reset(new fd_input_stream(fd));
-  // m_fdos.reset(new fd_output_stream(fd));
+  // m_fdis = make_unique<fd_input_stream>(fd));
+  // m_fdos = make_unique<fd_output_stream>(fd));
 }
 
 tcp_stream::~tcp_stream() {

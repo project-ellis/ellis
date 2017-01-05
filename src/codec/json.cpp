@@ -563,8 +563,7 @@ public:
       os << " " << sym.name();
     }
     os << " " << msg;
-    return node_progress(unique_ptr<err>(
-          new MAKE_ELLIS_ERR(PARSE_FAIL, os.str())));
+    return node_progress(MAKE_UNIQUE_ELLIS_ERR(PARSE_FAIL, os.str()));
   }
 
   node_progress progmore()
@@ -577,7 +576,7 @@ public:
   {
     ELLIS_LOG(DBUG, "This json parse is done!");
     ELLIS_ASSERT_EQ(m_state.m_nodes.size(), 1);
-    unique_ptr<node> ret(new node(m_state.m_nodes[0]));
+    unique_ptr<node> ret(make_unique<node>(m_state.m_nodes[0]));
     m_state.m_nodes.clear();
     return node_progress(std::move(ret));
   }
@@ -701,8 +700,7 @@ public:
   {
     ELLIS_LOG(DBUG, "This json tokenizer is doomed--%s", msg);
     m_tokstate = json_tok_state::ERROR;
-    return node_progress(unique_ptr<err>(
-          new MAKE_ELLIS_ERR(PARSE_FAIL, msg)));
+    return node_progress(MAKE_UNIQUE_ELLIS_ERR(PARSE_FAIL, msg));
   }
 
   node_progress progmore()
@@ -1135,8 +1133,8 @@ public:
 
 
 json_decoder::json_decoder() :
-  m_toker(new json_tokenizer()),
-  m_parser(new json_parser(g_rules))
+  m_toker(make_unique<json_tokenizer>()),
+  m_parser(make_unique<json_parser>(g_rules))
 {
   m_toker->set_token_callback(
       [this](json_tok tok, const char *tokstr)

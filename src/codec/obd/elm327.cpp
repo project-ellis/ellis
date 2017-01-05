@@ -36,7 +36,7 @@ byte hex_val(byte val)
 
 
 elm327_decoder::elm327_decoder() :
-  m_node(new node(type::ARRAY))
+  m_node(make_unique<node>(type::ARRAY))
 {
 }
 

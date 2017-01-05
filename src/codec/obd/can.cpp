@@ -25,7 +25,7 @@ struct ecu_response {
 
 
 can_decoder::can_decoder() :
-  m_node(new node(type::ARRAY))
+  m_node(make_unique<node>(type::ARRAY))
 {
 }
 

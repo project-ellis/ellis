@@ -16,7 +16,7 @@ void delimited_text_decoder::_clear_ss() {
 }
 
 delimited_text_decoder::delimited_text_decoder() :
-  m_node(new node(type::ARRAY))
+  m_node(make_unique<node>(type::ARRAY))
 {
 }
 

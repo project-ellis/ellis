@@ -17,7 +17,7 @@ bool cpp_input_stream::next_input_buf(const byte **buf, size_t *bytecount) {
   /* No more bytes in current block?  Then try to get another one. */
   if (! m_is) {
     // TODO: check fail bits?
-    m_err.reset(new MAKE_ELLIS_ERR(IO, "end of file"));
+    m_err = MAKE_UNIQUE_ELLIS_ERR(IO, "end of file");
     return false;
   }
 
@@ -26,7 +26,7 @@ bool cpp_input_stream::next_input_buf(const byte **buf, size_t *bytecount) {
   m_avail = (int)m_is.gcount();
   if (m_avail <= 0) {
     // TODO: check fail bits?
-    m_err.reset(new MAKE_ELLIS_ERR(IO, "end of file"));
+    m_err = MAKE_UNIQUE_ELLIS_ERR(IO, "end of file");
     return false;
   }
 
