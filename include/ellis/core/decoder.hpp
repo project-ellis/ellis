@@ -32,9 +32,9 @@ public:
    * decode up to bytecount bytes of data from the provided buffer.
    *
    * The callee should attempt to decode the given data to construct an ellis
-   * node, and update the size parameter to specify the number of bytes that
-   * remain unused and available, if there are any.  Whatever bytes are left
-   * will be reclaimed by the stream for use by the next consumer.
+   * node, and update the bytecount parameter to specify the number of bytes
+   * that remain unused and available, if there are any.  Whatever bytes are
+   * left will be reclaimed by the stream for use by the next consumer.
    *
    * If there has been a non-recoverable error in the decoding process, the
    * ERROR status will be returned (with details provided); otherwise, if an
