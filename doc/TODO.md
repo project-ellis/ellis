@@ -12,8 +12,8 @@ M Msgpack codec
 * Build instructions.
 * Github workflow instructions.
 * (jmc) Write unit test that catches u8str deep copy bug.
-* (jmc) Create a `u8str_node`.
-* (jmc) All decoders know and check whether they need to be reset.
+* Codec framework layer that handles framing and simple issues like forgetting
+  to call reset at the right time.
 
 ## Maturation
 
