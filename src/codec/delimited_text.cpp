@@ -48,7 +48,7 @@ node_progress delimited_text_decoder::chop()
 
 void delimited_text_decoder::reset()
 {
-  m_node.reset(new node(type::ARRAY));
+  m_node = make_unique<node>(type::ARRAY);
   _clear_ss();
 }
 
