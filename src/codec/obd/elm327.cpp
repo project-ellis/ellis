@@ -166,7 +166,7 @@ node_progress elm327_decoder::chop()
 
 void elm327_decoder::reset()
 {
-  m_node.reset(new node(type::ARRAY));
+  m_node = make_unique<node>(type::ARRAY);
 }
 
 

@@ -89,7 +89,6 @@ node_progress can_decoder::consume_buffer(
 
   /* ECU responses are 8 bytes long. */
   if (*bytecount < 8) {
-    *bytecount = 0;
     return node_progress(stream_state::CONTINUE);
   }
 
@@ -97,7 +96,7 @@ node_progress can_decoder::consume_buffer(
   for (const byte *p = buf; p < end; p += 8) {
     try {
       node n = make_obd_node(p);
-      m_node->as_mutable_array().append(n);
+      m_node->as_mutable_array().append(std::move(n));
     }
     catch (const err &e) {
       return node_progress(make_unique<err>(e));
@@ -105,7 +104,7 @@ node_progress can_decoder::consume_buffer(
   }
 
   if ((*bytecount % 8) != 0) {
-    *bytecount = *bytecount - (8*(*bytecount/8));
+    *bytecount -= (8*(*bytecount/8));
     return node_progress(stream_state::CONTINUE);
   }
   else {
@@ -117,14 +116,13 @@ node_progress can_decoder::consume_buffer(
 
 node_progress can_decoder::chop()
 {
-  return node_progress(MAKE_UNIQUE_ELLIS_ERR(PARSE_FAIL,
-          "TODO: martin verify should fail"));
+  return node_progress(std::move(m_node));
 }
 
 
 void can_decoder::reset()
 {
-  m_node.reset(new node(type::ARRAY));
+  m_node = make_unique<node>(type::ARRAY);
 }
 
 

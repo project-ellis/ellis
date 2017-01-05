@@ -23,8 +23,6 @@ namespace obd {
 
 class can_decoder : public decoder {
   std::unique_ptr<node> m_node;
-  std::unique_ptr<err> m_err;
-
   /** Makes an OBD II node from a given byte sequence.
    *
    * @param start a pointer to the start of the byte sequence
