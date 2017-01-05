@@ -35,6 +35,7 @@ public_headers = [
   'include/ellis/core/err.hpp',
   'include/ellis/core/immigration.hpp',
   'include/ellis/core/map_node.hpp',
+  'include/ellis/core/codec/msgpack.hpp',
   'include/ellis/core/node.hpp',
   'include/ellis/core/sync_input_stream.hpp',
   'include/ellis/core/sync_output_stream.hpp',
@@ -56,6 +57,7 @@ install_headers(public_headers, subdir: 'ellis')
 src = [
   'src/codec/delimited_text.cpp',
   'src/codec/json.cpp',
+  'src/codec/msgpack.cpp',
   'src/codec/obd/can.cpp',
   'src/codec/obd/elm327.cpp',
   'src/codec/obd/pid.cpp',
@@ -102,6 +104,7 @@ tests = [
   ['ellistest', 'test/ellis_test.cpp'],
   ['codectest', 'test/codec_test.cpp'],
   ['jsontest', 'test/json_test.cpp'],
+  ['msgpacktest', 'test/msgpack_test.cpp'],
   ['obdtest', 'test/obd_test.cpp']]
 foreach t : tests
   exe = executable(
