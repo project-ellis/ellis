@@ -64,11 +64,25 @@ public:
    */
   void add(const std::string &, const node &, add_policy, add_failure_fn *);
 
+  /** Add a new value, subject to the given policy regarding existing
+   * keys of the same name.
+   *
+   * Calls the provided function in case of failure due to policy (can
+   * be left null to ignore failures).
+   */
+  void add(const char *, const node &, add_policy, add_failure_fn *);
+
   /** Insert a new value with the given key name.
    *
    * Equivalent to calling add() with add_policy::INSERT_ONLY.
    */
   void insert(const std::string &, const node &);
+
+  /** Insert a new value with the given key name.
+   *
+   * Equivalent to calling add() with add_policy::INSERT_ONLY.
+   */
+  void insert(const char *, const node &);
 
   /** Replace the value with the given key name.
    *
@@ -76,11 +90,23 @@ public:
    */
   void replace(const std::string &, const node &);
 
+  /** Replace the value with the given key name.
+   *
+   * Equivalent to calling add() with add_policy::REPLACE_ONLY.
+   */
+  void replace(const char *, const node &);
+
   /** Set the value at the given key name, overwriting if necessary.
    *
    * Equivalent to calling add() with add_policy::INSERT_OR_REPLACE.
    */
   void set(const std::string &, const node &);
+
+  /** Set the value at the given key name, overwriting if necessary.
+   *
+   * Equivalent to calling add() with add_policy::INSERT_OR_REPLACE.
+   */
+  void set(const char *, const node &);
 
   /** Merge the contents of another map, using the given policy.
    *
@@ -95,8 +121,17 @@ public:
    */
   void erase(const std::string &);
 
+  /** Remove the given key and corresponding value from the map.
+   *
+   * If key is not present, do nothing (not an error).
+   */
+  void erase(const char *);
+
   /** Return true iff the map has a key of the given name. */
   bool has_key(const std::string &) const;
+
+  /** Return true iff the map has a key of the given name. */
+  bool has_key(const char *) const;
 
   /** Return the keys found in the map. */
   std::vector<std::string> keys() const;

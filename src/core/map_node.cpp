@@ -76,7 +76,23 @@ void map_node::add(
 }
 
 
+void map_node::add(
+    const char *key,
+    const node &val,
+    add_policy addpol,
+    add_failure_fn *failfn)
+{
+  add(string(key), val, addpol, failfn);
+}
+
+
 void map_node::insert(const std::string &key, const node &val)
+{
+  add(key, val, add_policy::INSERT_ONLY, nullptr);
+}
+
+
+void map_node::insert(const char *key, const node &val)
 {
   add(key, val, add_policy::INSERT_ONLY, nullptr);
 }
@@ -88,7 +104,19 @@ void map_node::replace(const std::string &key, const node &val)
 }
 
 
+void map_node::replace(const char *key, const node &val)
+{
+  add(key, val, add_policy::REPLACE_ONLY, nullptr);
+}
+
+
 void map_node::set(const std::string &key, const node &val)
+{
+  add(key, val, add_policy::INSERT_OR_REPLACE, nullptr);
+}
+
+
+void map_node::set(const char *key, const node &val)
 {
   add(key, val, add_policy::INSERT_OR_REPLACE, nullptr);
 }
@@ -108,6 +136,18 @@ void map_node::merge(
 void map_node::erase(const std::string &key)
 {
   GETMAP.erase(key);
+}
+
+
+void map_node::erase(const char *key)
+{
+  GETMAP.erase(key);
+}
+
+
+bool map_node::has_key(const char *key) const
+{
+  return GETMAP.count(key) > 0;
 }
 
 
