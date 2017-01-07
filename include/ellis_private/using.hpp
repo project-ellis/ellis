@@ -11,10 +11,12 @@
 
 
 #include <algorithm>
+#include <condition_variable>
 #include <deque>
 #include <list>
 #include <map>
 #include <memory>
+#include <mutex>
 #include <sstream>
 #include <string>
 #include <unordered_map>
@@ -22,6 +24,7 @@
 #include <vector>
 
 
+using std::condition_variable;
 using std::deque;
 using std::for_each;
 using std::function;
@@ -30,6 +33,7 @@ using std::make_pair;
 using std::make_shared;
 using std::make_unique;
 using std::map;
+using std::mutex;
 using std::ostringstream;
 using std::pair;
 using std::runtime_error;
@@ -37,6 +41,7 @@ using std::shared_ptr;
 using std::sort;
 using std::string;
 using std::unique_ptr;
+using std::unique_lock;
 using std::unordered_map;
 using std::vector;
 

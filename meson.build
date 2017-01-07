@@ -20,6 +20,8 @@ pkg = import('pkgconfig')
 # Enable threads.
 thread_deps = dependency('threads')
 
+ex_deps = dependency('boost', modules : ['asio', 'system'])
+
 # Includes.
 inc = include_directories('include')
 public_headers = [
@@ -102,6 +104,7 @@ run_target('cppcheck', command: 'meson/cppcheck')
 # Tests.
 tests = [
   ['ellistest', 'test/ellis_test.cpp'],
+  ['extest', 'test/ex_test.cpp'],
   ['codectest', 'test/codec_test.cpp'],
   ['jsontest', 'test/json_test.cpp'],
   ['msgpacktest', 'test/msgpack_test.cpp'],
@@ -112,6 +115,6 @@ foreach t : tests
     t.get(1),
     include_directories: inc,
     link_with: lib,
-    dependencies: thread_deps)
+    dependencies: [ thread_deps, ex_deps ])
   test(t.get(0), exe)
 endforeach
