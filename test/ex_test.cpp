@@ -11,7 +11,7 @@
 #include <thread>
 
 namespace ellis {
-namespace ex {
+namespace op {
 
 
 /**
@@ -38,63 +38,49 @@ req_id autogenerate_req_id()
   return std::to_string((unsigned long)random());
 }
 
-// TODO: no separate request class? make_request() function instead...
-
 /**
- * A req is fundamentally an ellis::node, but provides additional
- * guarantees and features.  A req is guaranteed to include the following
- * fields:
+ * Make a request, which is an ellis::node with a particular structure.
+ *
+ * A proper request will always have the following fields:
  *
  * - id
- * - mod
- * - proc
+ * - module
+ * - procedure
  * - params
  *
  * It may also optionally include:
  *
  * - is_tracing
  */
-class request {
-public:
-  node m_val;
-  req_id m_id;
-  string m_debugid;
-  request(const string &mod,
-      const string &proc,
-      const node &params,
-      const req_id &idparam = autogenerate_req_id(),
-      bool is_tracing = false)
-    : m_val(::ellis::type::MAP),
-      m_id(idparam)
-  {
-    auto & a = m_val.as_mutable_map();
-    a.insert("id", m_id);
-    a.insert("mod", mod);
-    a.insert("proc", proc);
-    a.insert("params", params);
-    a.insert("is_tracing", is_tracing);
-    m_debugid = string("REQ:") + mod + "/" + proc + "[" + m_id + "]";
-  }
-  const node &get_field(const string &key)
-  {
-    return m_val.as_map()[key];
-  }
-  string debugid() { return m_debugid; }
-  req_id id() { return m_id; }
-};
+unique_ptr<node> make_request(
+    const string &mod,
+    const string &proc,
+    const node &params,
+    const req_id &id = autogenerate_req_id(),
+    bool is_tracing = false)
+{
+  auto n = make_unique<node>(::ellis::type::MAP);
+  auto & a = n->as_mutable_map();
+  a.insert("id", id);
+  a.insert("module", mod);
+  a.insert("procedure", proc);
+  a.insert("params", params);
+  a.insert("is_tracing", is_tracing);
+  return n;
+}
 
 /**
- * A response is fundamentally an ellis::node, but provides additional
- * guarantees and features.  A response is guaranteed to include the following
- * fields:
+ * Make a response, patterned off of a request.
+ *
+ * A response is an ellis::node with a particular structure...
+ * A proper response will always have the following fields:
  *
  * - id
- * - mod
- * - proc
+ * - module
+ * - procedure
  * - nanos
- * - load
  *
- * It will include exactly one of the following:
+ * It will eventually include exactly one of the following:
  *
  * - error
  * - result
@@ -103,32 +89,40 @@ public:
  *
  * - trace_info
  */
-class response {
-public:
-  node m_val;
-  req_id m_id;
-  string m_debugid;
-  response(const request &req_model)
-     : m_val(::ellis::type::MAP)
-  {
-    auto & a = m_val.as_mutable_map();
-    auto &ra = req_model.m_val.as_map();
-    auto idarg = (const char *)ra["id"];
-    auto mod = (const char *)ra["mod"];
-    auto proc = (const char *)ra["proc"];
-    a.insert("id", idarg);
-    a.insert("mod", mod);
-    a.insert("proc", proc);
-    m_id = idarg;
-    m_debugid = string("RESP:") + mod + "/" + proc + "[" + m_id + "]";
-  }
-  const node &get_field(const string &key)
-  {
-    return m_val.as_map()[key];
-  }
-  string debugid() { return m_debugid; }
-  req_id id() { return m_id; }
-};
+unique_ptr<node> make_response(
+    const node &req_model)
+{
+  auto n = make_unique<node>(::ellis::type::MAP);
+  auto & a = n->as_mutable_map();
+  auto &ra = req_model.as_map();
+  auto id = (const char *)ra["id"];
+  auto mod = (const char *)ra["module"];
+  auto proc = (const char *)ra["procedure"];
+  a.insert("id", id);
+  a.insert("module", mod);
+  a.insert("procedure", proc);
+  return n;
+}
+
+/**
+ * Convenience function to get access a particular field of a request or
+ * response and convert it to const char pointer.
+ */
+const char * get_strfield(const node &n, const char *key)
+{
+  return (const char *)(n.as_map()[key]);
+}
+
+/**
+ * Convenience function to get make a debug-friendly label for a request or
+ * response, using its method, procedure, and id fields.
+ */
+string get_debugid(const node &n)
+{
+  return ELLIS_SSTRING(get_strfield(n, "module")
+      << "/" << get_strfield(n, "procedure")
+      << "[" << get_strfield(n, "id") << "]");
+}
 
 /**
  * Time representation.
@@ -216,7 +210,7 @@ struct call_telemetry {
       (TELEM)->m_traces.push_back({ now(), STAGE }); \
     } \
     ELLIS_LOG(DBUG, "%s: stage -> %s", \
-        (REQ)->debugid().c_str(), STAGE); \
+        get_debugid(*(REQ)).c_str(), STAGE); \
   } while (0)
 
 /**
@@ -227,18 +221,18 @@ struct call_telemetry {
  */
 class call {
 public:
-  unique_ptr<request> m_req;
-  unique_ptr<response> m_resp;
+  unique_ptr<node> m_req;
+  unique_ptr<node> m_resp;
   call_telemetry m_telemetry;
 public:
-  call(unique_ptr<request> req, bool is_tracing = true) :
+  call(unique_ptr<node> req, bool is_tracing = true) :
     m_req(std::move(req))
   {
     m_telemetry.m_is_tracing = is_tracing;
     m_telemetry.m_start_time = now();
     ELLISEXTRACE(m_req, &m_telemetry, "CREATED");
   }
-  void complete(unique_ptr<response> resp)
+  void complete(unique_ptr<node> resp)
   {
     m_resp = std::move(resp);
     ELLISEXTRACE(m_req, &m_telemetry, "COMPLETED");
@@ -272,7 +266,7 @@ class stats {
  * completed the response.
  */
 using procedure_imp_cb = std::function<void(
-    unique_ptr<response> resp)>;
+    unique_ptr<node> resp)>;
 
 /**
  * A procedure implementation.
@@ -389,7 +383,7 @@ using callback = std::function<void(call *)>;
  * we'll share one connection per alias (e.g. server and role/credential).
  *
  * For now: always one copy, fossilized at startup.  In the future, as needed
- * for perf optimization: RCU map from thread local id to entry in vector of
+ * for perf optimization: RCU map from thread local index to entry in vector of
  * scheduler that expands on demand.  Similarly, the internal thread
  * scheduling system may be changed in the future for higher performance.
  */
@@ -451,21 +445,21 @@ public:
   }
 
   void submit_async(
-      unique_ptr<request> req,
+      unique_ptr<node> req,
       const callback &cb)
   {
     // TODO: replace std::out_of_range with different exception?
-    const char *modname = (const char *)(req->get_field("mod"));
+    const char *modname = get_strfield(*req, "module");
     ELLIS_LOG(DBUG, "looking up module %s", modname);
     auto &m = m_modules.at(modname);
-    const char *procname = (const char *)(req->get_field("proc"));
+    const char *procname = get_strfield(*req, "procedure");
     ELLIS_LOG(DBUG, "looking up procedure %s", procname);
     auto &procinfo = m.lookup_procedure_info(procname);
     /* TODO: Validate request. */
     auto c = make_shared<call>(std::move(req));
     procedure_imp_cb finish =
       [this, cb, c]
-      (unique_ptr<response> resp)
+      (unique_ptr<node> resp)
       {
         c->complete(std::move(resp));
         cb(c.get());
@@ -479,10 +473,10 @@ public:
         });
   }
 
-  unique_ptr<response> do_sync(
-      unique_ptr<request> req)
+  unique_ptr<node> do_sync(
+      unique_ptr<node> req)
   {
-    unique_ptr<response> awaited_response;
+    unique_ptr<node> awaited_response;
 
     auto wake_func =
       [this, &awaited_response]
@@ -517,12 +511,12 @@ public:
 };
 
 
-}  /* namespace ::ellis::ex */
+}  /* namespace ::ellis::op */
 }  /* namespace ::ellis */
 
 int main() {
 
-  using namespace ::ellis::ex;
+  using namespace ::ellis::op;
   using namespace ::ellis;
 
   set_system_log_prefilter(log_severity::DBUG);
@@ -532,9 +526,9 @@ int main() {
       (call *c, const procedure_imp_cb &cb)
       {
         /* Count the square of request's x parameter. */
-        auto x = c->m_req->m_val.at_path("{params}{x}").as_int64();
-        auto resp = make_unique<response>(*(c->m_req));
-        resp->m_val.as_mutable_map().insert("result", x*x);
+        auto x = c->m_req->at_path("{params}{x}").as_int64();
+        auto resp = make_response(*(c->m_req));
+        resp->as_mutable_map().insert("result", x*x);
         cb(std::move(resp));
       });
   scheduler sched;
@@ -542,11 +536,7 @@ int main() {
   sched.add_module(hm);
   node params(type::MAP);
   params.as_mutable_map().insert("x", 8);
-  auto resp = sched.do_sync(make_unique<request>(
-        "hello",
-        "world",
-        params
-        ));
+  auto resp = sched.do_sync(make_request("hello", "world", params));
   sched.stop();
   return 0;
 }
