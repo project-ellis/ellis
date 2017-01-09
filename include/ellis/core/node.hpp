@@ -359,9 +359,33 @@ class node {
    */
   const binary_node & as_binary() const;
 
-  /** Get value from tree at given path (e.g. "{log}{handlers}[0]{sync}").
+  /** Get value from a hierarchical node at the given path.
+   *
+   * Use curly braces when indexing a map, and square brackets when indexing
+   * an array.
+   *
+   * For example:
+   *
+   *   const auto &sync = root.at("{log}{handlers}[0]{sync}");
+   *
+   * which is functionally equivalent to:
+   *
+   *   const auto &sync = root.as_map()["log"] \
+   *     .as_map()["handlers"] \
+   *     .as_array()[0] \
+   *     .as_map()["sync"];
+   *
+   * Efficiency note:
+   *
+   *  For repeated map or array operations, it is more efficient to first call
+   *  as_map() or as_array() respectively and then work with the resulting
+   *  object.  This avoids repeated type checking as well as path parsing.
+   *
+   * Use at_mutable() instead, if the intent is to change the original node.
+   *
+   * Will throw TYPE_MISMATCH error if types implied by path do not match.
    */
-  const node & at_path(const std::string &path) const;
+  const node & at(const std::string &path) const;
 
   /** Mutable access to contents.
    *
@@ -379,7 +403,7 @@ class node {
   map_node    & as_mutable_map();
   binary_node & as_mutable_binary();
   u8str_node & as_mutable_u8str();
-  node & at_path_mutable(const std::string &path);
+  node & at_mutable(const std::string &path);
 
   friend class array_node;
   friend class binary_node;

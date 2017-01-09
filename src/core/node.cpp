@@ -668,16 +668,16 @@ type node::get_type() const
 }
 
 
-node & node::at_path_mutable(const std::string &path)
+node & node::at_mutable(const std::string &path)
 {
   MIGHTALTER();
   /* Re-use code from const version. */
   return const_cast<node&>(
-      static_cast<const node*>(this)->at_path(path));
+      static_cast<const node*>(this)->at(path));
 }
 
 
-const node & node::at_path(const std::string &path) const
+const node & node::at(const std::string &path) const
 {
   enum class parse_state {
     NEED_SELECTOR,

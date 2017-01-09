@@ -3,7 +3,9 @@
 ## Initial release to public
 
 M Msgpack encoder
-* Name registration for encode/decode
+* (jmc) Make delimited text codec more useful.
+* (jmc) Make a more proper `delimited_text_test` from the `test/codec_test`.
+* Name registration for encode/decode.
 * Run doxygen for purposes of checking inline docs.
 * Doxygen consistency, including using comments from the C headers if/when
   appropriate.

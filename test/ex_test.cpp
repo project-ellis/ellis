@@ -539,7 +539,7 @@ int main() {
       (call *c, const procedure_imp_cb &cb)
       {
         /* Count the square of request's x parameter. */
-        auto x = c->m_req->at_path("{params}{x}").as_int64();
+        int64_t x = c->m_req->at("{params}{x}");
         auto resp = make_response(*(c->m_req));
         resp->as_mutable_map().insert("result", x*x);
         cb(std::move(resp));

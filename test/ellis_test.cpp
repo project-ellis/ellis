@@ -559,13 +559,13 @@ static void pathtest()
   a.as_mutable_array().append("hi");
   node r(type::MAP);
   r.as_mutable_map().insert("foo", a);
-  ELLIS_ASSERT_EQ(r.at_path("{foo}[0]"), 4);
-  ELLIS_ASSERT_EQ(r.at_path("{foo}[1]"), "hi");
+  ELLIS_ASSERT_EQ(r.at("{foo}[0]"), 4);
+  ELLIS_ASSERT_EQ(r.at("{foo}[1]"), "hi");
   auto chk_fail = [&r](const char *path)
   {
     bool threw = false;
     try {
-      r.at_path(path);
+      r.at(path);
     } catch(const err &e) {
       threw = true;
     }
@@ -580,8 +580,8 @@ static void pathtest()
   chk_fail("{foo}[2]");
   chk_fail("{foo}[0][1]");
   chk_fail("{foo}[0]{1}");
-  r.at_path_mutable("{foo}[0]") = 5;
-  ELLIS_ASSERT_EQ(r.at_path("{foo}[0]"), 5);
+  r.at_mutable("{foo}[0]") = 5;
+  ELLIS_ASSERT_EQ(r.at("{foo}[0]"), 5);
 }
 
 int main()
