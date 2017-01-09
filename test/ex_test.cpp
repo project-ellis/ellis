@@ -1,5 +1,6 @@
 #undef NDEBUG
 #include <boost/asio.hpp>
+#include <ellis/core/array_node.hpp>
 #include <ellis/core/emigration.hpp>
 #include <ellis/core/immigration.hpp>
 #include <ellis/core/map_node.hpp>
@@ -204,7 +205,7 @@ struct call_telemetry {
  * simple character string constant (not a C++ string), and can be used for
  * building timing charts.
  */
-#define ELLISEXTRACE(REQ, TELEM, STAGE) \
+#define ELLIS_OP_TRACE(REQ, TELEM, STAGE) \
   do { \
     if ((TELEM)->m_is_tracing) { \
       (TELEM)->m_traces.push_back({ now(), STAGE }); \
@@ -230,13 +231,25 @@ public:
   {
     m_telemetry.m_is_tracing = is_tracing;
     m_telemetry.m_start_time = now();
-    ELLISEXTRACE(m_req, &m_telemetry, "CREATED");
+    ELLIS_OP_TRACE(m_req, &m_telemetry, "CREATED");
   }
   void complete(unique_ptr<node> resp)
   {
     m_resp = std::move(resp);
-    ELLISEXTRACE(m_req, &m_telemetry, "COMPLETED");
+    ELLIS_OP_TRACE(m_req, &m_telemetry, "COMPLETED");
     m_telemetry.m_total_nanos = (int64_t)(now() - m_telemetry.m_start_time);
+    m_resp->as_mutable_map().insert("nanos", m_telemetry.m_total_nanos);
+    if (m_telemetry.m_is_tracing) {
+      auto trnode = node(ellis::type::ARRAY);
+      auto & trnodea = trnode.as_mutable_array();
+      for (auto &trent : m_telemetry.m_traces) {
+        auto ent = node(ellis::type::ARRAY);
+        ent.as_mutable_array().append(trent.m_stage);
+        ent.as_mutable_array().append(trent.m_time.m_nanos_since_epoch);
+        trnodea.append(ent);
+      }
+      m_resp->as_mutable_map().insert("trace_info", trnode);
+    }
   }
 };
 
@@ -468,7 +481,7 @@ public:
         [this, finish, c, &procinfo]
         ()
         {
-          ELLISEXTRACE(c->m_req, &c->m_telemetry, "CALL_RUN_IMP");
+          ELLIS_OP_TRACE(c->m_req, &c->m_telemetry, "CALL_RUN_IMP");
           (procinfo.m_imp)(c.get(), finish);
         });
   }

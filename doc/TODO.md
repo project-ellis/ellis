@@ -56,3 +56,18 @@ M Msgpack encoder
 * Man pages.
 * Packaging for debian.
 * Packaging for redhat.
+
+## Sample community tasks
+
+Lots of ellis cleanup work to do.  Can make some of it be contributable by
+community (e.g. testing, new codecs).
+
+* more codecs
+* more transformations
+* project ellis icon--melting pot? island?
+* manual page
+* tldr page
+* packaging for various distros
+* benchmarks
+* more correctness and fuzz tests
+* code review
