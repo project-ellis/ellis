@@ -541,7 +541,7 @@ int main() {
         /* Count the square of request's x parameter. */
         int64_t x = c->m_req->at("{params}{x}");
         auto resp = make_response(*(c->m_req));
-        resp->as_mutable_map().insert("result", x*x);
+        resp->install("{result}{x2}", x*x);
         cb(std::move(resp));
       });
   scheduler sched;
@@ -550,6 +550,7 @@ int main() {
   node params(type::MAP);
   params.as_mutable_map().insert("x", 8);
   auto resp = sched.do_sync(make_request("hello", "world", params));
+  ELLIS_ASSERT_EQ(resp->at("{result}{x2}"), 64);
   sched.stop();
   return 0;
 }
