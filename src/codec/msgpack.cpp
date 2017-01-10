@@ -296,13 +296,15 @@ double from_be(const byte *buf)
   return union_cast<uint64_t, double>(be64toh(*((uint64_t *)buf)));
 }
 
+class bytecount_insufficient : public std::exception {};
 
 static inline void verify_expected_count(size_t bytecount, size_t expected)
 {
   if (bytecount < expected) {
-    const string &msg =
-      ELLIS_SSTRING("expected count " << expected << " but count is " << bytecount);
-    THROW_ELLIS_ERR(PARSE_FAIL, msg);
+    /*
+     * Not a real error, but used for simply getting back to consume_buffer.
+     */
+    throw bytecount_insufficient();
   }
 }
 
@@ -561,10 +563,13 @@ node_progress msgpack_decoder::consume_buffer(
       MAKE_UNIQUE_ELLIS_ERR(PARSE_FAIL, "Cannot parse empty msgpack node"));
   }
 
-  msgpack_type type = get_msgpack_type(*buf);
   try {
+    msgpack_type type = get_msgpack_type(*buf);
     unique_ptr<node> n = make_unique<node>(parse_node(type, buf, bytecount));
     return node_progress(std::move(n));
+  }
+  catch (const bytecount_insufficient &) {
+    return node_progress(stream_state::CONTINUE);
   }
   catch (const err &e) {
     return node_progress(make_unique<err>(e));

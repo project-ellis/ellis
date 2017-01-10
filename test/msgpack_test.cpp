@@ -10,17 +10,66 @@ int main() {
 
   msgpack_decoder dec;
 
-  /* TODO: add some failing tests, and some partial read tests */
-
+  /* Buffer length is 0. */
   {
-    const byte buf[] = { 0x0 };
+    const byte buf[] = { 0xa2, 0x68, 0x69 };
+    size_t count = 0;
+    auto status = dec.consume_buffer(buf, &count);
+    ELLIS_ASSERT_EQ(status.state(), stream_state::ERROR);
+    ELLIS_ASSERT_NOT_NULL(status.extract_error().get());
+  }
+
+  /* Buffer length is too small. */
+  {
+    const byte buf[] = { 0xa2, 0x68, 0x69 };
+    size_t count = sizeof(buf) - 1;
+    auto status = dec.consume_buffer(buf, &count);
+    ELLIS_ASSERT_EQ(status.state(), stream_state::CONTINUE);
+    ELLIS_ASSERT_NULL(status.extract_error().get());
+    count = sizeof(buf);
+    status = dec.consume_buffer(buf, &count);
+    node n = *status.extract_value();
+    ELLIS_ASSERT_TRUE(n.is_type(type::U8STR));
+    ELLIS_ASSERT_EQ(n, "hi");
+  }
+
+  auto onebyte_fail = [](msgpack_decoder &d, byte b) {
+    const byte buf[] = { b };
+    size_t count = sizeof(buf);
+    auto status = d.consume_buffer(buf, &count);
+    ELLIS_ASSERT_EQ(status.state(), stream_state::ERROR);
+    ELLIS_ASSERT_NOT_NULL(status.extract_error().get());
+  };
+
+  /* Unsupported type bytes. */
+  {
+    /* Unused byte. */
+    onebyte_fail(dec, 0xc1);
+
+    /* Ext bytes. */
+    onebyte_fail(dec, 0xc7);
+    onebyte_fail(dec, 0xc8);
+    onebyte_fail(dec, 0xc9);
+
+    /* Uint64 byte. */
+    onebyte_fail(dec, 0xcf);
+
+    /* Fixext bytes. */
+    onebyte_fail(dec, 0xd4);
+    onebyte_fail(dec, 0xd5);
+    onebyte_fail(dec, 0xd6);
+    onebyte_fail(dec, 0xd7);
+    onebyte_fail(dec, 0xd8);
+  }
+
+  /* Map key is not a string. */
+  /* { 0: 1 } */
+  {
+    const byte buf[] = { 0x81, 0x0, 0x1 };
     size_t count = sizeof(buf);
     auto status = dec.consume_buffer(buf, &count);
-    ELLIS_ASSERT_EQ(status.state(), stream_state::SUCCESS);
-    ELLIS_ASSERT_NULL(status.extract_error().get());
-    node n = *status.extract_value();
-    ELLIS_ASSERT_TRUE(n.is_type(type::INT64));
-    ELLIS_ASSERT_EQ(n, 0);
+    ELLIS_ASSERT_EQ(status.state(), stream_state::ERROR);
+    ELLIS_ASSERT_NOT_NULL(status.extract_error().get());
   }
 
   {
