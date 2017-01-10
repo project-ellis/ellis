@@ -308,7 +308,7 @@ static inline void verify_expected_count(size_t bytecount, size_t expected)
 
 
 template <typename T>
-static void _compute_lengths(
+static void compute_lengths(
     const byte *buf,
     size_t bytecount,
     T *header_len,
@@ -350,7 +350,7 @@ static inline node make_map_node(const byte *buf, size_t *bytecount)
 {
   T header_len;
   T array_len;
-  _compute_lengths<T>(buf, *bytecount, &header_len, &array_len);
+  compute_lengths<T>(buf, *bytecount, &header_len, &array_len);
   return _make_map_node<T>(buf, bytecount, header_len, array_len);
 }
 
@@ -381,7 +381,7 @@ static inline node make_array_node(const byte *buf, size_t *bytecount)
 {
   T header_len;
   T array_len;
-  _compute_lengths(buf, *bytecount, &header_len, &array_len);
+  compute_lengths(buf, *bytecount, &header_len, &array_len);
   return _make_array_node<T>(buf, bytecount, header_len, array_len);
 }
 
@@ -391,7 +391,7 @@ static inline node make_bin_node(const byte *buf, size_t *bytecount)
 {
   T header_len;
   T data_len;
-  _compute_lengths(buf, *bytecount, &header_len, &data_len);
+  compute_lengths(buf, *bytecount, &header_len, &data_len);
   *bytecount -= header_len + data_len;
   return node(buf + header_len, data_len);
 }
@@ -422,7 +422,7 @@ static inline string make_str(const byte *buf, size_t *bytecount)
 {
   T header_len;
   T data_len;
-  _compute_lengths(buf, *bytecount, &header_len, &data_len);
+  compute_lengths(buf, *bytecount, &header_len, &data_len);
   return _make_str<T>(buf, bytecount, header_len, data_len);
 }
 
