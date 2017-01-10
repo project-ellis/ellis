@@ -482,6 +482,26 @@ node::node(const char *s)
 }
 
 
+node::node(const initializer_list<node> &elems)
+{
+  _zap_contents(type::ARRAY);
+  auto & a = _as_mutable_array();
+  for (const auto &e : elems) {
+    a.append(e);
+  }
+}
+
+
+node::node(const initializer_list<pair<const char *, node>> &kvpairs)
+{
+  _zap_contents(type::MAP);
+  auto & m = _as_mutable_map();
+  for (const auto &kv : kvpairs) {
+    m.insert(kv.first, kv.second);
+  }
+}
+
+
 node::node(const node& other)
 {
   _grab_contents(other);

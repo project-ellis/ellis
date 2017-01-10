@@ -13,6 +13,7 @@
 #include <algorithm>
 #include <condition_variable>
 #include <deque>
+#include <initializer_list>
 #include <list>
 #include <map>
 #include <memory>
@@ -28,6 +29,7 @@ using std::condition_variable;
 using std::deque;
 using std::for_each;
 using std::function;
+using std::initializer_list;
 using std::list;
 using std::make_pair;
 using std::make_shared;

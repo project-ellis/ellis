@@ -361,6 +361,11 @@ static void arraytest()
   empty_chk(en2);
   /* Make sure the original is still intact. */
   contents_chk(en);
+
+  /* Construct using initializer_list, and verify contents. */
+  node yanode({"foo", 4, 4.4, true, type::NIL, type::ARRAY, type::MAP,
+      node(k_somedata, sizeof(k_somedata))});
+  contents_chk(yanode);
 }
 
 static void binarytest()
@@ -549,6 +554,14 @@ static void maptest()
   en.as_mutable_map().clear();
   ELLIS_ASSERT_EQ(en.as_map().length(), 0);
   ELLIS_ASSERT_TRUE(en.as_map().is_empty());
+
+  /* initializer_list construction */
+  node sweet( {
+      std::make_pair("roger","roger"),
+      std::make_pair("victor","vector") } );
+  ELLIS_ASSERT_EQ(sweet.as_map().length(), 2);
+  ELLIS_ASSERT_EQ(sweet.at("{roger}"), "roger");
+  ELLIS_ASSERT_EQ(sweet.at("{victor}"), "vector");
 }
 
 static void pathtest()

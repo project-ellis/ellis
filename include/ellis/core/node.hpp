@@ -11,7 +11,9 @@
 
 #include <ellis/core/defs.hpp>
 #include <ellis/core/type.hpp>
+#include <initializer_list>
 #include <string>
+#include <utility>
 
 
 namespace ellis {
@@ -116,6 +118,12 @@ class node {
 
   /** Construct a U8STR node. */
   node(const char *);
+
+  /** Construct an ARRAY node with specified contents. */
+  node(const std::initializer_list<node> &elems);
+
+  /** Construct a MAP node with specified contents. */
+  node(const std::initializer_list<std::pair<const char *, node>> &kvpairs);
 
   /** Copy constructor.
    *
