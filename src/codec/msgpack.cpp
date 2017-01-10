@@ -121,7 +121,6 @@ enum class msgpack_type {
 
 
 /* Forward declarations. */
-static node parse_node(msgpack_type type, const byte *buf, size_t *bytecount);
 static node parse_node(const byte *buf, size_t *bytecount);
 
 static std::string parse_str(const byte *buf, size_t *bytecount);
@@ -369,8 +368,7 @@ static inline node _make_array_node(
   node array = node(type::ARRAY);
   for (T i = 0; i < array_len; i++) {
     const byte *pos = end - *bytecount;
-    msgpack_type type = get_msgpack_type(*pos);
-    node n = parse_node(type, pos, bytecount);
+    node n = parse_node(pos, bytecount);
     array.as_mutable_array().append(std::move(n));
   }
 
@@ -432,11 +430,6 @@ static inline string make_str(const byte *buf, size_t *bytecount)
 node parse_node(const byte *buf, size_t *bytecount)
 {
   msgpack_type type = get_msgpack_type(*buf);
-  return parse_node(type, buf, bytecount);
-}
-
-node parse_node(msgpack_type type, const byte *buf, size_t *bytecount)
-{
   switch (type) {
     /* Map */
     case msgpack_type::FIXMAP:
@@ -559,8 +552,7 @@ node_progress msgpack_decoder::consume_buffer(
     size_t *bytecount)
 {
   try {
-    msgpack_type type = get_msgpack_type(*buf);
-    unique_ptr<node> n = make_unique<node>(parse_node(type, buf, bytecount));
+    unique_ptr<node> n = make_unique<node>(parse_node(buf, bytecount));
     return node_progress(std::move(n));
   }
   catch (const bytecount_insufficient &) {
