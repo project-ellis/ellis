@@ -249,5 +249,65 @@ int main() {
     }
   }
 
+  {
+    /*
+     * [
+     *   {"compact": true, "schema": 0},
+     *   1,
+     *   [2, 3, 4]
+     * ]
+     */
+    const byte buf[] = { 0x93, 0x82, 0xa7, 0x63, 0x6f, 0x6d, 0x70, 0x61, 0x63,
+      0x74, 0xc3, 0xa6, 0x73, 0x63, 0x68, 0x65, 0x6d, 0x61, 0x00, 0x01, 0x93,
+      0x02, 0x03, 0x04 };
+    size_t count = sizeof(buf);
+    auto status = dec.consume_buffer(buf, &count);
+    ELLIS_ASSERT_EQ(status.state(), stream_state::SUCCESS);
+    ELLIS_ASSERT_NULL(status.extract_error().get());
+    node n = *status.extract_value();
+    ELLIS_ASSERT_TRUE(n.is_type(type::ARRAY));
+    const array_node &a = n.as_array();
+    ELLIS_ASSERT_EQ(a.length(), 3);
+
+    ELLIS_ASSERT_TRUE(a[0].is_type(type::MAP));
+    const map_node &m = a[0].as_map();
+    ELLIS_ASSERT_EQ(m.length(), 2);
+    ELLIS_ASSERT_EQ(m["compact"], true);
+    ELLIS_ASSERT_EQ(m["schema"], 0);
+
+    ELLIS_ASSERT_EQ(a[1], 1);
+
+    ELLIS_ASSERT_TRUE(a[2].is_type(type::ARRAY));
+    const array_node &a2 = a[2].as_array();
+    ELLIS_ASSERT_EQ(a2[0], 2);
+    ELLIS_ASSERT_EQ(a2[1], 3);
+    ELLIS_ASSERT_EQ(a2[2], 4);
+  }
+
+  {
+    /*
+     * {
+     *   "compact": true,
+     *   "schema": [1, 2, 3]
+     * }
+     */
+    const byte buf[] = { 0x82, 0xa7, 0x63, 0x6f, 0x6d, 0x70, 0x61, 0x63, 0x74, 0xc3, 0xa6, 0x73, 0x63, 0x68, 0x65, 0x6d, 0x61, 0x93, 0x01, 0x02, 0x03 };
+    size_t count = sizeof(buf);
+    auto status = dec.consume_buffer(buf, &count);
+    ELLIS_ASSERT_EQ(status.state(), stream_state::SUCCESS);
+    ELLIS_ASSERT_NULL(status.extract_error().get());
+    node n = *status.extract_value();
+    ELLIS_ASSERT_TRUE(n.is_type(type::MAP));
+    const map_node &m = n.as_map();
+    ELLIS_ASSERT_TRUE(m["compact"]);
+
+    ELLIS_ASSERT_TRUE(m["schema"].is_type(type::ARRAY));
+    const array_node &a = m["schema"].as_array();
+    ELLIS_ASSERT_EQ(a.length(), 3);
+    ELLIS_ASSERT_EQ(a[0], 1);
+    ELLIS_ASSERT_EQ(a[1], 2);
+    ELLIS_ASSERT_EQ(a[2], 3);
+  }
+
   return 0;
 }
