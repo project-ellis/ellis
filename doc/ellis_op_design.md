@@ -83,8 +83,10 @@ module and procedure are to be implemented--such as local or remote.
     * generally consumes a precious resource (server connection)
 * No remote tracing or telemetry provided, once again DIY
 * Cache: here are some rough primitives, implement it yourself
+* On your own, re 1 to many
+* On your own, re NAT
 
-## Priorities: what will ellis-op bring that REST doesn't already provide?
+## Priorities: what will ellis-op bring that REST doesn't normally provide?
 
 * Ease of use, framework supplied, batteries included
 * No worrying about parsing
@@ -93,8 +95,9 @@ module and procedure are to be implemented--such as local or remote.
   * schemas applied before request delivered to server, or response to client
 * Use whatever encoding
   * encoding is flexible and auto-negotiated (if have ellis codec)
-* Out of order request completion
-* Telemetry always present
+* Low latency, out of order request completion
+* Telemetry and system status always present
+* Provide tools for working around NAT firewalls and implementing fan-out
 * Application just creates requests and submits them
   * request might be handled locally immediately, or may wait for server
   * routing table maps module/procname to handler/config, endpoints, etc
@@ -122,18 +125,20 @@ module and procedure are to be implemented--such as local or remote.
 
 ## Non-goals
 
-* no http/1.1 support--use an outer proxy like nginx if you want that
-* no forcing a particular conception of REST, just provide framework
+* http/1.1 support--use an outer proxy like nginx if you want that
 
 ## Request and response structure
 
-Requests and responses might be handled locally, without ever being sent to a
-remote server, if applicable, or perhaps, cacheable.  In case they are sent
-remotely, it is up to the client/proxy implementation to decide based on
-negotiation with the remote server which encoder to use.
+Requests and responses can be handled locally, without ever being sent to a
+remote server, if applicable.  Similarly, depending on the cache semantics
+of a particular module, the request may be handled from a local cache.  In
+case the request will be sent to a remote server, it is up to the client or
+proxy implementation to decide (based on negotiation with the remote server)
+which encoding to use when sending the request over the wire.
 
 The current intent is that it will always be safe for the client to use either
-msgpack or json, though other encoding formats may be available.
+msgpack or json encoding, though other formats may be supported, as provided
+by the ellis library.
 
 #### HTTP manifestation
 
@@ -147,39 +152,74 @@ response type of 409 will be used.
 
 #### Request
 
+A request is a hierarchical object with the following fields at the top level:
+
 ```
   id:
   module:
   procedure:
   params:
   (optional) is_tracing:
+  (optional) signature:
 ```
 
+The `params` field is a map, but the details of that field will depend on the
+nature of the particular module and procedure.
+
+If `is_tracing` is present and set to `true`, then the timing and stages of
+execution will be traced while executing the request.  This allows periodic
+sampling when investigating performance issues.
+
+If `signature` is present, it represents an alternate signature, above and
+beyond the security afforded by the SSL HTTP/2 connection, and is computed
+based on a canonical ordering of the unpacked request in memory, sans the
+`signature` field, but including the request id field (in this case, the
+client should take precautions against repetition of the same request id,
+e.g. by using a properly random ID chosen from a sufficiently large set.
+
+The signature may specify a different identity than the one associated with
+the SSL connection.
+
 #### Response
+
+A response is a hierarchical object with the following fields at the top level:
 
 ```
   id:
   module:
   procedure:
-  (one of the following)
+  (exactly one of the following)
     error:
     result:
   nanos:
   (optional) trace_info
 ```
 
+The `id`, `module`, and `procedure` fields match those of the request.
+
+Either the `error` field or the `result` field is present, but not both.
+The `error` field is only present when a request has failed, and contains an
+error code, a more detailed message, and possibly other details such as the
+file, line number, and function that generated the error.  The `result` field
+is a map, but the details of that field will depend on the nature of the
+particular module and procedure.
+
+The `trace_info` field is only present if the corresponding request specified
+a value of true for `is_tracing`.
+
 #### Streaming
 
-Framing will only be potentially relevant in the case of a notification
-stream.  Notification streams should be no problem but will be implemented in
-the future.  However, since a notification stream is crucial for implementing
-a real-time updating client that does not suffer from the latency caused by a
-request/response ping-pong, we need to figure out how that will work
-with HTTP/2 and get the API structure in place before stabilizing the API,
-otherwise it may result in a bad experience for early adopters of Ellis.
+Framing of multiple request or response objects will only be potentially
+relevant in the case of a notification stream.  Notification streams will be
+implemented in the future, with the objective of allowing a real-time updating
+client that does not suffer from the latency caused by a request/response
+ping-pong, such as one might find in an MMORPG.  This should be compatible
+with a long-living HTTP/2 stream, but we need to do the exploration and get
+the API structure in place before we consider the API stabile, so as to
+provide a better experience for early adopters of Ellis Op.
 
-Framing layer specifies terminator, length style, separator, initiator.  So
-we can have for example:
+The framing layer may be considered as independent of the codec, and specifies
+terminator, length style, separator, initiator.  So we can have for example:
 
   * no length encoding plus newline terminator
   * binary length encoding, and no terminator at all
@@ -367,28 +407,62 @@ server?  But that might be too complicated.
 
 ## Access control
 
-* Oauth2 for access tokens
-  * TODO: Reread section 10 (security) of RFC 6749.
-* TODO: how does grpc do access control (or does it?)
-* TODO: Look at SELinux for inspiration
-* Access to be granted based on predicate and role.
-* Initially there is a default "role"; any suitable client cert grants access.
-* Initially default role is associated with a connection, and it is assumed
-  that all requests over the connection have equal access.
-* A role might be specified (with proof?) for an individual call.
-  * Role ticket: transferrable?  forwardable?  TTL counter, expiration date.
-* If shared cache is worthwhile (local deaemon?), similarly managed by role.
-* Secure hashes, annotated and updatable.
-* Secure hash based compression?
-* Smart scheme for authentication against local daemon
-  * initially: UNIX perms on unix domain socket
-  * TODO: search on unix domain socket authentication (can look up process
-    username of connected client?)
-  * allow temporary access tokens
-* Temporary access tokens
-  * can be role specific or public
-  * TTL usage counter (requires access to arbiter) and/or expiration date
-  * somewhat like session key; 128 bits or whatever. TODO how many bits
+By default, all requests implemented directly are considered to have been
+issued by the "system" user, who is presumed automatically to have access.
+
+Requests received over the network by a server will by default be associated
+with the identity implied by their SSL connection.
+
+Individual requests may have their identity overridden by the request
+signature.  This technique may be useful when proxying or reverse proxying
+requests.
+
+The table used by the local request scheduler assumes only that the system
+user has access to each of the procedures in each module, by default, though
+additional identities can be granted access.
+
+## One to many distribution
+
+This simplest and initial implementation of this feature will be achieved by
+providing a daemon program that keeps open SSL connections to all the
+potential recipients.  A "merv" request will then be sent which contains in its
+params a list of recipients and an inner request.  The request ID of the inner
+request may be translated as needed for the implied proxying.
+
+## Proxy queueing
+
+When proxying commands to a remote server, if that remote server can not be
+reached, the proxy will maintain a queue of requests to be sent to the remote
+server.  In this case, when the remote server becomes available again, the
+requests will be delivered, and responses ferried back to the client.
+
+Proxy queueing can be enabled or disabled independently for different
+modules and servers.
+
+## Request exfiltration
+
+It may be that edge systems are behind NAT firewalls where the system
+maintenance hosts can not easily make contact with them.
+
+In this case, the same request proxy queueing behavior should occur, based on
+some perhaps abstracted representation of the client host/identity to which
+requests are addressed.
+
+When it is desired that these requests be allowed a pathway to reach the edge
+nodes, it is expected that the edge nodes will then be configured to attempt
+to connect (as clients) to the well known maintenance servers in a sort of
+"pull" mode, and issue "pull request" requests, with a parallel stream issuing
+"push response" requests for the responses to these requests.  These builtin
+commands will interact with the server's proxy queue and allow the original
+requests to complete even though a connection was not made to the proxy.
+
+Request exfiltration is not the only mechanism available to distribute
+requests to edge nodes behind firewall.  Edge nodes may also poll for updates
+to a central database, and record their responses in the database, in which
+case there is no need for individual addressing and proxy queueing.
+
+The one-to-many features, batch requests, request signing, and request
+exfiltration, can be used in conjunction.
 
 ## Future project: database as a reference ellis op project
 
