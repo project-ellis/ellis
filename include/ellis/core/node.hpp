@@ -82,12 +82,12 @@ class node {
 
  public:
 
-  /*   ____                _                   _
-   *  / ___|___  _ __  ___| |_ _ __ _   _  ___| |_ ___  _ __ ___
-   * | |   / _ \| '_ \/ __| __| '__| | | |/ __| __/ _ \| '__/ __|
-   * | |__| (_) | | | \__ \ |_| |  | |_| | (__| || (_) | |  \__ \
-   *  \____\___/|_| |_|___/\__|_|   \__,_|\___|\__\___/|_|  |___/
-   *
+  /*  _     _  __                      _
+   * | |   (_)/ _| ___  ___ _   _  ___| | ___
+   * | |   | | |_ / _ \/ __| | | |/ __| |/ _ \
+   * | |___| |  _|  __/ (__| |_| | (__| |  __/
+   * |_____|_|_|  \___|\___|\__, |\___|_|\___|
+   *                        |___/
    */
 
   /** Construct an ARRAY, MAP, or NIL node. */
@@ -129,14 +129,6 @@ class node {
    * reference count, and will not affect the contents when deleted. */
   node(node&& other);
 
-
-  /*  ____            _                   _
-   * |  _ \  ___  ___| |_ _ __ _   _  ___| |_ ___  _ __
-   * | | | |/ _ \/ __| __| '__| | | |/ __| __/ _ \| '__|
-   * | |_| |  __/\__ \ |_| |  | |_| | (__| || (_) | |
-   * |____/ \___||___/\__|_|   \__,_|\___|\__\___/|_|
-   *
-   */
 
   ~node();
 
@@ -386,6 +378,13 @@ class node {
    * Will throw TYPE_MISMATCH error if types implied by path do not match.
    */
   const node & at(const std::string &path) const;
+
+  /**
+   * The new value is installed at the given path (using the same syntax
+   * as with the at() function), with array or map nodes created along the way
+   * as need (ala unix mkdir -p).
+   */
+  node & install(const std::string &path, const node &newval);
 
   /** Mutable access to contents.
    *

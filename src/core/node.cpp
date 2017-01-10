@@ -668,16 +668,21 @@ type node::get_type() const
 }
 
 
-node & node::at_mutable(const std::string &path)
-{
-  MIGHTALTER();
-  /* Re-use code from const version. */
-  return const_cast<node&>(
-      static_cast<const node*>(this)->at(path));
-}
+using map_selector_cb = std::function<void(
+    const string & pattern,
+    size_t path_position)>;
 
 
-const node & node::at(const std::string &path) const
+using array_selector_cb = std::function<void(
+    size_t start,
+    size_t stop,
+    size_t path_position)>;
+
+
+static void parse_path(
+    const string & path,
+    const map_selector_cb & got_map_selector,
+    const array_selector_cb & got_array_selector)
 {
   enum class parse_state {
     NEED_SELECTOR,
@@ -686,14 +691,13 @@ const node & node::at(const std::string &path) const
     IN_KEY,
   };
 
-#define BOOM(msg) \
+#define BOOM(DETAILS) \
   do { \
     THROW_ELLIS_ERR(PATH_FAIL, \
-      "path access failure at position " << (curr - path_start) \
-      << " of path " << path << ": " << msg); \
+      "path parsing failure at position " << (curr - path_start) \
+      << " of path " << path << ": " << DETAILS); \
   } while (0)
 
-  const node *v = this;
   parse_state state = parse_state::NEED_SELECTOR;
   const char *path_start = path.c_str();
   const char *curr = path_start;
@@ -710,16 +714,10 @@ const node & node::at(const std::string &path) const
           /* Do nothing: ignore spaces between selectors. */
         }
         else if (c == '{') {
-          if (! v->is_type(type::MAP)) {
-            BOOM("key selector applied to non-map");
-          }
           key_start = curr + 1;
           state = parse_state::IN_KEY;
         }
         else if (c == '[') {
-          if (! v->is_type(type::ARRAY)) {
-            BOOM("index selector applied to non-array");
-          }
           state = parse_state::NEED_INDEX;
         }
         else {
@@ -742,13 +740,7 @@ const node & node::at(const std::string &path) const
           index = index * 10 + c - '0';
         }
         else if (c == ']') {
-          if (! v->is_type(type::ARRAY)) {
-            BOOM("internal error--somehow we have non-array");
-          }
-          if (index >= v->_as_array().length()) {
-            BOOM("index out of range");
-          }
-          v = &(v->_as_array()[index]);
+          got_array_selector(index, index, curr - path_start);
           state = parse_state::NEED_SELECTOR;
         }
         else {
@@ -758,18 +750,12 @@ const node & node::at(const std::string &path) const
 
       case parse_state::IN_KEY:
         if (c == '}') {
-          if (! v->is_type(type::MAP)) {
-            BOOM("internal error--somehow we have non-map");
-          }
-          string key(key_start, curr - key_start);
-          if (! v->_as_map().has_key(key)) {
-            BOOM("key not found in map");
-          }
-          v = &(v->_as_map()[key]);
+          string pattern(key_start, curr - key_start);
+          got_map_selector(pattern, curr - path_start);
           state = parse_state::NEED_SELECTOR;
         }
-        else { /* A character in the key. */
-          /* Do nothing: we have a pointer to start of key; wait for end. */
+        else { /* A character in the pattern. */
+          /* Do nothing: we have a pointer to start of pattern; wait for end. */
         }
         break;
 
@@ -781,8 +767,155 @@ const node & node::at(const std::string &path) const
     BOOM("unexpected path termination");
   }
 
-  return *v;
+#undef BOOM
+  return;
 }
+
+
+node & node::at_mutable(const std::string &path)
+{
+  MIGHTALTER();
+  /* Re-use code from const version. */
+  return const_cast<node&>(
+      static_cast<const node*>(this)->at(path));
+}
+
+
+const node & node::at(const std::string &path) const
+{
+  /* Prepare for parsing/traversing path by setting up state and callbacks. */
+  struct mystate_t {
+    const node *v;
+  };
+
+  mystate_t mystate;
+  mystate.v = this;
+
+#define BOOM(POS, DETAILS) \
+  do { \
+    THROW_ELLIS_ERR(PATH_FAIL, \
+      "map access failure at position " << (POS) \
+      << " of path " << path << ": " << DETAILS); \
+  } while (0)
+
+  auto got_map_selector =
+    [&mystate, &path]
+    (const string &pattern, size_t pos)
+    {
+      if (! mystate.v->is_type(type::MAP)) {
+        BOOM(pos, "map pattern selector applied to non-map");
+      }
+      if (! mystate.v->_as_map().has_key(pattern)) {
+        BOOM(pos, "pattern not found in map");
+      }
+      mystate.v = &(mystate.v->_as_map()[pattern]);
+    };
+#undef BOOM
+
+#define BOOM(DETAILS, POS) \
+  do { \
+    THROW_ELLIS_ERR(PATH_FAIL, \
+      "array access failure at position " << (POS) \
+      << " of path " << path << ": " << DETAILS); \
+  } while (0)
+
+  auto got_array_selector =
+    [&mystate, &path]
+    (size_t start, size_t stop, size_t pos)
+    {
+      if (start != stop) {
+        BOOM(pos, "array range not supported in this mode");
+      }
+      if (! mystate.v->is_type(type::ARRAY)) {
+        BOOM(pos, "array index applied to non-array");
+      }
+      if (start >= mystate.v->_as_array().length()) {
+        BOOM(pos, "index out of range");
+      }
+      mystate.v = &(mystate.v->_as_array()[start]);
+    };
+#undef BOOM
+
+  /* Invoke path parsing/traversing logic. */
+  parse_path(path, got_map_selector, got_array_selector);
+
+  /* If haven't thrown exception by now, should have the desired node. */
+  return *(mystate.v);
+}
+
+
+node & node::install(const std::string &path, const node &newval)
+{
+  /* Prepare for parsing/traversing path by setting up state and callbacks. */
+  struct mystate_t {
+    node *v;
+  };
+
+  mystate_t mystate;
+  mystate.v = this;
+
+#define BOOM(POS, DETAILS) \
+  do { \
+    THROW_ELLIS_ERR(PATH_FAIL, \
+      "map access failure at position " << (POS) \
+      << " of path " << path << ": " << DETAILS); \
+  } while (0)
+
+  auto got_map_selector =
+    [&mystate, &path]
+    (const string &pattern, size_t pos)
+    {
+      if (! mystate.v->is_type(type::MAP)
+          && ! mystate.v->is_type(type::NIL)) {
+        BOOM(pos, "map pattern selector applied to non-map");
+      }
+      if (mystate.v->is_type(type::NIL)) {
+        *(mystate.v) = node(type::MAP);
+      }
+      if (! mystate.v->_as_map().has_key(pattern)) {
+        mystate.v->_as_mutable_map().insert(pattern, node(type::NIL));
+      }
+      mystate.v = &(mystate.v->_as_mutable_map()[pattern]);
+    };
+#undef BOOM
+
+#define BOOM(DETAILS, POS) \
+  do { \
+    THROW_ELLIS_ERR(PATH_FAIL, \
+      "array access failure at position " << (POS) \
+      << " of path " << path << ": " << DETAILS); \
+  } while (0)
+
+  auto got_array_selector =
+    [&mystate, &path]
+    (size_t start, size_t stop, size_t pos)
+    {
+      if (start != stop) {
+        BOOM(pos, "array range not supported in this mode");
+      }
+      if (! mystate.v->is_type(type::ARRAY)
+          && ! mystate.v->is_type(type::NIL)) {
+        BOOM(pos, "array index applied to non-array");
+      }
+      if (mystate.v->is_type(type::NIL)) {
+        *(mystate.v) = node(type::ARRAY);
+      }
+      while (start >= mystate.v->_as_array().length()) {
+        mystate.v->_as_mutable_array().append(node(type::NIL));
+      }
+      mystate.v = &(mystate.v->_as_mutable_array()[start]);
+    };
+#undef BOOM
+
+  /* Invoke path parsing/traversing logic. */
+  parse_path(path, got_map_selector, got_array_selector);
+
+  /* If haven't thrown exception by now, we should be in the right place to
+   * install the new node. */
+  *(mystate.v) = newval;
+  return *(mystate.v);
+}
+
 
 std::ostream & operator<<(std::ostream & os, const node & v)
 {

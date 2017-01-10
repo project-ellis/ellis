@@ -582,6 +582,8 @@ static void pathtest()
   chk_fail("{foo}[0]{1}");
   r.at_mutable("{foo}[0]") = 5;
   ELLIS_ASSERT_EQ(r.at("{foo}[0]"), 5);
+  r.install("{w}{x}{y}{z}[10]{hey}", node(32.0));
+  ELLIS_ASSERT_EQ(r.at("{w}{x}{y}{z}[10]{hey}"), 32.0);
 }
 
 int main()
