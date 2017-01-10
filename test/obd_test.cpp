@@ -57,15 +57,6 @@ int main() {
   /* CAN. */
   {
     can_decoder dec;
-    const byte buf[] = {0};
-    size_t count = 0;
-    auto status = dec.consume_buffer(buf, &count);
-    ELLIS_ASSERT_EQ(status.state(), stream_state::ERROR);
-    ELLIS_ASSERT_NOT_NULL(status.extract_error().get());
-  }
-
-  {
-    can_decoder dec;
     const byte buf[] = { 0x3, 0x41, 0x05, 0xB9, 0xA, 0xB, 0xC, 0x0 };
     size_t count = sizeof(buf);
     auto status = dec.consume_buffer(buf, &count);
@@ -138,15 +129,6 @@ int main() {
     ELLIS_ASSERT_EQ(m["mode"], "current");
     ELLIS_ASSERT_EQ(m["pid"], "engine_rpm");
     ELLIS_ASSERT_DBL_EQ(m["value"], (0x08*256 + 0x1B)/4.0);
-  }
-
-  {
-    elm327_decoder dec;
-    const byte buf[] = "";
-    size_t count = sizeof(buf) - 1;
-    auto status = dec.consume_buffer(buf, &count);
-    ELLIS_ASSERT_EQ(status.state(), stream_state::ERROR);
-    ELLIS_ASSERT_NOT_NULL(status.extract_error().get());
   }
 
   {

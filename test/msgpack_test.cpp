@@ -10,14 +10,10 @@ int main() {
 
   msgpack_decoder dec;
 
-  /* Buffer length is 0. */
-  {
-    const byte buf[] = { 0xa2, 0x68, 0x69 };
-    size_t count = 0;
-    auto status = dec.consume_buffer(buf, &count);
-    ELLIS_ASSERT_EQ(status.state(), stream_state::ERROR);
-    ELLIS_ASSERT_NOT_NULL(status.extract_error().get());
-  }
+  /*
+   * TODO: This test is wrong. After the first call returns CONTINUE, *bytecount
+   * should be 0, and the caller should call in with the third byte.
+   */
 
   /* Buffer length is too small. */
   {

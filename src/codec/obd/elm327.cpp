@@ -114,11 +114,6 @@ node_progress elm327_decoder::consume_buffer(
     const byte *buf,
     size_t *bytecount)
 {
-  if (bytecount == nullptr || *bytecount == 0) {
-    return node_progress(MAKE_UNIQUE_ELLIS_ERR(PARSE_FAIL,
-            "Cannot parse empty OBD II node"));
-  }
-
   /* We assume that if there are multiple responses coming from the ELM327, then
    * they are separated by newlines.
    */

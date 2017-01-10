@@ -558,11 +558,6 @@ node_progress msgpack_decoder::consume_buffer(
     const byte *buf,
     size_t *bytecount)
 {
-  if (bytecount == nullptr || *bytecount == 0) {
-    return node_progress(
-      MAKE_UNIQUE_ELLIS_ERR(PARSE_FAIL, "Cannot parse empty msgpack node"));
-  }
-
   try {
     msgpack_type type = get_msgpack_type(*buf);
     unique_ptr<node> n = make_unique<node>(parse_node(type, buf, bytecount));
@@ -591,7 +586,6 @@ node_progress msgpack_decoder::chop()
 
 msgpack_encoder::msgpack_encoder()
 {
-  /* TODO */
 }
 
 
@@ -606,7 +600,6 @@ progress msgpack_encoder::fill_buffer(
 
 void msgpack_encoder::reset(UNUSED const node *new_node)
 {
-  /* TODO */
 }
 
 
