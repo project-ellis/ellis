@@ -558,10 +558,12 @@ static void maptest()
   /* initializer_list construction */
   node sweet( {
       std::make_pair("roger","roger"),
-      std::make_pair("victor","vector") } );
-  ELLIS_ASSERT_EQ(sweet.as_map().length(), 2);
+      std::make_pair("victor","vector"),
+      std::make_pair("testing", node({1, 2, 3})) } );
+  ELLIS_ASSERT_EQ(sweet.as_map().length(), 3);
   ELLIS_ASSERT_EQ(sweet.at("{roger}"), "roger");
   ELLIS_ASSERT_EQ(sweet.at("{victor}"), "vector");
+  ELLIS_ASSERT_EQ(sweet.at("{testing}").get_type(), type::ARRAY);
 }
 
 static void pathtest()
