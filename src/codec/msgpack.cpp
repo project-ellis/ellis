@@ -267,19 +267,19 @@ int8_t from_be(const byte *buf)
 template <>
 int16_t from_be(const byte *buf)
 {
-  return union_cast<uint16_t, int16_t>(be16toh(*((uint16_t *)buf)));
+  return be16toh(*((uint16_t *)buf));
 }
 
 template <>
 int32_t from_be(const byte *buf)
 {
-  return union_cast<uint32_t, int32_t>(be32toh(*((uint32_t *)buf)));
+  return be32toh(*((uint32_t *)buf));
 }
 
 template <>
 int64_t from_be(const byte *buf)
 {
-  return union_cast<uint64_t, int64_t>(be64toh(*((uint64_t *)buf)));
+  return be64toh(*((uint64_t *)buf));
 }
 
 template <>
@@ -291,13 +291,13 @@ uint8_t from_be(const byte *buf)
 template <>
 uint16_t from_be(const byte *buf)
 {
-  return union_cast<uint16_t, uint16_t>(be16toh(*((uint16_t *)buf)));
+  return be16toh(*((uint16_t *)buf));
 }
 
 template <>
 uint32_t from_be(const byte *buf)
 {
-  return union_cast<uint32_t, uint32_t>(be32toh(*((uint32_t *)buf)));
+  return be32toh(*((uint32_t *)buf));
 }
 
 template <>
