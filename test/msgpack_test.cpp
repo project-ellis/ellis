@@ -1,14 +1,51 @@
 #undef NDEBUG
+#include <cstring>
 #include <ellis/codec/msgpack.hpp>
 #include <ellis/core/array_node.hpp>
+#include <ellis/core/emigration.hpp>
+#include <ellis/core/immigration.hpp>
 #include <ellis/core/map_node.hpp>
 #include <ellis_private/using.hpp>
 
+using namespace ellis;
+
+void ser_deser(
+    msgpack_decoder &dec,
+    msgpack_encoder &enc,
+    const byte *buf,
+    size_t len,
+    const byte *expected = nullptr,
+    size_t expected_len = 0) {
+    ELLIS_LOG(NOTI, "===========================================");
+    dec.reset();
+    size_t tmp = len;
+    auto status = dec.consume_buffer(buf, &tmp);
+    ELLIS_ASSERT_EQ(status.state(), stream_state::SUCCESS);
+    ELLIS_ASSERT_NULL(status.extract_error().get());
+
+    node n = *status.extract_value();
+    unique_ptr<byte[]> out = make_unique<byte[]>(len);
+    tmp = len;
+    enc.reset(&n);
+    enc.fill_buffer(out.get(), &tmp);
+    if (expected == nullptr) {
+      expected = buf;
+    }
+    ELLIS_ASSERT_MEM_EQ(expected, out.get(), expected_len);
+}
+
+void onebyte_fail(msgpack_decoder &dec, byte b)
+{
+  const byte buf[] = { b };
+  size_t count = sizeof(buf);
+  auto status = dec.consume_buffer(buf, &count);
+  ELLIS_ASSERT_EQ(status.state(), stream_state::ERROR);
+  ELLIS_ASSERT_NOT_NULL(status.extract_error().get());
+}
 
 int main() {
-  using namespace ellis;
-
   msgpack_decoder dec;
+  msgpack_encoder enc;
 
   /*
    * TODO: This test is wrong. After the first call returns CONTINUE, *bytecount
@@ -28,14 +65,6 @@ int main() {
     ELLIS_ASSERT_TRUE(n.is_type(type::U8STR));
     ELLIS_ASSERT_EQ(n, "hi");
   }
-
-  auto onebyte_fail = [](msgpack_decoder &d, byte b) {
-    const byte buf[] = { b };
-    size_t count = sizeof(buf);
-    auto status = d.consume_buffer(buf, &count);
-    ELLIS_ASSERT_EQ(status.state(), stream_state::ERROR);
-    ELLIS_ASSERT_NOT_NULL(status.extract_error().get());
-  };
 
   /* Unsupported type bytes. */
   {
@@ -68,134 +97,73 @@ int main() {
     ELLIS_ASSERT_NOT_NULL(status.extract_error().get());
   }
 
+  /* 7 */
   {
     const byte buf[] = { 0x7 };
-    size_t count = sizeof(buf);
-    auto status = dec.consume_buffer(buf, &count);
-    ELLIS_ASSERT_EQ(status.state(), stream_state::SUCCESS);
-    ELLIS_ASSERT_NULL(status.extract_error().get());
-    node n = *status.extract_value();
-    ELLIS_ASSERT_TRUE(n.is_type(type::INT64));
-    ELLIS_ASSERT_EQ(n, 7);
+    ser_deser(dec, enc, buf, sizeof(buf));
   }
 
+  /* 1589715871 */
   {
     const byte buf[] = { 0xce, 0x5e, 0xc1, 0x23, 0x9f };
-    size_t count = sizeof(buf);
-    auto status = dec.consume_buffer(buf, &count);
-    ELLIS_ASSERT_EQ(status.state(), stream_state::SUCCESS);
-    ELLIS_ASSERT_NULL(status.extract_error().get());
-    node n = *status.extract_value();
-    ELLIS_ASSERT_TRUE(n.is_type(type::INT64));
-    ELLIS_ASSERT_EQ(n, 1589715871);
+    ser_deser(dec, enc, buf, sizeof(buf));
   }
 
+  /* -1589715871 */
   {
     const byte buf[] = { 0xd2, 0xa1, 0x3e, 0xdc, 0x61 };
-    size_t count = sizeof(buf);
-    auto status = dec.consume_buffer(buf, &count);
-    ELLIS_ASSERT_EQ(status.state(), stream_state::SUCCESS);
-    ELLIS_ASSERT_NULL(status.extract_error().get());
-    node n = *status.extract_value();
-    ELLIS_ASSERT_TRUE(n.is_type(type::INT64));
-    ELLIS_ASSERT_EQ(n, -1589715871);
+    ser_deser(dec, enc, buf, sizeof(buf));
   }
 
+  /* -7 */
   {
     const byte buf[] = { 0xf9 };
-    size_t count = sizeof(buf);
-    auto status = dec.consume_buffer(buf, &count);
-    ELLIS_ASSERT_EQ(status.state(), stream_state::SUCCESS);
-    ELLIS_ASSERT_NULL(status.extract_error().get());
-    node n = *status.extract_value();
-    ELLIS_ASSERT_TRUE(n.is_type(type::INT64));
-    ELLIS_ASSERT_EQ(n, -7);
+    ser_deser(dec, enc, buf, sizeof(buf));
   }
 
+  /* 0.0 */
   {
     const byte buf[] = { 0xcb, 0, 0, 0, 0, 0, 0, 0, 0 };
-    size_t count = sizeof(buf);
-    auto status = dec.consume_buffer(buf, &count);
-    ELLIS_ASSERT_EQ(status.state(), stream_state::SUCCESS);
-    ELLIS_ASSERT_NULL(status.extract_error().get());
-    node n = *status.extract_value();
-    ELLIS_ASSERT_TRUE(n.is_type(type::DOUBLE));
-    ELLIS_ASSERT_DBL_EQ(n, 0.0);
+    const byte expected[] = { 0xca, 0, 0, 0, 0 };
+    ser_deser(dec, enc, buf, sizeof(buf), expected, sizeof(expected));
   }
 
   /*
-   * Interestingly, -0.0 can also be represented. Make sure it works out the same.
+   * Interestingly, IEEE 754 allows for -0.0. Check if it comes out the same.
    */
   {
     const byte buf[] = { 0xcb, 0x80, 0, 0, 0, 0, 0, 0, 0 };
-    size_t count = sizeof(buf);
-    auto status = dec.consume_buffer(buf, &count);
-    ELLIS_ASSERT_EQ(status.state(), stream_state::SUCCESS);
-    ELLIS_ASSERT_NULL(status.extract_error().get());
-    node n = *status.extract_value();
-    ELLIS_ASSERT_TRUE(n.is_type(type::DOUBLE));
-    ELLIS_ASSERT_DBL_EQ(n, 0.0);
+    const byte expected[] = { 0xca, 0, 0, 0, 0x80 };
+    ser_deser(dec, enc, buf, sizeof(buf), expected, sizeof(expected));
   }
 
+  /* 42.7 */
   {
     const byte buf[] = { 0xcb, 0x40, 0x45, 0x59, 0x99, 0x99, 0x99, 0x99, 0x9a };
-    size_t count = sizeof(buf);
-    auto status = dec.consume_buffer(buf, &count);
-    ELLIS_ASSERT_EQ(status.state(), stream_state::SUCCESS);
-    ELLIS_ASSERT_NULL(status.extract_error().get());
-    node n = *status.extract_value();
-    ELLIS_ASSERT_TRUE(n.is_type(type::DOUBLE));
-    ELLIS_ASSERT_DBL_EQ(n, 42.7);
+    ser_deser(dec, enc, buf, sizeof(buf));
   }
 
+  /* -42.7 */
   {
     const byte buf[] = { 0xcb, 0xc0, 0x45, 0x59, 0x99, 0x99, 0x99, 0x99, 0x9a };
-    size_t count = sizeof(buf);
-    auto status = dec.consume_buffer(buf, &count);
-    ELLIS_ASSERT_EQ(status.state(), stream_state::SUCCESS);
-    ELLIS_ASSERT_NULL(status.extract_error().get());
-    node n = *status.extract_value();
-    ELLIS_ASSERT_TRUE(n.is_type(type::DOUBLE));
-    ELLIS_ASSERT_DBL_EQ(n, -42.7);
+    ser_deser(dec, enc, buf, sizeof(buf));
   }
 
   {
     const byte buf[] = { 0xa0 };
-    size_t count = sizeof(buf);
-    auto status = dec.consume_buffer(buf, &count);
-    ELLIS_ASSERT_EQ(status.state(), stream_state::SUCCESS);
-    ELLIS_ASSERT_NULL(status.extract_error().get());
-    node n = *status.extract_value();
-    ELLIS_ASSERT_TRUE(n.is_type(type::U8STR));
-    ELLIS_ASSERT_EQ(n, "");
+    ser_deser(dec, enc, buf, sizeof(buf));
   }
 
+  /* "hi" */
   {
     const byte buf[] = { 0xa2, 0x68, 0x69 };
-    size_t count = sizeof(buf);
-    auto status = dec.consume_buffer(buf, &count);
-    ELLIS_ASSERT_EQ(status.state(), stream_state::SUCCESS);
-    ELLIS_ASSERT_NULL(status.extract_error().get());
-    node n = *status.extract_value();
-    ELLIS_ASSERT_TRUE(n.is_type(type::U8STR));
-    ELLIS_ASSERT_EQ(n, "hi");
+    ser_deser(dec, enc, buf, sizeof(buf));
   }
 
   {
     /* [0, -1, 2, -4] */
     const byte buf[] = { 0x94, 0x00, 0xff, 0x02, 0xfc };
-    size_t count = sizeof(buf);
-    auto status = dec.consume_buffer(buf, &count);
-    ELLIS_ASSERT_EQ(status.state(), stream_state::SUCCESS);
-    ELLIS_ASSERT_NULL(status.extract_error().get());
-    node n = *status.extract_value();
-    ELLIS_ASSERT_TRUE(n.is_type(type::ARRAY));
-    const array_node &a = n.as_array();
-    ELLIS_ASSERT_EQ(a.length(), 4);
-    ELLIS_ASSERT_EQ(a[0], 0);
-    ELLIS_ASSERT_EQ(a[1], -1);
-    ELLIS_ASSERT_EQ(a[2], 2);
-    ELLIS_ASSERT_EQ(a[3], -4);
+    ser_deser(dec, enc, buf, sizeof(buf));
   }
 
   {
@@ -203,17 +171,7 @@ int main() {
     const byte buf[] = {
       0xdc, 0x00, 0x10, 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08,
       0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f };
-    size_t count = sizeof(buf);
-    auto status = dec.consume_buffer(buf, &count);
-    ELLIS_ASSERT_EQ(status.state(), stream_state::SUCCESS);
-    ELLIS_ASSERT_NULL(status.extract_error().get());
-    node n = *status.extract_value();
-    ELLIS_ASSERT_TRUE(n.is_type(type::ARRAY));
-    const array_node &a = n.as_array();
-    ELLIS_ASSERT_EQ(a.length(), 16);
-    for (int i = 0; i < 16; i++) {
-      ELLIS_ASSERT_EQ(a[i], i);
-    }
+    ser_deser(dec, enc, buf, sizeof(buf));
   }
 
   {
@@ -221,16 +179,7 @@ int main() {
     const byte buf[] = {
       0x82, 0xa7, 0x63, 0x6f, 0x6d, 0x70, 0x61, 0x63, 0x74,
       0xc3, 0xa6, 0x73, 0x63, 0x68, 0x65, 0x6d, 0x61, 0x00 };
-    size_t count = sizeof(buf);
-    auto status = dec.consume_buffer(buf, &count);
-    ELLIS_ASSERT_EQ(status.state(), stream_state::SUCCESS);
-    ELLIS_ASSERT_NULL(status.extract_error().get());
-    node n = *status.extract_value();
-    ELLIS_ASSERT_TRUE(n.is_type(type::MAP));
-    const map_node &m = n.as_map();
-    ELLIS_ASSERT_EQ(m.length(), 2);
-    ELLIS_ASSERT_EQ(m["compact"], true);
-    ELLIS_ASSERT_EQ(m["schema"], 0);
+    ser_deser(dec, enc, buf, sizeof(buf));
   }
 
   {
@@ -238,16 +187,7 @@ int main() {
     const byte buf[] = {
       0x82, 0xa4, 0x6b, 0x65, 0x79, 0x31, 0xcb, 0xc0, 0x12, 0xcc, 0xcc, 0xcc,
       0xcc, 0xcc, 0xcd, 0xa4, 0x6b, 0x65, 0x79, 0x32, 0xee };
-    size_t count = sizeof(buf);
-    auto status = dec.consume_buffer(buf, &count);
-    ELLIS_ASSERT_EQ(status.state(), stream_state::SUCCESS);
-    ELLIS_ASSERT_NULL(status.extract_error().get());
-    node n = *status.extract_value();
-    ELLIS_ASSERT_TRUE(n.is_type(type::MAP));
-    const map_node &m = n.as_map();
-    ELLIS_ASSERT_EQ(m.length(), 2);
-    ELLIS_ASSERT_DBL_EQ(m["key1"], -4.7);
-    ELLIS_ASSERT_EQ(m["key2"], -18);
+    ser_deser(dec, enc, buf, sizeof(buf));
   }
 
   {
@@ -280,18 +220,7 @@ int main() {
       0x65, 0x79, 0x31, 0x31, 0x0b, 0xa5, 0x6b, 0x65, 0x79, 0x31, 0x32, 0x0c,
       0xa5, 0x6b, 0x65, 0x79, 0x31, 0x33, 0x0d, 0xa5, 0x6b, 0x65, 0x79, 0x31,
       0x34, 0x0e, 0xa5, 0x6b, 0x65, 0x79, 0x31, 0x35, 0x0f };
-    size_t count = sizeof(buf);
-    auto status = dec.consume_buffer(buf, &count);
-    ELLIS_ASSERT_EQ(status.state(), stream_state::SUCCESS);
-    ELLIS_ASSERT_NULL(status.extract_error().get());
-    node n = *status.extract_value();
-    ELLIS_ASSERT_TRUE(n.is_type(type::MAP));
-    const map_node &m = n.as_map();
-    ELLIS_ASSERT_EQ(m.length(), 16);
-    for (int i = 0; i < 16; i++) {
-      const string &key = ELLIS_SSTRING("key" << i);
-      ELLIS_ASSERT_EQ(m[key], i);
-    }
+    ser_deser(dec, enc, buf, sizeof(buf));
   }
 
   {
@@ -302,31 +231,10 @@ int main() {
      *   [2, 3, 4]
      * ]
      */
-    const byte buf[] = { 0x93, 0x82, 0xa7, 0x63, 0x6f, 0x6d, 0x70, 0x61, 0x63,
-      0x74, 0xc3, 0xa6, 0x73, 0x63, 0x68, 0x65, 0x6d, 0x61, 0x00, 0x01, 0x93,
-      0x02, 0x03, 0x04 };
-    size_t count = sizeof(buf);
-    auto status = dec.consume_buffer(buf, &count);
-    ELLIS_ASSERT_EQ(status.state(), stream_state::SUCCESS);
-    ELLIS_ASSERT_NULL(status.extract_error().get());
-    node n = *status.extract_value();
-    ELLIS_ASSERT_TRUE(n.is_type(type::ARRAY));
-    const array_node &a = n.as_array();
-    ELLIS_ASSERT_EQ(a.length(), 3);
-
-    ELLIS_ASSERT_TRUE(a[0].is_type(type::MAP));
-    const map_node &m = a[0].as_map();
-    ELLIS_ASSERT_EQ(m.length(), 2);
-    ELLIS_ASSERT_EQ(m["compact"], true);
-    ELLIS_ASSERT_EQ(m["schema"], 0);
-
-    ELLIS_ASSERT_EQ(a[1], 1);
-
-    ELLIS_ASSERT_TRUE(a[2].is_type(type::ARRAY));
-    const array_node &a2 = a[2].as_array();
-    ELLIS_ASSERT_EQ(a2[0], 2);
-    ELLIS_ASSERT_EQ(a2[1], 3);
-    ELLIS_ASSERT_EQ(a2[2], 4);
+    const byte buf[] = {
+      0x93, 0x82, 0xa7, 0x63, 0x6f, 0x6d, 0x70, 0x61, 0x63, 0x74, 0xc3, 0xa6,
+      0x73, 0x63, 0x68, 0x65, 0x6d, 0x61, 0x00, 0x01, 0x93, 0x02, 0x03, 0x04 };
+    ser_deser(dec, enc, buf, sizeof(buf));
   }
 
   {
@@ -336,22 +244,10 @@ int main() {
      *   "schema": [1, 2, 3]
      * }
      */
-    const byte buf[] = { 0x82, 0xa7, 0x63, 0x6f, 0x6d, 0x70, 0x61, 0x63, 0x74, 0xc3, 0xa6, 0x73, 0x63, 0x68, 0x65, 0x6d, 0x61, 0x93, 0x01, 0x02, 0x03 };
-    size_t count = sizeof(buf);
-    auto status = dec.consume_buffer(buf, &count);
-    ELLIS_ASSERT_EQ(status.state(), stream_state::SUCCESS);
-    ELLIS_ASSERT_NULL(status.extract_error().get());
-    node n = *status.extract_value();
-    ELLIS_ASSERT_TRUE(n.is_type(type::MAP));
-    const map_node &m = n.as_map();
-    ELLIS_ASSERT_TRUE(m["compact"]);
-
-    ELLIS_ASSERT_TRUE(m["schema"].is_type(type::ARRAY));
-    const array_node &a = m["schema"].as_array();
-    ELLIS_ASSERT_EQ(a.length(), 3);
-    ELLIS_ASSERT_EQ(a[0], 1);
-    ELLIS_ASSERT_EQ(a[1], 2);
-    ELLIS_ASSERT_EQ(a[2], 3);
+    const byte buf[] = {
+      0x82, 0xa7, 0x63, 0x6f, 0x6d, 0x70, 0x61, 0x63, 0x74, 0xc3, 0xa6, 0x73,
+      0x63, 0x68, 0x65, 0x6d, 0x61, 0x93, 0x01, 0x02, 0x03 };
+    ser_deser(dec, enc, buf, sizeof(buf));
   }
 
   return 0;

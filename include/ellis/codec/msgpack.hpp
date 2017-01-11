@@ -10,6 +10,7 @@
 
 #include <ellis/core/decoder.hpp>
 #include <ellis/core/encoder.hpp>
+#include <vector>
 
 namespace ellis {
 
@@ -27,6 +28,19 @@ public:
 
 
 class msgpack_encoder : public encoder {
+  std::vector<byte> m_buf;
+  size_t m_pos;
+  size_t m_end;
+
+  void _clear_buf();
+  void _buf_out(const node &n);
+  void _buf_out_str(const char *s, size_t len);
+
+  void _push_be(uint8_t val);
+  void _push_be(uint16_t val);
+  void _push_be(uint32_t val);
+  void _push_be(uint64_t val);
+
 public:
   msgpack_encoder();
   progress fill_buffer(

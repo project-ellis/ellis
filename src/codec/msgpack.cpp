@@ -1,7 +1,11 @@
 #include <ellis/codec/msgpack.hpp>
 
+#include <cfloat>
+#include <cstdint>
+#include <cstring>
 #include <ellis/core/err.hpp>
 #include <ellis/core/array_node.hpp>
+#include <ellis/core/binary_node.hpp>
 #include <ellis/core/map_node.hpp>
 #include <ellis/core/type.hpp>
 #include <ellis/core/u8str_node.hpp>
@@ -24,6 +28,12 @@
  * update the parse state. If that routine ever returns SUCCESS, then we have a
  * node to return. If instead it does not, then we just return CONTINUE and
  * consume all the bytes given.
+ */
+
+/* TODO: The encoder currently encodes an entire node at a time, thus copying
+ * all the  memory given, which is wasteful. It should instead explicitly
+ * represent its state in order to encode only as much of the buffer as is given
+ * and do minimal copying.
  */
 
 /* We do this instead of an if statement or a range map for performance. */
@@ -611,22 +621,251 @@ node_progress msgpack_decoder::chop()
  */
 
 
-msgpack_encoder::msgpack_encoder()
+msgpack_encoder::msgpack_encoder() :
+  m_pos(0),
+  m_end(0)
 {
+}
+
+
+void msgpack_encoder::_clear_buf() {
+  m_buf.clear();
+}
+
+/* These functions are used for pushing a value into memory as big-endian. */
+
+void msgpack_encoder::_push_be(uint8_t val)
+{
+  m_buf.push_back(val);
+}
+
+void msgpack_encoder::_push_be(uint16_t val)
+{
+  m_buf.push_back((val & 0xff00) >> 8);
+  m_buf.push_back((val & 0x00ff) >> 0);
+}
+
+void msgpack_encoder::_push_be(uint32_t val)
+{
+  m_buf.push_back((val & 0xff000000) >> 24);
+  m_buf.push_back((val & 0x00ff0000) >> 16);
+  m_buf.push_back((val & 0x0000ff00) >> 8);
+  m_buf.push_back((val & 0x000000ff) >> 0);
+}
+
+void msgpack_encoder::_push_be(uint64_t val)
+{
+  m_buf.push_back((val & 0xff00000000000000) >> 56);
+  m_buf.push_back((val & 0x00ff000000000000) >> 48);
+  m_buf.push_back((val & 0x0000ff0000000000) >> 40);
+  m_buf.push_back((val & 0x000000ff00000000) >> 32);
+  m_buf.push_back((val & 0x00000000ff000000) >> 24);
+  m_buf.push_back((val & 0x0000000000ff0000) >> 16);
+  m_buf.push_back((val & 0x000000000000ff00) >> 8);
+  m_buf.push_back((val & 0x00000000000000ff) >> 0);
+}
+
+void msgpack_encoder::_buf_out_str(const char *s, size_t len)
+{
+  if (len <= 31) {
+    m_buf.push_back(0xa0 | len);
+  }
+  else if (len <= UINT8_MAX) {
+    m_buf.push_back(HEX_STR_8);
+    _push_be((uint8_t)len);
+  }
+  else if (len <= UINT16_MAX) {
+    m_buf.push_back(HEX_STR_16);
+    _push_be((uint16_t)len);
+  }
+  else {
+    m_buf.push_back(HEX_STR_32);
+    _push_be((uint32_t)len);
+  }
+  const char *end = s + len;
+  for (const char *p = s; p < end; p++) {
+    m_buf.push_back(*p);
+  }
+}
+
+
+void msgpack_encoder::_buf_out(const node &n) {
+  switch (n.get_type()) {
+    case type::NIL:
+      m_buf.push_back(HEX_NIL);
+      return;
+
+    case type::BOOL:
+      if (n == true) {
+        m_buf.push_back(HEX_TRUE);
+      }
+      else {
+        m_buf.push_back(HEX_FALSE);
+      }
+      return;
+
+    case type::INT64:
+      {
+        int64_t val = n.as_int64();
+        if (val < 0) {
+          if (val >= -32) {
+            m_buf.push_back(val);
+          }
+          else if (val >= INT8_MIN) {
+            m_buf.push_back(HEX_INT_8);
+            _push_be(union_cast<int64_t, uint8_t>(val));
+          }
+          else if (val >= INT16_MIN) {
+            m_buf.push_back(HEX_INT_16);
+            _push_be(union_cast<int64_t, uint16_t>(val));
+          }
+          else if (val >= INT32_MIN) {
+            m_buf.push_back(HEX_INT_32);
+            _push_be(union_cast<int64_t, uint32_t>(val));
+          }
+          else {
+            m_buf.push_back(HEX_INT_64);
+            _push_be(union_cast<int64_t, uint64_t>(val));
+          }
+        }
+        else {
+          if (val <= 127) {
+            m_buf.push_back(val);
+          }
+          else if (val <= UINT8_MAX) {
+            m_buf.push_back(HEX_UINT_8);
+            _push_be(union_cast<int64_t, uint8_t>(val));
+          }
+          else if (val <= UINT16_MAX) {
+            m_buf.push_back(HEX_UINT_16);
+            _push_be(union_cast<int64_t, uint16_t>(val));
+          }
+          else if (val <= UINT32_MAX) {
+            m_buf.push_back(HEX_UINT_32);
+            _push_be(union_cast<int64_t, uint32_t>(val));
+          }
+          else {
+            /* Ellis doesn't support uint64 */
+            ELLIS_ASSERT_UNREACHABLE();
+          }
+        }
+      }
+      return;
+
+    case type::DOUBLE:
+      {
+        double d = n.as_double();
+        if ((d < 0.0 && d > FLT_MIN) || (d >= 0.0 && d <= FLT_MAX)) {
+          m_buf.push_back(HEX_FLOAT_32);
+          uint32_t val = union_cast<float, uint32_t>((float)d);
+          _push_be(htobe32(val));
+        }
+        else {
+          m_buf.push_back(HEX_FLOAT_64);
+          uint64_t val = union_cast<double, uint64_t>(d);
+          _push_be(htobe64(val));
+        }
+      }
+      return;
+
+    case type::U8STR:
+      {
+        const u8str_node &s = n.as_u8str();
+        _buf_out_str(s.c_str(), s.length());
+      }
+      return;
+
+    case type::ARRAY:
+      {
+        const array_node &a = n.as_array();
+        size_t len = a.length();
+        if (len <= 15) {
+          m_buf.push_back(0x90 | len);
+        }
+        else if (len <= UINT16_MAX) {
+          m_buf.push_back(HEX_ARRAY_16);
+          _push_be((uint16_t)len);
+        }
+        else {
+          m_buf.push_back(HEX_ARRAY_32);
+          _push_be((uint32_t)len);
+        }
+        a.foreach([this](const node &item) {
+          _buf_out(item);
+        });
+      }
+      return;
+
+    case type::BINARY:
+      {
+        const binary_node &b = n.as_binary();
+        size_t len = b.length();
+        if (len <= UINT8_MAX) {
+          m_buf.push_back(HEX_BIN_8);
+          _push_be((uint8_t)len);
+        }
+        else if (len <= UINT16_MAX) {
+          m_buf.push_back(HEX_BIN_16);
+          _push_be((uint16_t)len);
+        }
+        else {
+          m_buf.push_back(HEX_BIN_32);
+          _push_be((uint32_t)len);
+        }
+        const byte *end = b.data() + len;
+        for (const byte *p = b.data(); p < end; p++) {
+          m_buf.push_back(*p);
+        }
+      }
+      return;
+
+    case type::MAP:
+      {
+        const map_node &m = n.as_map();
+        size_t len = m.length();
+        if (len <= 15) {
+          m_buf.push_back(0x80 | len);
+        }
+        else if (len <= UINT16_MAX) {
+          m_buf.push_back(HEX_MAP_16);
+          _push_be((uint16_t)len);
+        }
+        else if (len <= UINT32_MAX) {
+          m_buf.push_back(HEX_MAP_32);
+          _push_be((uint32_t)len);
+        }
+        m.foreach([this](const string &k, const node &v) {
+          _buf_out_str(k.c_str(), k.length());
+          _buf_out(v);
+        });
+      }
+      return;
+  }
 }
 
 
 progress msgpack_encoder::fill_buffer(
-    UNUSED byte *buf,
-    UNUSED size_t *bytecount)
+    byte *buf,
+    size_t *bytecount)
 {
-  /* TODO */
-  ELLIS_ASSERT_UNREACHABLE();
+  size_t avail = m_end - m_pos;
+  size_t actual_bc = std::min(*bytecount, avail);
+  std::memcpy(buf, m_buf.data() + m_pos, actual_bc);
+  m_pos += actual_bc;
+  *bytecount = actual_bc;
+  if (m_pos == m_end) {
+    return progress(true);
+  }
+  return progress(stream_state::CONTINUE);
 }
 
 
-void msgpack_encoder::reset(UNUSED const node *new_node)
+void msgpack_encoder::reset(const node *new_node)
 {
+  _clear_buf();
+  _buf_out(*new_node);
+  m_pos = 0;
+  m_end = m_buf.size();
 }
 
 
