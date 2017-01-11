@@ -9,6 +9,23 @@
 #include <ellis_private/utility.hpp>
 #include <endian.h>
 
+/* TODO: The decoder currently decodes an entire node at a time, and if it fails
+ * to do so, consumes no bytes. It should instead do the following:
+ * - If it can produce a node, consume all bytes required to do so, and return
+ *   SUCCESS.
+ * - If it cannot produce a node, consume all the bytes given and return
+ *   SUCCESS.
+ * Practically speaking, this means the parsing state must be represented
+ * explicitly so that any parsing routine can be interrupted without anything
+ * breaking. We should probably use a stack-based parser in the manner that the
+ * JSON codec does. The code should look something like this:
+ *
+ * In consume_buffer, repeatedly call a routine to parse a single char and
+ * update the parse state. If that routine ever returns SUCCESS, then we have a
+ * node to return. If instead it does not, then we just return CONTINUE and
+ * consume all the bytes given.
+ */
+
 /* We do this instead of an if statement or a range map for performance. */
 #define HEX_POS_FIXINT \
   0x00: case 0x01: case 0x02: case 0x03: case 0x04: case 0x05: case 0x06: \
@@ -547,6 +564,15 @@ string parse_str(msgpack_type type, const byte *buf, size_t *bytecount)
 }
 
 
+/*  ____                     _
+ * |  _ \  ___  ___ ___   __| | ___ _ __
+ * | | | |/ _ \/ __/ _ \ / _` |/ _ \ '__|
+ * | |_| |  __/ (_| (_) | (_| |  __/ |
+ * |____/ \___|\___\___/ \__,_|\___|_|
+ *
+ */
+
+
 node_progress msgpack_decoder::consume_buffer(
     const byte *buf,
     size_t *bytecount)
@@ -574,6 +600,15 @@ node_progress msgpack_decoder::chop()
   return node_progress(MAKE_UNIQUE_ELLIS_ERR(PARSE_FAIL,
         "Cannot chop a msgpack decoder node"));
 }
+
+
+/*  _____                     _
+ * | ____|_ __   ___ ___   __| | ___ _ __
+ * |  _| | '_ \ / __/ _ \ / _` |/ _ \ '__|
+ * | |___| | | | (_| (_) | (_| |  __/ |
+ * |_____|_| |_|\___\___/ \__,_|\___|_|
+ *
+ */
 
 
 msgpack_encoder::msgpack_encoder()

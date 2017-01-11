@@ -2,7 +2,7 @@
 
 ## Initial release to public
 
-M Msgpack encoder
+* (martin) Msgpack encoder
 * (jmc) Make delimited text codec more useful.
 * (jmc) Make a more proper `delimited_text_test` from the `test/codec_test`.
 * Name registration for encode/decode.
@@ -19,6 +19,10 @@ M Msgpack encoder
 
 ## Maturation
 
+* Make the msgpack decoder follow the CONTINUE contract of handling state
+  explicitly
+* Cleanup the ELM327 and OBD contracts to make sure they are clear, correct, and
+  consistent about CONTINUE behavior.
 * Finish base64 encoded binary mode for JSON.
 * Cython wrappers or SWIG.
 * Cross-build for at least ARM.
