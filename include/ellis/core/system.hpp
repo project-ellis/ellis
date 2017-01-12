@@ -388,7 +388,7 @@ static inline void _stream_mem_block(
   for (const byte *p = mem; p < end; p++) {
     ss << "0x" << static_cast<unsigned int>(*p);
     if (p < end-1) {
-      ss << " ";
+      ss << ' ';
     }
   }
 }
@@ -405,13 +405,39 @@ static inline void _assert_mem_eq( \
     return;
   }
 
+  /* Find the first differing point so we can print it out. */
+  size_t diff;
+  for (diff = 0; diff < count; diff++) {
+    if (x[diff] != y[diff]) {
+      break;
+    }
+  }
+  ELLIS_ASSERT_NEQ(diff, count);
+
+  const char *lhs_prefix = "LHS: { ";
+  const char *rhs_prefix = "RHS: { ";
+
   std::ostringstream ss;
-  ss << "Assert: memory blocks are not equal:\nLHS: { ";
+  ss << "Assert: memory blocks are not equal:\n";
+  ss << lhs_prefix;
   ss << std::hex;
   _stream_mem_block(ss, x, count);
-  ss << " }\nRHS: { ";
+  ss << " }\n";
+
+  ss << rhs_prefix;
   _stream_mem_block(ss, y, count);
   ss << " }\n";
+
+  static size_t prefix_len = std::max(
+      std::strlen(lhs_prefix),
+      std::strlen(rhs_prefix));
+  for (size_t i = 0; i < prefix_len; i++) {
+    ss << ' ';
+  }
+  for (size_t i = 0; i < diff; i++) {
+    ss << "     ";
+  }
+  ss << "  ^\n";
 
   (*ellis::g_system_crash_fn)(
       file,
