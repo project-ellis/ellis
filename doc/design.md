@@ -101,9 +101,8 @@ use the mutable versions to make changes:
 ```
 
 ## Casting operators
-We provide cast operators for all the supported types. `std::string` and `const
-char *` casts are explicit, in order to avoid ambiguity when presented with the
-following code:
+We provide cast operators for all the supported types. `const char *` casts are
+explicit, in order to avoid ambiguity when presented with the following code:
 
 ```
 string s = (string)n;
