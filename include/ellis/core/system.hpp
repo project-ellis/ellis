@@ -9,6 +9,7 @@
 #define ELLIS_CORE_SYSTEM_HPP_
 
 #include <cstring>
+#include <iomanip>
 #include <sstream>
 #include <ellis/core/defs.hpp>
 
@@ -386,9 +387,13 @@ static inline void _stream_mem_block(
 {
   const byte *end = mem + count;
   for (const byte *p = mem; p < end; p++) {
-    ss << "0x" << static_cast<unsigned int>(*p);
+    ss << "0x"
+       << std::hex
+       << std::setfill('0')
+       << std::setw(2)
+       << static_cast<unsigned int>(*p);
     if (p < end-1) {
-      ss << ' ';
+      ss <<  ' ';
     }
   }
 }
@@ -420,7 +425,6 @@ static inline void _assert_mem_eq( \
   std::ostringstream ss;
   ss << "Assert: memory blocks are not equal:\n";
   ss << lhs_prefix;
-  ss << std::hex;
   _stream_mem_block(ss, x, count);
   ss << " }\n";
 
