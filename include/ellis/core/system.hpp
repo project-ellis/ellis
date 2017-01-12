@@ -8,7 +8,9 @@
 #ifndef ELLIS_CORE_SYSTEM_HPP_
 #define ELLIS_CORE_SYSTEM_HPP_
 
+#include <cstring>
 #include <sstream>
+#include <ellis/core/defs.hpp>
 
 
 namespace ellis {
@@ -243,6 +245,7 @@ do { \
 #define ELLIS_ASSERT_NEQ(x, y) ::ellis::_assert_neq(#x "!=" #y, x, y, __FILE__, __LINE__, __FUNCTION__)
 #define ELLIS_ASSERT_GT(x, y) ::ellis::_assert_gt(#x ">" #y, x, y, __FILE__, __LINE__, __FUNCTION__)
 #define ELLIS_ASSERT_GTE(x, y) ::ellis::_assert_gte(#x ">=" #y, x, y, __FILE__, __LINE__, __FUNCTION__)
+#define ELLIS_ASSERT_MEM_EQ(x, y, count) ::ellis::_assert_mem_eq(x, y, count, __FILE__, __LINE__, __FUNCTION__)
 
 #define ELLIS_ASSERT_TRUE(x) ELLIS_ASSERT_EQ(x, true)
 #define ELLIS_ASSERT_FALSE(x) ELLIS_ASSERT_EQ(x, false)
@@ -374,6 +377,51 @@ _INTERNAL_GEN_ASSERTS(==, eq)
 _INTERNAL_GEN_ASSERTS(!=, neq)
 _INTERNAL_GEN_ASSERTS(>, gt)
 _INTERNAL_GEN_ASSERTS(>=, gte)
+
+
+static inline void _stream_mem_block(
+    std::ostringstream &ss,
+    const byte *mem,
+    size_t count)
+{
+  const byte *end = mem + count;
+  for (const byte *p = mem; p < end; p++) {
+    ss << "0x" << static_cast<unsigned int>(*p);
+    if (p < end-1) {
+      ss << " ";
+    }
+  }
+}
+
+static inline void _assert_mem_eq( \
+    const byte *x,
+    const byte *y,
+    size_t count,
+    const char *file,
+    int line,
+    const char *function)
+{
+  if (std::memcmp(x, y, count) == 0) {
+    return;
+  }
+
+  std::ostringstream ss;
+  ss << "Assert: memory blocks are not equal:\nLHS: { ";
+  ss << std::hex;
+  _stream_mem_block(ss, x, count);
+  ss << " }\nRHS: { ";
+  _stream_mem_block(ss, y, count);
+  ss << " }\n";
+
+  (*ellis::g_system_crash_fn)(
+      file,
+      line,
+      function,
+      ss.str().c_str(),
+      nullptr,
+      nullptr);
+  ELLIS_UNREACHABLE_HINT();
+}
 
 /*  ____            _                               _     _
  * / ___| _   _ ___| |_ ___ _ __ ___      __      _(_) __| | ___
