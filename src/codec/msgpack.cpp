@@ -587,11 +587,24 @@ node_progress msgpack_decoder::consume_buffer(
     const byte *buf,
     size_t *bytecount)
 {
+  /* TODO FIXME:
+   * This is very inefficient; it's done because the parsing is done
+   * per-node, not per-character, which means we're unable to honor the contract
+   * of SUCCESS status calls (see comment at the top of the file). The parsing
+   * should be fixed to handle everything per-character so that this copying can
+   * go away.
+   */
+  m_buf.insert(m_buf.end(), buf, buf + *bytecount);
+
+  size_t count = m_buf.size();
   try {
-    unique_ptr<node> n = make_unique<node>(parse_node(buf, bytecount));
+    unique_ptr<node> n = make_unique<node>(parse_node(m_buf.data(), &count));
+    size_t consumed = m_buf.size() - count;
+    *bytecount = std::min(consumed, *bytecount);
     return node_progress(std::move(n));
   }
   catch (const bytecount_insufficient &) {
+    *bytecount = 0;
     return node_progress(stream_state::CONTINUE);
   }
   catch (const err &e) {
@@ -602,6 +615,7 @@ node_progress msgpack_decoder::consume_buffer(
 
 void msgpack_decoder::reset()
 {
+  m_buf.clear();
 }
 
 
@@ -627,10 +641,6 @@ msgpack_encoder::msgpack_encoder() :
 {
 }
 
-
-void msgpack_encoder::_clear_buf() {
-  m_buf.clear();
-}
 
 /* These functions are used for pushing a value into memory as big-endian. */
 
@@ -862,7 +872,7 @@ progress msgpack_encoder::fill_buffer(
 
 void msgpack_encoder::reset(const node *new_node)
 {
-  _clear_buf();
+  m_buf.clear();
   _buf_out(*new_node);
   m_pos = 0;
   m_end = m_buf.size();

@@ -16,6 +16,7 @@ namespace ellis {
 
 
 class msgpack_decoder : public decoder {
+  std::vector<byte> m_buf;
 
 public:
   msgpack_decoder();

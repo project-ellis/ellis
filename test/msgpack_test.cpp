@@ -36,6 +36,7 @@ void ser_deser(
 
 void onebyte_fail(msgpack_decoder &dec, byte b)
 {
+  dec.reset();
   const byte buf[] = { b };
   size_t count = sizeof(buf);
   auto status = dec.consume_buffer(buf, &count);
@@ -59,8 +60,8 @@ int main() {
     auto status = dec.consume_buffer(buf, &count);
     ELLIS_ASSERT_EQ(status.state(), stream_state::CONTINUE);
     ELLIS_ASSERT_NULL(status.extract_error().get());
-    count = sizeof(buf);
-    status = dec.consume_buffer(buf, &count);
+    count = 1;
+    status = dec.consume_buffer(buf + sizeof(buf) - 1, &count);
     node n = *status.extract_value();
     ELLIS_ASSERT_TRUE(n.is_type(type::U8STR));
     ELLIS_ASSERT_EQ(n, "hi");
