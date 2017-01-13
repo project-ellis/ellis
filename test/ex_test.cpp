@@ -540,7 +540,9 @@ class h2_stream_handler {
   const h2as::request &m_h2req;
   const h2as::response &m_h2res;
   string m_path;
+  node_progress m_st;
   unique_ptr<node> m_response_node;
+  bool m_allow_chop = true;
 
 public:
   h2_stream_handler(
@@ -551,7 +553,8 @@ public:
     m_deco(new json_decoder()),
     m_enco(new json_encoder()),
     m_h2req(h2req),
-    m_h2res(h2res)
+    m_h2res(h2res),
+    m_st(stream_state::CONTINUE)
   {
     m_deco->reset();
 
@@ -578,27 +581,33 @@ public:
         [this](const uint8_t *buf, size_t len)
         {
           ELLIS_LOG(DBUG, "Got data %zu bytes input payload:", len);
-          auto st = node_progress(stream_state::CONTINUE);
           if (len > 0) {
-            /* Accumulate the data. */
-            st = m_deco->consume_buffer((const byte *)buf, &len);
+            if (m_st.state() == stream_state::CONTINUE) {
+              /* Accumulate the data. */
+              m_st = m_deco->consume_buffer((const byte *)buf, &len);
+              if (m_st.state() == stream_state::SUCCESS) {
+                m_allow_chop = false;
+              }
+            }
           }
           else {
-            st = m_deco->chop();
-          }
-          switch (st.state()) {
-          case stream_state::ERROR:
-            parse_fail(st.extract_error());
-            return;
+            if (m_allow_chop) {
+              m_st = m_deco->chop();
+            }
+            switch (m_st.state()) {
+            case stream_state::ERROR:
+              parse_fail(m_st.extract_error());
+              return;
 
-          case stream_state::CONTINUE:
-            ELLIS_LOG(DBUG, "Decoding needs more data...");
-            /* Do nothing? */
-            return;
+            case stream_state::CONTINUE:
+              parse_fail(MAKE_UNIQUE_ELLIS_ERR(PARSE_FAIL,
+                    "parse interrupted"));
+              return;
 
-          case stream_state::SUCCESS:
-            parse_success(st.extract_value());
-            return;
+            case stream_state::SUCCESS:
+              parse_success(m_st.extract_value());
+              return;
+            }
           }
         });
   }
@@ -868,7 +877,7 @@ int main() {
   using namespace ::ellis::op;
   using namespace ::ellis;
 
-  bool client_server_test = false;
+  bool client_server_test = true;
 
   set_system_log_prefilter(log_severity::DBUG);
   module_info hm("hello");
@@ -892,7 +901,7 @@ int main() {
   ELLIS_ASSERT_EQ(resp->at("{result}{x2}"), 64);
 
   if (client_server_test) {
-    h2_server srv(sched, "127.0.0.1", "3349");
+    h2_server srv(sched, "127.0.0.1", "3350");
     srv.start();
 
     // block here
