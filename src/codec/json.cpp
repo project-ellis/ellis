@@ -260,7 +260,7 @@ using json_sym = tok_nts_union<json_tok, json_nts>;
 struct json_parser_state {
   vector<json_sym> m_syms;
   vector<node> m_nodes;
-  string m_key;
+  vector<string> m_keys;
   json_tok m_thistok;
   const char * m_thistokstr;
 
@@ -269,7 +269,7 @@ struct json_parser_state {
   }
 
   void reset() {
-    m_key.clear();
+    m_keys.clear();
     m_syms.clear();
     m_nodes.clear();
     m_syms.push_back(json_sym(json_nts::VAL));
@@ -284,7 +284,8 @@ struct json_parser_state {
   void map_swallow() {
     auto n = m_nodes.back();
     m_nodes.pop_back();
-    m_nodes.back().as_mutable_map().insert(m_key, n);
+    m_nodes.back().as_mutable_map().insert(m_keys.back(), n);
+    m_keys.pop_back();
   }
 };
 
@@ -400,7 +401,7 @@ static const vector<json_parse_rule> g_rules {
       json_sym(json_nts::VAL) },
     [](json_parser_state &state)
     {
-      state.m_key = state.m_thistokstr;
+      state.m_keys.push_back(state.m_thistokstr);
     } },
   { json_nts::MAP_ETC, "MAP_ETC --> }",
     { json_sym(json_tok::RIGHT_CURLY) },
