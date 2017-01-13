@@ -13,8 +13,9 @@
 #include <ellis_private/utility.hpp>
 #include <endian.h>
 
-/* TODO: The decoder currently decodes an entire node at a time, and if it fails
- * to do so, consumes no bytes. It should instead do the following:
+/* TODO: The decoder currently parses per-node rather than per-character, as it
+ * does not represent its state explicitly and thus cannot be interrupted in the
+ * middle of parsing. It should instead do the following:
  * - If it can produce a node, consume all bytes required to do so, and return
  *   SUCCESS.
  * - If it cannot produce a node, consume all the bytes given and return
