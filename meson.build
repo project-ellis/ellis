@@ -20,7 +20,10 @@ pkg = import('pkgconfig')
 # Enable threads.
 thread_deps = dependency('threads')
 
-ex_deps = dependency('boost', modules : ['asio', 'system'])
+# Dependencies that are specific to Ellis Op
+asio_dep = dependency('boost', modules : ['asio', 'system'])
+nghttp2_dep = dependency('libnghttp2_asio', version : '>=1.18.0')
+ssl_dep = dependency('libssl')
 
 # Includes.
 inc = include_directories('include')
@@ -115,6 +118,6 @@ foreach t : tests
     t.get(1),
     include_directories: inc,
     link_with: lib,
-    dependencies: [ thread_deps, ex_deps ])
+    dependencies: [ thread_deps, asio_dep, nghttp2_dep, ssl_dep ])
   test(t.get(0), exe)
 endforeach

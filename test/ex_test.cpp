@@ -11,6 +11,11 @@
 #include <ellis_private/using.hpp>
 #include <thread>
 
+/* Needed for server. */
+#include <nghttp2/asio_http2.h>
+#include <nghttp2/asio_http2_client.h>
+#include <nghttp2/asio_http2_server.h>
+
 namespace ellis {
 namespace op {
 
@@ -523,6 +528,337 @@ public:
   }
 };
 
+namespace h2a = nghttp2::asio_http2;
+namespace h2ac = nghttp2::asio_http2::client;
+namespace h2as = nghttp2::asio_http2::server;
+
+class h2_stream_handler {
+
+  scheduler &m_sched;
+  unique_ptr<decoder> m_deco;
+  unique_ptr<encoder> m_enco;
+  const h2as::request &m_h2req;
+  const h2as::response &m_h2res;
+  string m_path;
+  unique_ptr<node> m_response_node;
+
+public:
+  h2_stream_handler(
+      scheduler &sched,
+      const h2as::request &h2req,
+      const h2as::response &h2res) :
+    m_sched(sched),
+    m_deco(new json_decoder()),
+    m_enco(new json_encoder()),
+    m_h2req(h2req),
+    m_h2res(h2res)
+  {
+    m_deco->reset();
+
+    // TODO: don't hardcode decoder to json.
+    // TODO: borrow from a pool of decoders rather than always creating.
+    m_path = h2a::percent_decode(m_h2req.uri().path);
+    // TODO: verify path, REST-compatibility logic, etc
+  }
+
+  void setup()
+  {
+    ELLIS_LOG(DBUG, "Setting up new h2 request handler.");
+    /* First thing we do is make sure this stream state object will get
+     * deleted when the stream is closed. */
+    m_h2res.on_close(
+        [this](uint32_t reason)
+        {
+          ELLIS_LOGSTREAM(DBUG, "Stream closed! reason: " << reason);
+          delete this;
+        });
+
+    /* Set callback for data. */
+    m_h2req.on_data(
+        [this](const uint8_t *buf, size_t len)
+        {
+          ELLIS_LOG(DBUG, "Got data %zu bytes input payload:", len);
+          auto st = node_progress(stream_state::CONTINUE);
+          if (len > 0) {
+            /* Accumulate the data. */
+            st = m_deco->consume_buffer((const byte *)buf, &len);
+          }
+          else {
+            st = m_deco->chop();
+          }
+          switch (st.state()) {
+          case stream_state::ERROR:
+            parse_fail(st.extract_error());
+            return;
+
+          case stream_state::CONTINUE:
+            ELLIS_LOG(DBUG, "Decoding needs more data...");
+            /* Do nothing? */
+            return;
+
+          case stream_state::SUCCESS:
+            parse_success(st.extract_value());
+            return;
+          }
+        });
+  }
+  void fill_header(
+      unsigned int status_code,
+      const std::initializer_list<pair<string,string>> &kvpairs)
+  {
+    ELLIS_LOG(DBUG, "Setting %u response status code", status_code);
+    /* Set up h2 response headers. */
+    auto hdrs = h2a::header_map();
+    for (const auto &kv : kvpairs) {
+      hdrs.emplace(kv.first, h2a::header_value{kv.second, false});
+    }
+    m_h2res.write_head(status_code, std::move(hdrs));
+  }
+  void parse_fail(unique_ptr<err> e)
+  {
+    string errtxt = e->summary();
+    ELLIS_LOG(DBUG, "Sending parse failure response, error was %s",
+        errtxt.c_str());
+    fill_header(400, {
+        {"Content-Type", "text/plain"},
+        {"Content-Length", std::to_string(errtxt.size())}
+        });
+    m_h2res.end(errtxt);
+  }
+  void parse_success(unique_ptr<node> req)
+  {
+    ELLIS_LOG(DBUG, "Parse was successful; executing request.");
+    m_sched.submit_async(std::move(req),
+        [this]
+        (call *c)
+        {
+          m_response_node = std::move(c->m_resp);
+          got_response();
+        });
+  }
+  void got_response()
+  {
+    ELLIS_LOG(DBUG, "Request finished executing; initiating repsonse.");
+    // TODO: don't hardcode encoder type.
+    fill_header(200, { {"Content-Type", "application/json" }});
+    m_enco.reset(new json_encoder());
+    m_enco->reset(m_response_node.get());
+    h2a::generator_cb cb =
+      [this]
+      (uint8_t *buf, std::size_t len, uint32_t *data_flags)
+      {
+        ELLIS_LOG(DBUG, "Got output buffer, size %zu bytes", len);
+        auto orig_len = len;
+        auto st = m_enco->fill_buffer((byte *)buf, &len);
+        switch (st.state()) {
+        case stream_state::SUCCESS:
+          ELLIS_LOG(DBUG, "Encoding successful, %zu bytes leftover", len);
+          // TODO: don't hardcode content-type
+          //fill_header(200, { "Content-Type", "application/json" });
+          *data_flags = NGHTTP2_DATA_FLAG_EOF;
+          return orig_len - len;
+        case stream_state::ERROR:
+          ELLIS_LOGSTREAM(DBUG, "Encoding error, "
+              << st.extract_error()->summary());
+          // TODO: how to handle error here?  I think we already have to have
+          // set the headers before we call end() on the h2 response, in which
+          // case how do we guard against partial encoding?
+          //fill_header(500);
+          *data_flags = NGHTTP2_DATA_FLAG_EOF;
+          return (size_t)NGHTTP2_ERR_TEMPORAL_CALLBACK_FAILURE;
+        case stream_state::CONTINUE:
+          ELLIS_LOG(DBUG, "Encoding used buffer completely, needs more...");
+          *data_flags = 0;
+          return orig_len - len;
+        }
+        ELLIS_ASSERT_UNREACHABLE();
+      };
+    m_h2res.end(cb);
+  }
+};
+
+class h2_server {
+  scheduler &m_sched;
+  h2as::http2 m_srv;
+  string m_ipaddr;
+  string m_port;
+  bool m_encrypted;
+  string m_ssl_key_file;
+  string m_ssl_cert_chain_file;
+  boost::asio::ssl::context m_tls;
+public:
+  h2_server(
+      scheduler &sched,
+      const char *ipaddr,
+      const char *port) :
+    m_sched(sched),
+    m_srv(),
+    m_ipaddr(ipaddr),
+    m_port(port),
+    m_encrypted(false),
+    m_ssl_key_file(),
+    m_ssl_cert_chain_file(),
+    m_tls(boost::asio::ssl::context::sslv23)
+  {
+  }
+  h2_server(
+      scheduler &sched,
+      const char *ipaddr,
+      const char *port,
+      const char *ssl_key_file,
+      const char *ssl_cert_chain_file) :
+    m_sched(sched),
+    m_srv(),
+    m_ipaddr(ipaddr),
+    m_port(port),
+    m_encrypted(true),
+    m_ssl_key_file(ssl_key_file),
+    m_ssl_cert_chain_file(ssl_cert_chain_file),
+    m_tls(boost::asio::ssl::context::sslv23)
+  {
+  }
+  void start()
+  {
+    m_srv.num_threads(2);
+    if (! m_srv.handle("/",
+          [this]
+          (const h2as::request &h2req, const h2as::response &h2res)
+          {
+            ELLIS_LOG(DBUG, "Creating new h2 stream handler.");
+            auto rh = new h2_stream_handler(m_sched, h2req, h2res);
+            rh->setup();
+          })) {
+      ELLIS_LOG(DBUG, "Oh no, handler registration failure.");
+    }
+    boost::system::error_code ec;
+    if (m_encrypted) {
+      ELLIS_LOG(DBUG, "Starting SSL server");
+      m_tls.use_private_key_file(
+          m_ssl_key_file.c_str(),
+          boost::asio::ssl::context::pem);
+      m_tls.use_certificate_chain_file(
+          m_ssl_cert_chain_file.c_str());
+      h2as::configure_tls_context_easy(ec, m_tls);
+      if (m_srv.listen_and_serve(ec, m_tls, m_ipaddr, m_port, true)) {
+        ELLIS_LOGSTREAM(DBUG, "error: " << ec.message());
+      }
+    }
+    else {
+      ELLIS_LOG(DBUG, "Starting non-SSL server");
+      if (m_srv.listen_and_serve(ec, m_ipaddr, m_port, true)) {
+        ELLIS_LOGSTREAM(DBUG, "error: " << ec.message());
+      }
+    }
+  }
+  void stop()
+  {
+    ELLIS_LOG(DBUG, "Stopping h2 server...");
+    m_srv.stop();
+  }
+  void join()
+  {
+    ELLIS_LOG(DBUG, "Waiting for server shutdown...");
+    m_srv.join();
+  }
+};
+
+/**
+ * An h2 client, for forwarding ellis op requests to a particular h2 server.
+ */
+class h2_client {
+  enum class connect_state {
+    NOT_CONNECTED,
+    CONNECTING,
+    CONNECTED,
+    DISCONNECTING
+  };
+  boost::asio::io_service m_ios;
+  vector<std::thread> m_worker_threads;
+  unique_ptr<h2ac::session> m_sess;
+  string m_ipaddr;
+  string m_port;
+  //bool m_encrypted;
+  //string m_ssl_key_file;
+  //string m_ssl_cert_chain_file;
+  //boost::asio::ssl::context m_tls;
+  mutex m_mutex;
+  connect_state m_connect_state = connect_state::NOT_CONNECTED;
+  deque<unique_ptr<node>> m_req_q;
+
+public:
+  h2_client(
+      const char *ipaddr,
+      const char *port) :
+    m_ios(),
+    m_worker_threads(),
+    m_ipaddr(ipaddr),
+    m_port(port)
+    //m_encrypted(false),
+    //m_ssl_key_file(),
+    //m_ssl_cert_chain_file(),
+    //m_tls(boost::asio::ssl::context::sslv23)
+  {
+    // TODO: don't automatically connect on construction; add logic to connect
+    // on demand and disconnect after timeout.
+    connect();
+  }
+  ~h2_client()
+  {
+    // TODO: assert disconnected?
+  }
+  void connect()
+  {
+    /* Update state. */
+    {
+      unique_lock<mutex> lk(m_mutex);
+      m_connect_state = connect_state::CONNECTING;
+    }
+    ELLIS_LOG(DBUG, "Connecting to host %s port %s",
+        m_ipaddr.c_str(), m_port.c_str());
+    // TODO: session constructor can throw an exception.  What do we do when
+    // a request can not be handled due to connection failure?  I guess we
+    // reset connect retry timer--keep trying, don't fail the requests...
+    // Possibly have a max tries parameter, defaults to forever...
+    m_sess = make_unique<h2ac::session>(m_ios, m_ipaddr, m_port);
+    m_sess->on_connect(
+        [this]
+        (boost::asio::ip::tcp::resolver::iterator endpoint_it)
+        {
+          std::cout << (*endpoint_it).endpoint();
+          //ELLIS_LOGSTREAM("connected to " << (*endpoint_it).endpoint());
+          unique_lock<mutex> lk(m_mutex);
+          m_connect_state = connect_state::CONNECTING;
+          for (auto & c : m_req_q) {
+            // TODO
+            assert(0);
+            /* submit */
+          }
+          m_req_q.clear();
+        });
+    int num_threads = 1;
+    for (int i = 0; i < num_threads; i++) {
+      m_worker_threads.emplace_back(
+          [this, i]
+          ()
+          {
+            ELLIS_LOG(DBUG, "h2_client worker thread %d starting", i);
+            m_ios.run();
+            ELLIS_LOG(DBUG, "h2_client worker thread %d stopping", i);
+          });
+    }
+  }
+  void disconnect()
+  {
+    ELLIS_LOG(DBUG, "Disconnecting h2_client...");
+    // TODO: do I need to suspend/wait outstanding activity before shutdown?
+    m_sess->shutdown();
+    // TODO: verify that ios run will now exit on its own
+    for (auto & thr : m_worker_threads) {
+      thr.join();
+    }
+    m_worker_threads.clear();
+  }
+};
 
 }  /* namespace ::ellis::op */
 }  /* namespace ::ellis */
@@ -531,6 +867,8 @@ int main() {
 
   using namespace ::ellis::op;
   using namespace ::ellis;
+
+  bool client_server_test = false;
 
   set_system_log_prefilter(log_severity::DBUG);
   module_info hm("hello");
@@ -549,8 +887,18 @@ int main() {
   sched.add_module(hm);
   node params(type::MAP);
   params.as_mutable_map().insert("x", 8);
-  auto resp = sched.do_sync(make_request("hello", "world", params));
+  auto resp = sched.do_sync(make_request("hello", "world",
+        {make_pair("x", 8)}));
   ELLIS_ASSERT_EQ(resp->at("{result}{x2}"), 64);
+
+  if (client_server_test) {
+    h2_server srv(sched, "127.0.0.1", "3349");
+    srv.start();
+
+    // block here
+    srv.join();
+  }
+
   sched.stop();
   return 0;
 }
