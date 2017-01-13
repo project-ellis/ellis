@@ -69,12 +69,13 @@ node can_decoder::make_obd_node(const void *start)
     ELLIS_LOG(WARN, "PID %s has non-compliant unused field %hh", pid_str, resp->unused);
   }
 
-  node m = node(type::MAP);
-  m.as_mutable_map().insert("mode", mode_str);
-  m.as_mutable_map().insert("pid", pid_str);
-  m.as_mutable_map().insert("value", dec_val);
+  node n = node(type::MAP);
+  map_node &m = n.as_mutable_map();
+  m.insert("mode", mode_str);
+  m.insert("pid", pid_str);
+  m.insert("value", dec_val);
 
-  return m;
+  return n;
 }
 
 

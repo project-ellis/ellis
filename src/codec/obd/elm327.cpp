@@ -81,9 +81,10 @@ node elm327_decoder::make_obd_node(const byte *start, size_t bytecount)
   const char *pid_str = get_pid_string(pid);
   p += 3;
 
-  node m = node(type::MAP);
-  m.as_mutable_map().insert("mode", mode_str);
-  m.as_mutable_map().insert("pid", pid_str);
+  node n = node(type::MAP);
+  map_node &m = n.as_mutable_map();
+  m.insert("mode", mode_str);
+  m.insert("pid", pid_str);
   if (p < end) {
     uint32_t val = 0;
     size_t shift = 32;
@@ -103,10 +104,10 @@ node elm327_decoder::make_obd_node(const byte *start, size_t bytecount)
     val <<= shift;
     double dec_val = decode_value(pid, val);
 
-    m.as_mutable_map().insert("value", dec_val);
+    m.insert("value", dec_val);
   }
 
-  return m;
+  return n;
 }
 
 
