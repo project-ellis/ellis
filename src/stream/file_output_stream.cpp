@@ -12,7 +12,11 @@ namespace ellis {
 
 
 file_output_stream::file_output_stream(const char *filename) {
-  m_fd = open(filename, O_WRONLY | O_CREAT | O_TRUNC, 0600);
+  if (strcmp(filename, "-") == 0) {
+    m_fd = 1;
+  } else {
+    m_fd = open(filename, O_WRONLY | O_CREAT | O_TRUNC, 0600);
+  }
   if (m_fd < 0) {
     // TODO: map errno for more specifics
     THROW_ELLIS_ERR(IO, "bad pathname: " << filename);
@@ -22,9 +26,9 @@ file_output_stream::file_output_stream(const char *filename) {
 
 file_output_stream::~file_output_stream() {
   m_fdos.reset();
-  if (m_fd >= 0) {
+  if (m_fd > 0) {
     close(m_fd);
-    m_fd = 0;
+    m_fd = -1;
   }
 }
 

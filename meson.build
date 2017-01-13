@@ -85,6 +85,7 @@ src = [
   'src/stream/mem_input_stream.cpp',
   'src/stream/mem_output_stream.cpp',
   'src/stream/tcp_client_stream.cpp']
+# Library
 lib = shared_library(
   'ellis',
   src,
@@ -97,6 +98,18 @@ pkg.generate(
   libraries: [lib],
   subdirs: 'ellis',
   version: '0.1')
+
+# Command line utilities.
+utils = [
+  ['ellisconv', 'util/ellisconv.cpp']]
+foreach u : utils
+  executable(
+    u.get(0),
+    u.get(1),
+    include_directories: inc,
+    link_with: lib,
+    dependencies: [ thread_deps, asio_dep, nghttp2_dep, ssl_dep ])
+endforeach
 
 # Static analysis.
 run_target('check', command: 'meson/check')

@@ -12,7 +12,11 @@ namespace ellis {
 
 
 file_input_stream::file_input_stream(const char *filename) {
-  m_fd = open(filename, O_RDONLY);
+  if (strcmp(filename, "-") == 0) {
+    m_fd = 0;
+  } else {
+    m_fd = open(filename, O_RDONLY);
+  }
   if (m_fd < 0) {
     // TODO: map errno for more specifics
     THROW_ELLIS_ERR(IO, "bad pathname: " << filename);
@@ -22,9 +26,9 @@ file_input_stream::file_input_stream(const char *filename) {
 
 file_input_stream::~file_input_stream() {
   m_fdis.reset();
-  if (m_fd >= 0) {
+  if (m_fd > 0) {
     close(m_fd);
-    m_fd = 0;
+    m_fd = -1;
   }
 }
 
