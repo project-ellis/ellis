@@ -87,28 +87,28 @@
 #define HEX_UNUSED 0xc1
 #define HEX_FALSE 0xc2
 #define HEX_TRUE 0xc3
-#define HEX_BIN_8 0xc4
-#define HEX_BIN_16 0xc5
-#define HEX_BIN_32 0xc6
+#define HEX_BIN8 0xc4
+#define HEX_BIN16 0xc5
+#define HEX_BIN32 0xc6
 #define HEX_EXT 0xc7: case 0xc8: case 0xc9
-#define HEX_FLOAT_32 0xca
-#define HEX_FLOAT_64 0xcb
-#define HEX_UINT_8 0xcc
-#define HEX_UINT_16 0xcd
-#define HEX_UINT_32 0xce
-#define HEX_UINT_64 0xcf
-#define HEX_INT_8 0xd0
-#define HEX_INT_16 0xd1
-#define HEX_INT_32 0xd2
-#define HEX_INT_64 0xd3
+#define HEX_FLOAT32 0xca
+#define HEX_FLOAT64 0xcb
+#define HEX_UINT8 0xcc
+#define HEX_UINT16 0xcd
+#define HEX_UINT32 0xce
+#define HEX_UINT64 0xcf
+#define HEX_INT8 0xd0
+#define HEX_INT16 0xd1
+#define HEX_INT32 0xd2
+#define HEX_INT64 0xd3
 #define HEX_FIXEXT 0xd4: case 0xd5: case 0xd6: case 0xd7: case 0xd8
-#define HEX_STR_8 0xd9
-#define HEX_STR_16 0xda
-#define HEX_STR_32 0xdb
-#define HEX_ARRAY_16 0xdc
-#define HEX_ARRAY_32 0xdd
-#define HEX_MAP_16 0xde
-#define HEX_MAP_32 0xdf
+#define HEX_STR8 0xd9
+#define HEX_STR16 0xda
+#define HEX_STR32 0xdb
+#define HEX_ARRAY16 0xdc
+#define HEX_ARRAY32 0xdd
+#define HEX_MAP16 0xde
+#define HEX_MAP32 0xdf
 
 
 namespace ellis {
@@ -122,28 +122,28 @@ enum class msgpack_type {
   NIL,
   FALSE,
   TRUE,
-  BIN_8,
-  BIN_16,
-  BIN_32,
+  BIN8,
+  BIN16,
+  BIN32,
   /* ext not supported */
-  FLOAT_32,
-  FLOAT_64,
-  UINT_8,
-  UINT_16,
-  UINT_32,
+  FLOAT32,
+  FLOAT64,
+  UINT8,
+  UINT16,
+  UINT32,
   /* uint64 not supported */
-  INT_8,
-  INT_16,
-  INT_32,
-  INT_64,
+  INT8,
+  INT16,
+  INT32,
+  INT64,
   /* fixext not supported */
-  STR_8,
-  STR_16,
-  STR_32,
-  ARRAY_16,
-  ARRAY_32,
-  MAP_16,
-  MAP_32,
+  STR8,
+  STR16,
+  STR32,
+  ARRAY16,
+  ARRAY32,
+  MAP16,
+  MAP32,
   NEG_FIXINT
 };
 
@@ -185,74 +185,74 @@ msgpack_type get_msgpack_type(byte b)
     case HEX_TRUE:
       return msgpack_type::TRUE;
 
-    case HEX_BIN_8:
-      return msgpack_type::BIN_8;
+    case HEX_BIN8:
+      return msgpack_type::BIN8;
 
-    case HEX_BIN_16:
-      return msgpack_type::BIN_16;
+    case HEX_BIN16:
+      return msgpack_type::BIN16;
 
-    case HEX_BIN_32:
-      return msgpack_type::BIN_32;
+    case HEX_BIN32:
+      return msgpack_type::BIN32;
 
     case HEX_EXT:
       THROW_ELLIS_ERR(
           PARSE_FAIL, "type byte corresponds to an ext type, which is unsupported");
 
-    case HEX_FLOAT_32:
-      return msgpack_type::FLOAT_32;
+    case HEX_FLOAT32:
+      return msgpack_type::FLOAT32;
 
-    case HEX_FLOAT_64:
-      return msgpack_type::FLOAT_64;
+    case HEX_FLOAT64:
+      return msgpack_type::FLOAT64;
 
-    case HEX_UINT_8:
-      return msgpack_type::UINT_8;
+    case HEX_UINT8:
+      return msgpack_type::UINT8;
 
-    case HEX_UINT_16:
-      return msgpack_type::UINT_16;
+    case HEX_UINT16:
+      return msgpack_type::UINT16;
 
-    case HEX_UINT_32:
-      return msgpack_type::UINT_32;
+    case HEX_UINT32:
+      return msgpack_type::UINT32;
 
-    case HEX_UINT_64:
+    case HEX_UINT64:
       THROW_ELLIS_ERR(
           PARSE_FAIL, "type byte corresponds to a uint64, which is unsupported");
 
-    case HEX_INT_8:
-      return msgpack_type::INT_8;
+    case HEX_INT8:
+      return msgpack_type::INT8;
 
-    case HEX_INT_16:
-      return msgpack_type::INT_16;
+    case HEX_INT16:
+      return msgpack_type::INT16;
 
-    case HEX_INT_32:
-      return msgpack_type::INT_32;
+    case HEX_INT32:
+      return msgpack_type::INT32;
 
-    case HEX_INT_64:
-      return msgpack_type::INT_64;
+    case HEX_INT64:
+      return msgpack_type::INT64;
 
     case HEX_FIXEXT:
       THROW_ELLIS_ERR(
           PARSE_FAIL, "type byte maps fixext, which is unsupported");
 
-    case HEX_STR_8:
-      return msgpack_type::STR_8;
+    case HEX_STR8:
+      return msgpack_type::STR8;
 
-    case HEX_STR_16:
-      return msgpack_type::STR_16;
+    case HEX_STR16:
+      return msgpack_type::STR16;
 
-    case HEX_STR_32:
-      return msgpack_type::STR_32;
+    case HEX_STR32:
+      return msgpack_type::STR32;
 
-    case HEX_ARRAY_16:
-      return msgpack_type::ARRAY_16;
+    case HEX_ARRAY16:
+      return msgpack_type::ARRAY16;
 
-    case HEX_ARRAY_32:
-      return msgpack_type::ARRAY_32;
+    case HEX_ARRAY32:
+      return msgpack_type::ARRAY32;
 
-    case HEX_MAP_16:
-      return msgpack_type::MAP_16;
+    case HEX_MAP16:
+      return msgpack_type::MAP16;
 
-    case HEX_MAP_32:
-      return msgpack_type::MAP_32;
+    case HEX_MAP32:
+      return msgpack_type::MAP32;
 
     case HEX_NEG_FIXINT:
       return msgpack_type::NEG_FIXINT;
@@ -466,9 +466,9 @@ node parse_node(const byte *buf, size_t *bytecount)
         verify_expected_count(*bytecount, 1 + data_len);
         return _make_map_node<uint8_t>(buf, bytecount, 1, data_len);
       }
-    case msgpack_type::MAP_16:
+    case msgpack_type::MAP16:
       return make_map_node<uint16_t>(buf, bytecount);
-    case msgpack_type::MAP_32:
+    case msgpack_type::MAP32:
       return make_map_node<uint32_t>(buf, bytecount);
 
     /* Array */
@@ -478,46 +478,46 @@ node parse_node(const byte *buf, size_t *bytecount)
         verify_expected_count(*bytecount, 1 + data_len);
         return _make_array_node<uint8_t>(buf, bytecount, 1, data_len);
       }
-    case msgpack_type::ARRAY_16:
+    case msgpack_type::ARRAY16:
       return make_array_node<uint16_t>(buf, bytecount);
-    case msgpack_type::ARRAY_32:
+    case msgpack_type::ARRAY32:
       return make_array_node<uint32_t>(buf, bytecount);
 
     /* String */
     case msgpack_type::FIXSTR:
-    case msgpack_type::STR_8:
-    case msgpack_type::STR_16:
-    case msgpack_type::STR_32:
+    case msgpack_type::STR8:
+    case msgpack_type::STR16:
+    case msgpack_type::STR32:
       return node(parse_str(type, buf, bytecount));
 
     /* Binary */
-    case msgpack_type::BIN_8:
+    case msgpack_type::BIN8:
       return make_bin_node<uint8_t>(buf, bytecount);
-    case msgpack_type::BIN_16:
+    case msgpack_type::BIN16:
       return make_bin_node<uint16_t>(buf, bytecount);
-    case msgpack_type::BIN_32:
+    case msgpack_type::BIN32:
       return make_bin_node<uint32_t>(buf, bytecount);
 
     /* Numeric */
-    case msgpack_type::FLOAT_32:
+    case msgpack_type::FLOAT32:
       return make_num_node<float>(buf, bytecount);
-    case msgpack_type::FLOAT_64:
+    case msgpack_type::FLOAT64:
       return make_num_node<double>(buf, bytecount);
 
-    case msgpack_type::UINT_8:
+    case msgpack_type::UINT8:
       return make_num_node<uint8_t>(buf, bytecount);
-    case msgpack_type::UINT_16:
+    case msgpack_type::UINT16:
       return make_num_node<uint16_t>(buf, bytecount);
-    case msgpack_type::UINT_32:
+    case msgpack_type::UINT32:
       return make_num_node<uint32_t>(buf, bytecount);
 
-    case msgpack_type::INT_8:
+    case msgpack_type::INT8:
       return make_num_node<int8_t>(buf, bytecount);
-    case msgpack_type::INT_16:
+    case msgpack_type::INT16:
       return make_num_node<int16_t>(buf, bytecount);
-    case msgpack_type::INT_32:
+    case msgpack_type::INT32:
       return make_num_node<int32_t>(buf, bytecount);
-    case msgpack_type::INT_64:
+    case msgpack_type::INT64:
       return make_num_node<int64_t>(buf, bytecount);
 
     case msgpack_type::POS_FIXINT:
@@ -563,11 +563,11 @@ string parse_str(msgpack_type type, const byte *buf, size_t *bytecount)
         verify_expected_count(*bytecount, 1 + data_len);
         return _make_str<uint8_t>(buf, bytecount, 1, data_len);
       }
-    case msgpack_type::STR_8:
+    case msgpack_type::STR8:
       return make_str<uint8_t>(buf, bytecount);
-    case msgpack_type::STR_16:
+    case msgpack_type::STR16:
       return make_str<uint16_t>(buf, bytecount);
-    case msgpack_type::STR_32:
+    case msgpack_type::STR32:
       return make_str<uint32_t>(buf, bytecount);
     default:
       THROW_ELLIS_ERR(PARSE_FAIL, "Parsed node is not a string");
@@ -682,15 +682,15 @@ void msgpack_encoder::_buf_out_str(const char *s, size_t len)
     m_buf.push_back(0xa0 | len);
   }
   else if (len <= UINT8_MAX) {
-    m_buf.push_back(HEX_STR_8);
+    m_buf.push_back(HEX_STR8);
     _push_be((uint8_t)len);
   }
   else if (len <= UINT16_MAX) {
-    m_buf.push_back(HEX_STR_16);
+    m_buf.push_back(HEX_STR16);
     _push_be((uint16_t)len);
   }
   else {
-    m_buf.push_back(HEX_STR_32);
+    m_buf.push_back(HEX_STR32);
     _push_be((uint32_t)len);
   }
   const char *end = s + len;
@@ -723,19 +723,19 @@ void msgpack_encoder::_buf_out(const node &n) {
             m_buf.push_back(val);
           }
           else if (val >= INT8_MIN) {
-            m_buf.push_back(HEX_INT_8);
+            m_buf.push_back(HEX_INT8);
             _push_be(union_cast<int64_t, uint8_t>(val));
           }
           else if (val >= INT16_MIN) {
-            m_buf.push_back(HEX_INT_16);
+            m_buf.push_back(HEX_INT16);
             _push_be(union_cast<int64_t, uint16_t>(val));
           }
           else if (val >= INT32_MIN) {
-            m_buf.push_back(HEX_INT_32);
+            m_buf.push_back(HEX_INT32);
             _push_be(union_cast<int64_t, uint32_t>(val));
           }
           else {
-            m_buf.push_back(HEX_INT_64);
+            m_buf.push_back(HEX_INT64);
             _push_be(union_cast<int64_t, uint64_t>(val));
           }
         }
@@ -744,15 +744,15 @@ void msgpack_encoder::_buf_out(const node &n) {
             m_buf.push_back(val);
           }
           else if (val <= UINT8_MAX) {
-            m_buf.push_back(HEX_UINT_8);
+            m_buf.push_back(HEX_UINT8);
             _push_be(union_cast<int64_t, uint8_t>(val));
           }
           else if (val <= UINT16_MAX) {
-            m_buf.push_back(HEX_UINT_16);
+            m_buf.push_back(HEX_UINT16);
             _push_be(union_cast<int64_t, uint16_t>(val));
           }
           else if (val <= UINT32_MAX) {
-            m_buf.push_back(HEX_UINT_32);
+            m_buf.push_back(HEX_UINT32);
             _push_be(union_cast<int64_t, uint32_t>(val));
           }
           else {
@@ -767,12 +767,12 @@ void msgpack_encoder::_buf_out(const node &n) {
       {
         double d = n.as_double();
         if ((d < 0.0 && d > FLT_MIN) || (d >= 0.0 && d <= FLT_MAX)) {
-          m_buf.push_back(HEX_FLOAT_32);
+          m_buf.push_back(HEX_FLOAT32);
           uint32_t val = union_cast<float, uint32_t>((float)d);
           _push_be(htobe32(val));
         }
         else {
-          m_buf.push_back(HEX_FLOAT_64);
+          m_buf.push_back(HEX_FLOAT64);
           uint64_t val = union_cast<double, uint64_t>(d);
           _push_be(htobe64(val));
         }
@@ -794,11 +794,11 @@ void msgpack_encoder::_buf_out(const node &n) {
           m_buf.push_back(0x90 | len);
         }
         else if (len <= UINT16_MAX) {
-          m_buf.push_back(HEX_ARRAY_16);
+          m_buf.push_back(HEX_ARRAY16);
           _push_be((uint16_t)len);
         }
         else {
-          m_buf.push_back(HEX_ARRAY_32);
+          m_buf.push_back(HEX_ARRAY32);
           _push_be((uint32_t)len);
         }
         a.foreach([this](const node &item) {
@@ -812,15 +812,15 @@ void msgpack_encoder::_buf_out(const node &n) {
         const binary_node &b = n.as_binary();
         size_t len = b.length();
         if (len <= UINT8_MAX) {
-          m_buf.push_back(HEX_BIN_8);
+          m_buf.push_back(HEX_BIN8);
           _push_be((uint8_t)len);
         }
         else if (len <= UINT16_MAX) {
-          m_buf.push_back(HEX_BIN_16);
+          m_buf.push_back(HEX_BIN16);
           _push_be((uint16_t)len);
         }
         else {
-          m_buf.push_back(HEX_BIN_32);
+          m_buf.push_back(HEX_BIN32);
           _push_be((uint32_t)len);
         }
         const byte *end = b.data() + len;
@@ -838,11 +838,11 @@ void msgpack_encoder::_buf_out(const node &n) {
           m_buf.push_back(0x80 | len);
         }
         else if (len <= UINT16_MAX) {
-          m_buf.push_back(HEX_MAP_16);
+          m_buf.push_back(HEX_MAP16);
           _push_be((uint16_t)len);
         }
         else if (len <= UINT32_MAX) {
-          m_buf.push_back(HEX_MAP_32);
+          m_buf.push_back(HEX_MAP32);
           _push_be((uint32_t)len);
         }
         m.foreach([this](const string &k, const node &v) {
