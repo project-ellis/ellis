@@ -14,7 +14,6 @@ namespace ellis {
 namespace obd {
 
 
-
 struct ecu_response {
   byte extra_bytes;
   byte mode;
@@ -83,11 +82,6 @@ node_progress can_decoder::consume_buffer(
     const byte *buf,
     size_t *bytecount)
 {
-  if (bytecount == nullptr || *bytecount == 0) {
-  return node_progress(MAKE_UNIQUE_ELLIS_ERR(PARSE_FAIL,
-          "Cannot parse empty OBD II node"));
-  }
-
   /* ECU responses are 8 bytes long. */
   if (*bytecount < 8) {
     return node_progress(stream_state::CONTINUE);
