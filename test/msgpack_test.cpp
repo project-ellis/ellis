@@ -48,11 +48,6 @@ int main() {
   msgpack_decoder dec;
   msgpack_encoder enc;
 
-  /*
-   * TODO: This test is wrong. After the first call returns CONTINUE, *bytecount
-   * should be 0, and the caller should call in with the third byte.
-   */
-
   /* Buffer length is too small. */
   {
     const byte buf[] = { 0xa2, 0x68, 0x69 };
