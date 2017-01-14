@@ -363,8 +363,16 @@ static void arraytest()
   contents_chk(en);
 
   /* Construct using initializer_list, and verify contents. */
-  node yanode({"foo", 4, 4.4, true, type::NIL, type::ARRAY, type::MAP,
-      node(k_somedata, sizeof(k_somedata))});
+  node yanode({
+      "foo",
+      4,
+      4.4,
+      true,
+      type::NIL,
+      type::ARRAY,
+      type::MAP,
+      node(k_somedata, sizeof(k_somedata))
+    });
   contents_chk(yanode);
 }
 

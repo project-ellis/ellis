@@ -877,7 +877,7 @@ int main() {
   using namespace ::ellis::op;
   using namespace ::ellis;
 
-  bool client_server_test = true;
+  bool client_server_test = false;
 
   set_system_log_prefilter(log_severity::DBUG);
   module_info hm("hello");
@@ -892,10 +892,8 @@ int main() {
         cb(std::move(resp));
       });
   scheduler sched;
-  sched.start();
   sched.add_module(hm);
-  node params(type::MAP);
-  params.as_mutable_map().insert("x", 8);
+  sched.start();
   auto resp = sched.do_sync(make_request("hello", "world",
         {make_pair("x", 8)}));
   ELLIS_ASSERT_EQ(resp->at("{result}{x2}"), 64);
