@@ -1,4 +1,5 @@
 #undef NDEBUG
+#include <atomic>
 #include <boost/asio.hpp>
 #include <ellis/core/array_node.hpp>
 #include <ellis/core/emigration.hpp>
@@ -18,6 +19,8 @@
 
 namespace ellis {
 namespace op {
+
+using std::atomic;
 
 
 /**
@@ -262,7 +265,7 @@ public:
  * Exponential histogram, which records a histogram of the exponents
  * of values between 2**0 and 2**63.
  */
-class exp_histogram {
+struct exp_histogram {
   int64_t m_counts[64];
 };
 
@@ -270,13 +273,25 @@ class exp_histogram {
  * General stats object, for keeping track of count and sum, can do
  * average, min, max, population variance, and histogram.
  */
-class stats {
+struct stats {
   int64_t m_count = 0;
   int64_t m_sum = 0;
   int64_t m_sum_square = 0;
   int64_t m_min = 0;
   int64_t m_max = 0;
   exp_histogram m_hist;
+  void update(int64_t v)
+  {
+    m_count++;
+    m_sum += v;
+    m_sum_square += v*v;
+    if (m_min > v) {
+      m_min = v;
+    }
+    if (m_max < v) {
+      m_max = v;
+    }
+  }
 };
 
 /**
@@ -307,14 +322,24 @@ struct procedure_info {
   string m_name;
   procedure_imp m_imp;
   // TODO: node m_schema;
+  mutex m_stat_mutex;
   stats m_stats;  // since system start, for this procedure
-  int64_t m_num_in_flight = 0;
+  atomic<int64_t> m_num_in_flight {0};
   // TODO: actually update and use the stats
 
   procedure_info(const string &name, const procedure_imp &imp) :
     m_name(name),
     m_imp(imp)
   {
+  }
+
+  procedure_info(const procedure_info &) = delete;
+  procedure_info & operator=(const procedure_info &) = delete;
+
+  void update_stats(int64_t v)
+  {
+    unique_lock<mutex> lk(m_stat_mutex);
+    m_stats.update(v);
   }
 };
 
@@ -324,7 +349,7 @@ struct procedure_info {
  */
 class module_info {
   string m_name;
-  map<string, procedure_info> m_procmap;
+  map<string, unique_ptr<procedure_info>> m_procmap;
 public:
   module_info(const string &name) : m_name(name)
   {
@@ -340,7 +365,7 @@ public:
    */
   void add_procedure(const string &procname, const procedure_imp &imp)
   {
-    m_procmap.emplace(procname, procedure_info(procname, imp));
+    m_procmap.emplace(procname, make_unique<procedure_info>(procname, imp));
   }
 
   /**
@@ -350,7 +375,7 @@ public:
    */
   procedure_info &lookup_procedure_info(const string &procname)
   {
-    return m_procmap.at(procname);
+    return *(m_procmap.at(procname));
   }
 };
 
@@ -407,7 +432,7 @@ using callback = std::function<void(call *)>;
  */
 class scheduler {
   vector<std::thread> m_worker_threads;
-  map<string, module_info> m_modules;
+  map<string, unique_ptr<module_info>> m_modules;
   boost::asio::io_service m_ios;
   boost::asio::io_service::work m_work;
   mutex m_sync_mu;
@@ -428,8 +453,8 @@ public:
   {
   }
 
-  void add_module(const module_info &mi) {
-    m_modules.emplace(mi.get_name(), mi);
+  void add_module(unique_ptr<module_info> mi) {
+    m_modules.emplace(mi->get_name(), std::move(mi));
   }
 
   void start()
@@ -472,15 +497,18 @@ public:
     auto &m = m_modules.at(modname);
     const char *procname = get_strfield(*req, "procedure");
     ELLIS_LOG(DBUG, "looking up procedure %s", procname);
-    auto &procinfo = m.lookup_procedure_info(procname);
+    auto &procinfo = m->lookup_procedure_info(procname);
+    procinfo.m_num_in_flight++;
     /* TODO: Validate request. */
     auto c = make_shared<call>(std::move(req));
     procedure_imp_cb finish =
-      [this, cb, c]
+      [this, cb, c, &procinfo]
       (unique_ptr<node> resp)
       {
         c->complete(std::move(resp));
         cb(c.get());
+        procinfo.update_stats(c->m_telemetry.m_total_nanos);
+        procinfo.m_num_in_flight--;
       };
     m_ios.post(
         [this, finish, c, &procinfo]
@@ -880,8 +908,8 @@ int main() {
   bool client_server_test = false;
 
   set_system_log_prefilter(log_severity::DBUG);
-  module_info hm("hello");
-  hm.add_procedure("world",
+  auto hm = make_unique<module_info>("hello");
+  hm->add_procedure("world",
       []
       (call *c, const procedure_imp_cb &cb)
       {
@@ -892,7 +920,7 @@ int main() {
         cb(std::move(resp));
       });
   scheduler sched;
-  sched.add_module(hm);
+  sched.add_module(std::move(hm));
   sched.start();
   auto resp = sched.do_sync(make_request("hello", "world",
         {make_pair("x", 8)}));
