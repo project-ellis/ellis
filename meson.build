@@ -20,7 +20,7 @@ pkg = import('pkgconfig')
 # Enable threads.
 thread_deps = dependency('threads')
 
-# Dependencies that are specific to Ellis Op
+# Dependencies that are specific to Ellis Ex.
 asio_dep = dependency('boost', modules : ['asio', 'system'])
 nghttp2_dep = dependency('libnghttp2_asio', version : '>=1.18.0')
 ssl_dep = dependency('libssl')
