@@ -119,12 +119,12 @@ run_target('cppcheck', command: 'meson/cppcheck')
 
 # Tests.
 tests = [
-  ['ellistest', 'test/ellis_test.cpp'],
-  ['extest', 'test/ex_test.cpp'],
-  ['codectest', 'test/codec_test.cpp'],
-  ['jsontest', 'test/json_test.cpp'],
-  ['msgpacktest', 'test/msgpack_test.cpp'],
-  ['obdtest', 'test/obd_test.cpp']]
+  ['core_node_test', 'test/core/node_test.cpp'],
+  ['op_op_test', 'test/op/op_test.cpp'],
+  ['delimited_text_test', 'test/codec/delimited_text_test.cpp'],
+  ['json_test', 'test/codec/json_test.cpp'],
+  ['msgpack_test', 'test/codec/msgpack_test.cpp'],
+  ['obd_test', 'test/codec/obd_test.cpp']]
 foreach t : tests
   exe = executable(
     t.get(0),
