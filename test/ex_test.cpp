@@ -866,6 +866,8 @@ public:
           unique_lock<mutex> lk(m_mutex);
           m_connect_state = connect_state::CONNECTING;
           for (auto & c : m_req_q) {
+            ELLIS_LOG(DBUG, "unqueued request: %s",
+                get_debugid(*c).c_str());
             // TODO
             assert(0);
             /* submit */
