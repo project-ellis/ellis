@@ -192,6 +192,7 @@ static void primitivetest()
 
   v1 = 2.0;
   ELLIS_ASSERT_EQ(v1, 2.0);
+  // TODO: use ELLIS_ASSERT_DBL_EQ below
   ELLIS_ASSERT_TRUE(dbl_equal(v1 + 1.0, 3.0));
   ELLIS_ASSERT_TRUE(dbl_equal(1.0 + v1, 3.0));
   ELLIS_ASSERT_TRUE(dbl_equal(v1 - 1.0, 1.0));
