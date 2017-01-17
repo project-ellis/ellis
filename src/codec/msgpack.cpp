@@ -39,49 +39,49 @@
 
 /* We do this instead of an if statement or a range map for performance. */
 #define HEX_POS_FIXINT \
-  0x00: case 0x01: case 0x02: case 0x03: case 0x04: case 0x05: case 0x06: \
-    case 0x07: case 0x08: case 0x09: case 0x0a: case 0x0b: case 0x0c: case 0x0d: \
-    case 0x0e: case 0x0f: case 0x10: case 0x11: case 0x12: case 0x13: case 0x14: \
-    case 0x15: case 0x16: case 0x17: case 0x18: case 0x19: case 0x1a: case 0x1b: \
-    case 0x1c: case 0x1d: case 0x1e: case 0x1f: case 0x20: case 0x21: case 0x22: \
-    case 0x23: case 0x24: case 0x25: case 0x26: case 0x27: case 0x28: case 0x29: \
-    case 0x2a: case 0x2b: case 0x2c: case 0x2d: case 0x2e: case 0x2f: case 0x30: \
-    case 0x31: case 0x32: case 0x33: case 0x34: case 0x35: case 0x36: case 0x37: \
-    case 0x38: case 0x39: case 0x3a: case 0x3b: case 0x3c: case 0x3d: case 0x3e: \
-    case 0x3f: case 0x40: case 0x41: case 0x42: case 0x43: case 0x44: case 0x45: \
-    case 0x46: case 0x47: case 0x48: case 0x49: case 0x4a: case 0x4b: case 0x4c: \
-    case 0x4d: case 0x4e: case 0x4f: case 0x50: case 0x51: case 0x52: case 0x53: \
-    case 0x54: case 0x55: case 0x56: case 0x57: case 0x58: case 0x59: case 0x5a: \
-    case 0x5b: case 0x5c: case 0x5d: case 0x5e: case 0x5f: case 0x60: case 0x61: \
-    case 0x62: case 0x63: case 0x64: case 0x65: case 0x66: case 0x67: case 0x68: \
-    case 0x69: case 0x6a: case 0x6b: case 0x6c: case 0x6d: case 0x6e: case 0x6f: \
-    case 0x70: case 0x71: case 0x72: case 0x73: case 0x74: case 0x75: case 0x76: \
-    case 0x77: case 0x78: case 0x79: case 0x7a: case 0x7b: case 0x7c: case 0x7d: \
-    case 0x7e: case 0x7f
+       0x00: case 0x01: case 0x02: case 0x03: case 0x04: case 0x05: case 0x06: \
+  case 0x07: case 0x08: case 0x09: case 0x0a: case 0x0b: case 0x0c: case 0x0d: \
+  case 0x0e: case 0x0f: case 0x10: case 0x11: case 0x12: case 0x13: case 0x14: \
+  case 0x15: case 0x16: case 0x17: case 0x18: case 0x19: case 0x1a: case 0x1b: \
+  case 0x1c: case 0x1d: case 0x1e: case 0x1f: case 0x20: case 0x21: case 0x22: \
+  case 0x23: case 0x24: case 0x25: case 0x26: case 0x27: case 0x28: case 0x29: \
+  case 0x2a: case 0x2b: case 0x2c: case 0x2d: case 0x2e: case 0x2f: case 0x30: \
+  case 0x31: case 0x32: case 0x33: case 0x34: case 0x35: case 0x36: case 0x37: \
+  case 0x38: case 0x39: case 0x3a: case 0x3b: case 0x3c: case 0x3d: case 0x3e: \
+  case 0x3f: case 0x40: case 0x41: case 0x42: case 0x43: case 0x44: case 0x45: \
+  case 0x46: case 0x47: case 0x48: case 0x49: case 0x4a: case 0x4b: case 0x4c: \
+  case 0x4d: case 0x4e: case 0x4f: case 0x50: case 0x51: case 0x52: case 0x53: \
+  case 0x54: case 0x55: case 0x56: case 0x57: case 0x58: case 0x59: case 0x5a: \
+  case 0x5b: case 0x5c: case 0x5d: case 0x5e: case 0x5f: case 0x60: case 0x61: \
+  case 0x62: case 0x63: case 0x64: case 0x65: case 0x66: case 0x67: case 0x68: \
+  case 0x69: case 0x6a: case 0x6b: case 0x6c: case 0x6d: case 0x6e: case 0x6f: \
+  case 0x70: case 0x71: case 0x72: case 0x73: case 0x74: case 0x75: case 0x76: \
+  case 0x77: case 0x78: case 0x79: case 0x7a: case 0x7b: case 0x7c: case 0x7d: \
+  case 0x7e: case 0x7f
 
 #define HEX_FIXMAP \
-  0x80: case 0x81: case 0x82: case 0x83: case 0x84: case 0x85: case 0x86: \
-    case 0x87: case 0x88: case 0x89: case 0x8a: case 0x8b: case 0x8c: case 0x8d: \
-    case 0x8e: case 0x8f
+       0x80: case 0x81: case 0x82: case 0x83: case 0x84: case 0x85: case 0x86: \
+  case 0x87: case 0x88: case 0x89: case 0x8a: case 0x8b: case 0x8c: case 0x8d: \
+  case 0x8e: case 0x8f
 
 #define HEX_FIXARRAY \
-  0x90: case 0x91: case 0x92: case 0x93: case 0x94: case 0x95: case 0x96: \
-    case 0x97: case 0x98: case 0x99: case 0x9a: case 0x9b: case 0x9c: case 0x9d: \
-    case 0x9e: case 0x9f
+       0x90: case 0x91: case 0x92: case 0x93: case 0x94: case 0x95: case 0x96: \
+  case 0x97: case 0x98: case 0x99: case 0x9a: case 0x9b: case 0x9c: case 0x9d: \
+  case 0x9e: case 0x9f
 
 #define HEX_FIXSTR \
-  0xa0: case 0xa1: case 0xa2: case 0xa3: case 0xa4: case 0xa5: case 0xa6: \
-    case 0xa7: case 0xa8: case 0xa9: case 0xaa: case 0xab: case 0xac: case 0xad: \
-    case 0xae: case 0xaf: case 0xb0: case 0xb1: case 0xb2: case 0xb3: case 0xb4: \
-    case 0xb5: case 0xb6: case 0xb7: case 0xb8: case 0xb9: case 0xba: case 0xbb: \
-    case 0xbc: case 0xbd: case 0xbe: case 0xbf
+       0xa0: case 0xa1: case 0xa2: case 0xa3: case 0xa4: case 0xa5: case 0xa6: \
+  case 0xa7: case 0xa8: case 0xa9: case 0xaa: case 0xab: case 0xac: case 0xad: \
+  case 0xae: case 0xaf: case 0xb0: case 0xb1: case 0xb2: case 0xb3: case 0xb4: \
+  case 0xb5: case 0xb6: case 0xb7: case 0xb8: case 0xb9: case 0xba: case 0xbb: \
+  case 0xbc: case 0xbd: case 0xbe: case 0xbf
 
 #define HEX_NEG_FIXINT \
-  0xe0: case 0xe1: case 0xe2: case 0xe3: case 0xe4: case 0xe5: case 0xe6: \
-    case 0xe7: case 0xe8: case 0xe9: case 0xea: case 0xeb: case 0xec: case 0xed: \
-    case 0xee: case 0xef: case 0xf0: case 0xf1: case 0xf2: case 0xf3: case 0xf4: \
-    case 0xf5: case 0xf6: case 0xf7: case 0xf8: case 0xf9: case 0xfa: case 0xfb: \
-    case 0xfc: case 0xfd: case 0xfe: case 0xff
+       0xe0: case 0xe1: case 0xe2: case 0xe3: case 0xe4: case 0xe5: case 0xe6: \
+  case 0xe7: case 0xe8: case 0xe9: case 0xea: case 0xeb: case 0xec: case 0xed: \
+  case 0xee: case 0xef: case 0xf0: case 0xf1: case 0xf2: case 0xf3: case 0xf4: \
+  case 0xf5: case 0xf6: case 0xf7: case 0xf8: case 0xf9: case 0xfa: case 0xfb: \
+  case 0xfc: case 0xfd: case 0xfe: case 0xff
 
 #define HEX_NIL 0xc0
 #define HEX_UNUSED 0xc1
@@ -150,14 +150,14 @@ enum class msgpack_type {
 
 /* Forward declarations. */
 static node parse_node(const byte *buf, size_t *bytecount);
-
-static std::string parse_str(const byte *buf, size_t *bytecount);
-static std::string parse_str(
+static string parse_str(const byte *buf, size_t *bytecount);
+static string parse_str(
     msgpack_type type,
     const byte *buf,
     size_t *bytecount);
 
 
+// TODO: doc
 msgpack_type get_msgpack_type(byte b)
 {
   switch (b) {
@@ -177,7 +177,8 @@ msgpack_type get_msgpack_type(byte b)
       return msgpack_type::NIL;
 
     case HEX_UNUSED:
-      THROW_ELLIS_ERR(PARSE_FAIL, "type byte is 0xc1, which can't be used");
+      THROW_ELLIS_ERR(PARSE_FAIL,
+          "type byte is 0xc1, which can't be used");
 
     case HEX_FALSE:
       return msgpack_type::FALSE;
@@ -195,8 +196,8 @@ msgpack_type get_msgpack_type(byte b)
       return msgpack_type::BIN32;
 
     case HEX_EXT:
-      THROW_ELLIS_ERR(
-          PARSE_FAIL, "type byte corresponds to an ext type, which is unsupported");
+      THROW_ELLIS_ERR(PARSE_FAIL,
+          "type byte corresponds to an ext type, which is unsupported");
 
     case HEX_FLOAT32:
       return msgpack_type::FLOAT32;
@@ -214,8 +215,8 @@ msgpack_type get_msgpack_type(byte b)
       return msgpack_type::UINT32;
 
     case HEX_UINT64:
-      THROW_ELLIS_ERR(
-          PARSE_FAIL, "type byte corresponds to a uint64, which is unsupported");
+      THROW_ELLIS_ERR(PARSE_FAIL,
+          "type byte corresponds to a uint64, which is unsupported");
 
     case HEX_INT8:
       return msgpack_type::INT8;
@@ -230,8 +231,8 @@ msgpack_type get_msgpack_type(byte b)
       return msgpack_type::INT64;
 
     case HEX_FIXEXT:
-      THROW_ELLIS_ERR(
-          PARSE_FAIL, "type byte maps fixext, which is unsupported");
+      THROW_ELLIS_ERR(PARSE_FAIL,
+          "type byte maps fixext, which is unsupported");
 
     case HEX_STR8:
       return msgpack_type::STR8;
@@ -262,6 +263,7 @@ msgpack_type get_msgpack_type(byte b)
 }
 
 
+// TODO: move these functions to include/codec/util/byte_manip.hpp
 /*
  * These functions are used to map a block of memory from big-endian to the host
  * endianness. They are needed because msgpack numeric types are big-endian.
@@ -351,7 +353,7 @@ static void compute_lengths(
 
 
 template <typename T>
-static inline node _make_map_node(
+static inline node make_map_node_full(
     const byte *buf,
     size_t *bytecount,
     T header_len,
@@ -380,12 +382,12 @@ static inline node make_map_node(const byte *buf, size_t *bytecount)
   T header_len;
   T array_len;
   compute_lengths<T>(buf, *bytecount, &header_len, &array_len);
-  return _make_map_node<T>(buf, bytecount, header_len, array_len);
+  return make_map_node_full<T>(buf, bytecount, header_len, array_len);
 }
 
 
 template <typename T>
-static inline node _make_array_node(
+static inline node make_array_node_full(
     const byte *buf,
     size_t *bytecount,
     T header_len,
@@ -410,7 +412,7 @@ static inline node make_array_node(const byte *buf, size_t *bytecount)
   T header_len;
   T array_len;
   compute_lengths(buf, *bytecount, &header_len, &array_len);
-  return _make_array_node<T>(buf, bytecount, header_len, array_len);
+  return make_array_node_full<T>(buf, bytecount, header_len, array_len);
 }
 
 
@@ -425,6 +427,7 @@ static inline node make_bin_node(const byte *buf, size_t *bytecount)
 }
 
 
+// TODO: doc
 template <typename T>
 static inline node make_num_node(const byte *buf, size_t *bytecount)
 {
@@ -433,8 +436,9 @@ static inline node make_num_node(const byte *buf, size_t *bytecount)
   return node(from_be<T>(buf + 1));
 }
 
+
 template <typename T>
-static inline string _make_str(
+static inline string make_str_full(
   const byte *buf,
   size_t *bytecount,
   T header_len,
@@ -451,7 +455,7 @@ static inline string make_str(const byte *buf, size_t *bytecount)
   T header_len;
   T data_len;
   compute_lengths(buf, *bytecount, &header_len, &data_len);
-  return _make_str<T>(buf, bytecount, header_len, data_len);
+  return make_str_full<T>(buf, bytecount, header_len, data_len);
 }
 
 
@@ -464,7 +468,7 @@ node parse_node(const byte *buf, size_t *bytecount)
       {
         uint8_t data_len = *buf & 0x0f;
         verify_expected_count(*bytecount, 1 + data_len);
-        return _make_map_node<uint8_t>(buf, bytecount, 1, data_len);
+        return make_map_node_full<uint8_t>(buf, bytecount, 1, data_len);
       }
     case msgpack_type::MAP16:
       return make_map_node<uint16_t>(buf, bytecount);
@@ -476,7 +480,7 @@ node parse_node(const byte *buf, size_t *bytecount)
       {
         uint8_t data_len = *buf & 0x0f;
         verify_expected_count(*bytecount, 1 + data_len);
-        return _make_array_node<uint8_t>(buf, bytecount, 1, data_len);
+        return make_array_node_full<uint8_t>(buf, bytecount, 1, data_len);
       }
     case msgpack_type::ARRAY16:
       return make_array_node<uint16_t>(buf, bytecount);
@@ -561,7 +565,7 @@ string parse_str(msgpack_type type, const byte *buf, size_t *bytecount)
       {
         uint8_t data_len = *buf & 0x1f;
         verify_expected_count(*bytecount, 1 + data_len);
-        return _make_str<uint8_t>(buf, bytecount, 1, data_len);
+        return make_str_full<uint8_t>(buf, bytecount, 1, data_len);
       }
     case msgpack_type::STR8:
       return make_str<uint8_t>(buf, bytecount);
@@ -652,6 +656,7 @@ void msgpack_encoder::_push_be(uint8_t val)
 
 void msgpack_encoder::_push_be(uint16_t val)
 {
+  // TODO: macro to extract nth byte from LSB.
   m_buf.push_back((val & 0xff00) >> 8);
   m_buf.push_back((val & 0x00ff) >> 0);
 }
@@ -844,6 +849,9 @@ void msgpack_encoder::_buf_out(const node &n) {
         else if (len <= UINT32_MAX) {
           m_buf.push_back(HEX_MAP32);
           _push_be((uint32_t)len);
+        }
+        else {
+          THROW_ELLIS_ERR(TRANSLATE_FAIL, "too many map entries for msgpack");
         }
         m.foreach([this](const string &k, const node &v) {
           _buf_out_str(k.c_str(), k.length());

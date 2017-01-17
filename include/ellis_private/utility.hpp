@@ -5,6 +5,7 @@
  *
  */
 
+// TODO: doc
 template <typename T, typename U>
 static inline U union_cast(T x)
 {

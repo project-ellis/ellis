@@ -12,6 +12,7 @@
 
 namespace ellis {
 
+  // TODO: move to type.hpp?
 
 using byte = unsigned char;
 const byte BYTE_MIN = 0;
