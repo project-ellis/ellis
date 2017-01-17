@@ -862,7 +862,7 @@ public:
         (boost::asio::ip::tcp::resolver::iterator endpoint_it)
         {
           std::cout << (*endpoint_it).endpoint();
-          //ELLIS_LOGSTREAM("connected to " << (*endpoint_it).endpoint());
+          ELLIS_LOGSTREAM(DBUG, "connected to " << (*endpoint_it).endpoint());
           unique_lock<mutex> lk(m_mutex);
           m_connect_state = connect_state::CONNECTING;
           for (auto & c : m_req_q) {
