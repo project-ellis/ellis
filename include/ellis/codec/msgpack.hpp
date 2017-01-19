@@ -9,14 +9,66 @@
 #define ELLIS_CODEC_MSGPACK_HPP_
 
 #include <ellis/core/decoder.hpp>
+#include <ellis/core/defs.hpp>
 #include <ellis/core/encoder.hpp>
 #include <vector>
 
 namespace ellis {
 
 
+enum class parse_state {
+  UNDEFINED,
+  COMPLETE,
+  ARRAY_HEADER,
+  BIN_HEADER,
+  MAP_HEADER,
+  STR_HEADER,
+  ARRAY_DATA,
+  BIN_DATA,
+  STR_DATA,
+  MAP_KEY_TYPE,
+  MAP_KEY_HEADER,
+  MAP_KEY_DATA,
+  MAP_VALUE_DATA,
+  FLOAT32_DATA,
+  FLOAT64_DATA,
+  INT16_DATA,
+  INT32_DATA,
+  INT64_DATA,
+  INT8_DATA,
+  UINT16_DATA,
+  UINT32_DATA,
+  UINT8_DATA,
+};
+
+
+struct parse_ctx {
+  parse_state state;
+  uint_fast32_t data_len;
+  union {
+    uint_fast8_t header_len;
+    uint64_t data;
+  };
+  /* Possible optimization: fold buf and (and maybe node too) into the union. */
+  uint_fast32_t map_len;
+  std::unique_ptr<std::vector<byte>> buf;
+  std::unique_ptr<ellis::node> node;
+
+  parse_ctx();
+};
+
+
 class msgpack_decoder : public decoder {
-  std::vector<byte> m_buf;
+  std::vector<parse_ctx> m_parse_stack;
+
+  node_progress handle_type(parse_ctx &ctx, byte b);
+
+  void accum_str_header(parse_ctx & ctx, byte b);
+  void accum_bin_header(parse_ctx & ctx, byte b);
+  void accum_map_key_header(parse_ctx & ctx, byte b);
+  node_progress accum_arr_header(parse_ctx & ctx, byte b);
+  node_progress accum_map_header(parse_ctx & ctx, byte b);
+  node_progress parse_byte(byte b);
 
 public:
   msgpack_decoder();

@@ -12,26 +12,29 @@ using namespace ellis;
 void ser_deser(
     msgpack_decoder &dec,
     msgpack_encoder &enc,
-    const byte *buf,
-    size_t len,
-    const byte *expected = nullptr,
-    size_t expected_len = 0) {
-    ELLIS_LOG(NOTI, "===========================================");
-    dec.reset();
-    size_t tmp = len;
-    auto status = dec.consume_buffer(buf, &tmp);
-    ELLIS_ASSERT_EQ(status.state(), stream_state::SUCCESS);
-    ELLIS_ASSERT_NULL(status.extract_error().get());
+    const node &n)
+{
+  /* Arbitrarily chosen length; must be large enough to fit encoded results. */
+  constexpr size_t max_len = 4096;
 
-    node n = *status.extract_value();
-    unique_ptr<byte[]> out = make_unique<byte[]>(len);
-    tmp = len;
-    enc.reset(&n);
-    enc.fill_buffer(out.get(), &tmp);
-    if (expected == nullptr) {
-      expected = buf;
-    }
-    ELLIS_ASSERT_MEM_EQ(expected, out.get(), expected_len);
+  /* Encode. */
+  unique_ptr<byte[]> out = make_unique<byte[]>(max_len);
+  size_t tmp = max_len;
+  enc.reset(&n);
+  enc.fill_buffer(out.get(), &tmp);
+  ELLIS_ASSERT_LT(tmp, max_len);
+  size_t diff = max_len - tmp;
+
+  /* Now decode. */
+  dec.reset();
+  tmp = diff;
+  auto status = dec.consume_buffer(out.get(), &tmp);
+  ELLIS_ASSERT_EQ(status.state(), stream_state::SUCCESS);
+  ELLIS_ASSERT_NULL(status.extract_error().get());
+  ELLIS_ASSERT_EQ(tmp, 0);
+
+  node decoded = std::move(*status.extract_value());
+  ELLIS_ASSERT_EQ(n, decoded);
 }
 
 void onebyte_fail(msgpack_decoder &dec, byte b)
@@ -50,6 +53,7 @@ int main() {
 
   /* Buffer length is too small. */
   {
+    dec.reset();
     const byte buf[] = { 0xa2, 0x68, 0x69 };
     size_t count = sizeof(buf) - 1;
     auto status = dec.consume_buffer(buf, &count);
@@ -86,6 +90,7 @@ int main() {
   /* Map key is not a string. */
   /* { 0: 1 } */
   {
+    dec.reset();
     const byte buf[] = { 0x81, 0x0, 0x1 };
     size_t count = sizeof(buf);
     auto status = dec.consume_buffer(buf, &count);
@@ -95,95 +100,99 @@ int main() {
 
   /* 7 */
   {
-    const byte buf[] = { 0x7 };
-    ser_deser(dec, enc, buf, sizeof(buf));
+    ser_deser(dec, enc, node(7));
   }
 
   /* 1589715871 */
   {
-    const byte buf[] = { 0xce, 0x5e, 0xc1, 0x23, 0x9f };
-    ser_deser(dec, enc, buf, sizeof(buf));
+    ser_deser(dec, enc, node(1589715871));
   }
 
   /* -1589715871 */
   {
-    const byte buf[] = { 0xd2, 0xa1, 0x3e, 0xdc, 0x61 };
-    ser_deser(dec, enc, buf, sizeof(buf));
+    ser_deser(dec, enc, node(-1589715871));
   }
 
   /* -7 */
   {
-    const byte buf[] = { 0xf9 };
-    ser_deser(dec, enc, buf, sizeof(buf));
+    ser_deser(dec, enc, node(-7));
   }
 
   /* 0.0 */
   {
-    const byte buf[] = { 0xcb, 0, 0, 0, 0, 0, 0, 0, 0 };
-    const byte expected[] = { 0xca, 0, 0, 0, 0 };
-    ser_deser(dec, enc, buf, sizeof(buf), expected, sizeof(expected));
+    ser_deser(dec, enc, node(0.0));
   }
 
   /*
    * Interestingly, IEEE 754 allows for -0.0. Check if it comes out the same.
    */
   {
-    const byte buf[] = { 0xcb, 0x80, 0, 0, 0, 0, 0, 0, 0 };
-    const byte expected[] = { 0xca, 0, 0, 0, 0x80 };
-    ser_deser(dec, enc, buf, sizeof(buf), expected, sizeof(expected));
+    ser_deser(dec, enc, node(-0.0));
   }
 
   /* 42.7 */
   {
-    const byte buf[] = { 0xcb, 0x40, 0x45, 0x59, 0x99, 0x99, 0x99, 0x99, 0x9a };
-    ser_deser(dec, enc, buf, sizeof(buf));
+    ser_deser(dec, enc, node(42.7));
   }
 
   /* -42.7 */
   {
-    const byte buf[] = { 0xcb, 0xc0, 0x45, 0x59, 0x99, 0x99, 0x99, 0x99, 0x9a };
-    ser_deser(dec, enc, buf, sizeof(buf));
+    ser_deser(dec, enc, node(-42.7));
   }
 
+  /* "" */
   {
-    const byte buf[] = { 0xa0 };
-    ser_deser(dec, enc, buf, sizeof(buf));
+    ser_deser(dec, enc, node(""));
   }
 
   /* "hi" */
   {
-    const byte buf[] = { 0xa2, 0x68, 0x69 };
-    ser_deser(dec, enc, buf, sizeof(buf));
+    ser_deser(dec, enc, node("hi"));
   }
 
   {
+    /* [] */
+    ser_deser(dec, enc, node(type::ARRAY));
+  }
+
+
+  {
     /* [0, -1, 2, -4] */
-    const byte buf[] = { 0x94, 0x00, 0xff, 0x02, 0xfc };
-    ser_deser(dec, enc, buf, sizeof(buf));
+    node n = node(type::ARRAY);
+    array_node &a = n.as_mutable_array();
+    a.append(0);
+    a.append(-1);
+    a.append(2);
+    a.append(-4);
+    ser_deser(dec, enc, n);
   }
 
   {
     /* [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15] */
-    const byte buf[] = {
-      0xdc, 0x00, 0x10, 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08,
-      0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f };
-    ser_deser(dec, enc, buf, sizeof(buf));
+    node n = node(type::ARRAY);
+    array_node &a = n.as_mutable_array();
+    for (int64_t i = 0; i < 16; i++) {
+      a.append(i);
+    }
+    ser_deser(dec, enc, n);
   }
 
   {
     /* { "compact": true, "schema": 0 } */
-    const byte buf[] = {
-      0x82, 0xa7, 0x63, 0x6f, 0x6d, 0x70, 0x61, 0x63, 0x74,
-      0xc3, 0xa6, 0x73, 0x63, 0x68, 0x65, 0x6d, 0x61, 0x00 };
-    ser_deser(dec, enc, buf, sizeof(buf));
+    node n = node(type::MAP);
+    map_node &m = n.as_mutable_map();
+    m.insert("compact", true);
+    m.insert("schema", 0);
+    ser_deser(dec, enc, n);
   }
 
   {
     /* { "key1": -4.7, "key2": -18 } */
-    const byte buf[] = {
-      0x82, 0xa4, 0x6b, 0x65, 0x79, 0x31, 0xcb, 0xc0, 0x12, 0xcc, 0xcc, 0xcc,
-      0xcc, 0xcc, 0xcd, 0xa4, 0x6b, 0x65, 0x79, 0x32, 0xee };
-    ser_deser(dec, enc, buf, sizeof(buf));
+    node n = node(type::MAP);
+    map_node &m = n.as_mutable_map();
+    m.insert("key1", -4.7);
+    m.insert("key2", -18);
+    ser_deser(dec, enc, n);
   }
 
   {
@@ -206,17 +215,13 @@ int main() {
      *   "key15": 15
      * }
      */
-    const byte buf[] = {
-      0xde, 0x00, 0x10, 0xa4, 0x6b, 0x65, 0x79, 0x30, 0x00, 0xa4, 0x6b, 0x65,
-      0x79, 0x31, 0x01, 0xa4, 0x6b, 0x65, 0x79, 0x32, 0x02, 0xa4, 0x6b, 0x65,
-      0x79, 0x33, 0x03, 0xa4, 0x6b, 0x65, 0x79, 0x34, 0x04, 0xa4, 0x6b, 0x65,
-      0x79, 0x35, 0x05, 0xa4, 0x6b, 0x65, 0x79, 0x36, 0x06, 0xa4, 0x6b, 0x65,
-      0x79, 0x37, 0x07, 0xa4, 0x6b, 0x65, 0x79, 0x38, 0x08, 0xa4, 0x6b, 0x65,
-      0x79, 0x39, 0x09, 0xa5, 0x6b, 0x65, 0x79, 0x31, 0x30, 0x0a, 0xa5, 0x6b,
-      0x65, 0x79, 0x31, 0x31, 0x0b, 0xa5, 0x6b, 0x65, 0x79, 0x31, 0x32, 0x0c,
-      0xa5, 0x6b, 0x65, 0x79, 0x31, 0x33, 0x0d, 0xa5, 0x6b, 0x65, 0x79, 0x31,
-      0x34, 0x0e, 0xa5, 0x6b, 0x65, 0x79, 0x31, 0x35, 0x0f };
-    ser_deser(dec, enc, buf, sizeof(buf));
+    node n = node(type::MAP);
+    map_node &m = n.as_mutable_map();
+    for (int64_t i = 0; i < 16; i++) {
+      const string &key = ELLIS_SSTRING("key" << i);
+      m.insert(key, i);
+    }
+    ser_deser(dec, enc, n);
   }
 
   {
@@ -227,10 +232,19 @@ int main() {
      *   [2, 3, 4]
      * ]
      */
-    const byte buf[] = {
-      0x93, 0x82, 0xa7, 0x63, 0x6f, 0x6d, 0x70, 0x61, 0x63, 0x74, 0xc3, 0xa6,
-      0x73, 0x63, 0x68, 0x65, 0x6d, 0x61, 0x00, 0x01, 0x93, 0x02, 0x03, 0x04 };
-    ser_deser(dec, enc, buf, sizeof(buf));
+    node n = node(type::ARRAY);
+    array_node &a = n.as_mutable_array();
+
+    a.append(node(type::MAP));
+    a[0].as_mutable_map().insert("compact", true);
+    a[0].as_mutable_map().insert("schema", 0);
+    a.append(1);
+    a.append(node(type::ARRAY));
+    a[2].as_mutable_array().append(2);
+    a[2].as_mutable_array().append(3);
+    a[2].as_mutable_array().append(4);
+
+    ser_deser(dec, enc, n);
   }
 
   {
@@ -240,10 +254,16 @@ int main() {
      *   "schema": [1, 2, 3]
      * }
      */
-    const byte buf[] = {
-      0x82, 0xa7, 0x63, 0x6f, 0x6d, 0x70, 0x61, 0x63, 0x74, 0xc3, 0xa6, 0x73,
-      0x63, 0x68, 0x65, 0x6d, 0x61, 0x93, 0x01, 0x02, 0x03 };
-    ser_deser(dec, enc, buf, sizeof(buf));
+    node n = node(type::MAP);
+    map_node &m = n.as_mutable_map();
+    node other = node(type::ARRAY);
+    other.as_mutable_array().append(1);
+    other.as_mutable_array().append(2);
+    other.as_mutable_array().append(3);
+    m.insert("compact", true);
+    m.insert("schema", other);
+
+    ser_deser(dec, enc, n);
   }
 
   return 0;
