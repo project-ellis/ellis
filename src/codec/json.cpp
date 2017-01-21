@@ -1159,7 +1159,7 @@ node_progress json_decoder::consume_buffer(
     ELLIS_LOG(DBUG, "Tokenizer state: %s", enum_name(st.state()));
     if (st.state() == stream_state::SUCCESS
         || st.state() == stream_state::ERROR) {
-      *bytecount = p_end - p;
+      *bytecount = p_end - p - 1;
       return st;
     }
   }

@@ -11,11 +11,43 @@
 #include <ellis/stream/cpp_output_stream.hpp>
 #include <sstream>
 
+void check_give_back()
+{
+  using namespace ellis;
+  const char *str = "2.5 15.5";
+  size_t len = strlen(str);
+  mem_input_stream mis(str, len);
+  json_decoder dec;
+  dec.reset();
+  const byte *buf = nullptr;
+  size_t buf_remain = 0;
+  /* Should have gotten a buffer, thus success return. */
+  ELLIS_ASSERT(mis.next_input_buf(&buf, &buf_remain));
+  ELLIS_ASSERT_NOT_NULL(buf);
+  ELLIS_ASSERT_EQ(buf_remain, len);
+  /* Read the first value from the stream. */
+  auto st = dec.consume_buffer(buf, &buf_remain);
+  ELLIS_ASSERT_EQ(st.state(), stream_state::SUCCESS);
+  auto val = st.extract_value();
+  ELLIS_ASSERT_DBL_EQ(val->as_double(), 2.5);
+  ELLIS_ASSERT_EQ(buf_remain, len - 4);
+  /* Put back remaining bytes and read again. */
+  mis.put_back(buf_remain);
+  dec.reset();
+  st = dec.consume_buffer(buf + (len - buf_remain), &buf_remain);
+  ELLIS_ASSERT_EQ(buf_remain, 0UL);
+  ELLIS_ASSERT_EQ(st.state(), stream_state::CONTINUE);
+  st = dec.chop();
+  ELLIS_ASSERT_EQ(st.state(), stream_state::SUCCESS);
+  val = st.extract_value();
+  ELLIS_ASSERT_EQ(val->as_double(), 15.5);
+}
 
 int main() {
   using namespace ellis;
 
   // set_system_log_prefilter(log_severity::DBUG);
+  check_give_back();
   json_decoder dec;
   json_encoder enc;
 
