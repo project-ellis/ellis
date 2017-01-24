@@ -24,4 +24,3 @@ wrap() {
 wrap meson/cppcheck
 wrap meson/clangcheck
 wrap meson/clangtidy
-wrap build/ellistest
