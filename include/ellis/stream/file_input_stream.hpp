@@ -10,10 +10,13 @@
 
 #include <ellis/core/defs.hpp>
 #include <ellis/core/err.hpp>
-#include <ellis/stream/fd_input_stream.hpp>
+#include <ellis/core/sync_input_stream.hpp>
 
 namespace ellis {
 
+
+/* forward declare */
+class fd_input_stream;
 
 class file_input_stream : public sync_input_stream {
   std::unique_ptr<fd_input_stream> m_fdis;

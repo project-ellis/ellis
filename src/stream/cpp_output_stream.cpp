@@ -16,6 +16,7 @@ bool cpp_output_stream::next_output_buf(byte **buf, size_t *bytecount) {
 }
 
 bool cpp_output_stream::emit(size_t bytecount) {
+  ELLIS_ASSERT_LTE(bytecount, sizeof(m_buf));
   // TODO: handle failure
   m_os.write((char*)m_buf, bytecount);
   return true;

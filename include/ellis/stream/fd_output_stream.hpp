@@ -18,8 +18,8 @@ namespace ellis {
 class fd_output_stream : public sync_output_stream {
   char m_buf[4096];
   int m_fd;
-  int m_pos = 0;
-  int m_valid = 0;
+  std::unique_ptr<err> m_err;
+
 public:
   fd_output_stream(int fd);
   bool next_output_buf(byte **buf, size_t *bytecount) override;

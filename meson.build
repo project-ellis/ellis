@@ -80,6 +80,8 @@ src = [
   'src/core/u8str_node.cpp',
   'src/stream/cpp_input_stream.cpp',
   'src/stream/cpp_output_stream.cpp',
+  'src/stream/fd_input_stream.cpp',
+  'src/stream/fd_output_stream.cpp',
   'src/stream/file_input_stream.cpp',
   'src/stream/file_output_stream.cpp',
   'src/stream/mem_input_stream.cpp',
@@ -121,10 +123,11 @@ run_target('cppcheck', command: 'meson/cppcheck')
 tests = [
   ['core_node_test', 'test/core/node_test.cpp'],
   ['op_op_test', 'test/op/op_test.cpp'],
-  ['delimited_text_test', 'test/codec/delimited_text_test.cpp'],
-  ['json_test', 'test/codec/json_test.cpp'],
-  ['msgpack_test', 'test/codec/msgpack_test.cpp'],
-  ['obd_test', 'test/codec/obd_test.cpp']]
+  ['codec_delimited_text_test', 'test/codec/delimited_text_test.cpp'],
+  ['codec_json_test', 'test/codec/json_test.cpp'],
+  ['codec_msgpack_test', 'test/codec/msgpack_test.cpp'],
+  ['codec_obd_test', 'test/codec/obd_test.cpp'],
+  ['stream_fd_test', 'test/stream/fd_test.cpp']]
 foreach t : tests
   exe = executable(
     t.get(0),

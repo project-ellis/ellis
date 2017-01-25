@@ -1,6 +1,7 @@
 #include <ellis/stream/file_output_stream.hpp>
 
 #include <ellis/core/err.hpp>
+#include <ellis/stream/fd_output_stream.hpp>
 #include <ellis_private/using.hpp>
 #include <fcntl.h>
 #include <sys/types.h>
@@ -21,7 +22,7 @@ file_output_stream::file_output_stream(const char *filename) {
     // TODO: map errno for more specifics
     THROW_ELLIS_ERR(IO, "bad pathname: " << filename);
   }
-  //m_fdos.reset(new fd_output_stream(m_fd));
+  m_fdos.reset(new fd_output_stream(m_fd));
 }
 
 file_output_stream::~file_output_stream() {

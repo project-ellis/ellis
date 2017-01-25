@@ -19,7 +19,8 @@ class fd_input_stream : public sync_input_stream {
   char m_buf[4096];
   int m_fd;
   int m_pos = 0;
-  int m_valid = 0;
+  int m_avail = 0;
+  std::unique_ptr<err> m_err;
 
 public:
   fd_input_stream(int fd);

@@ -1,6 +1,7 @@
 #include <ellis/stream/file_input_stream.hpp>
 
 #include <ellis/core/err.hpp>
+#include <ellis/stream/fd_input_stream.hpp>
 #include <ellis_private/using.hpp>
 #include <fcntl.h>
 #include <sys/types.h>
@@ -21,7 +22,7 @@ file_input_stream::file_input_stream(const char *filename) {
     // TODO: map errno for more specifics
     THROW_ELLIS_ERR(IO, "bad pathname: " << filename);
   }
-  //m_fdis.reset(new fd_input_stream(m_fd));
+  m_fdis.reset(new fd_input_stream(m_fd));
 }
 
 file_input_stream::~file_input_stream() {
