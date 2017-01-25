@@ -18,9 +18,10 @@
 
 ## Maturation
 
-* Make the msgpack decoder and encoder not inefficiently copy their input by
-  parsing per-character instead of per-node and representing all state
-  explicitly via stacks.
+* Make the msgpack encoder not inefficiently copy its input by parsing
+  per-character instead of per-node and representing all state explicitly via
+  stacks.
+* Various TODO items in the msgpack decoder (noted in comments).
 * Cleanup the ELM327 and OBD contracts to make sure they are clear, correct, and
   consistent about CONTINUE behavior.
 * Finish base64 encoded binary mode for JSON.
