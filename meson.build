@@ -127,7 +127,8 @@ tests = [
   ['codec_json_test', 'test/codec/json_test.cpp'],
   ['codec_msgpack_test', 'test/codec/msgpack_test.cpp'],
   ['codec_obd_test', 'test/codec/obd_test.cpp'],
-  ['stream_fd_test', 'test/stream/fd_test.cpp']]
+  ['stream_fd_test', 'test/stream/fd_test.cpp'],
+  ['stream_file_test', 'test/stream/file_test.cpp']]
 foreach t : tests
   exe = executable(
     t.get(0),
