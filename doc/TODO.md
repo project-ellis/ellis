@@ -10,8 +10,7 @@
   appropriate.
 * Pick license.
 * (jmc to review) General documentation for public.
-* Build instructions.
-* Github workflow instructions.
+* (jmc to review) Build instructions.
 * (jmc) Write unit test that catches u8str deep copy bug.
 * Codec framework layer that handles framing and simple issues like forgetting
   to call reset at the right time.
