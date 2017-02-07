@@ -9,7 +9,7 @@
 * Doxygen consistency, including using comments from the C headers if/when
   appropriate.
 * Pick license.
-* General documentation for public.
+* (jmc to review) General documentation for public.
 * Build instructions.
 * Github workflow instructions.
 * (jmc) Write unit test that catches u8str deep copy bug.
