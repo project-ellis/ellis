@@ -1,9 +1,9 @@
 # Ellis
 
 Everybody has a favorite general-purpose data format: JSON, msgpack, YAML, ORC,
-parquet, and so forth.  If you like something else, you must convert.
+parquet, and so forth. If you like something else, you must convert.
 
-This is how it was with images, once upon a time.  The people grew tired of this
+This is how it was with images, once upon a time. The people grew tired of this
 treadmill, instead adopting smart input libraries that support all of them and
 just giving you a neutral in-memory representation.
 
@@ -18,15 +18,15 @@ common data formats, schemas, and streaming mechanisms.
 
 - *Simplicity*: Many libraries require some particular data format which may
   only be available in some particular programming language. If you want to use
-  a different format, you need a different library.  If you want to use a
+  a different format, you need a different library. If you want to use a
   different language, you again need to find a different library, assuming the
-  data format is supported in the desired language.  Ultimately, you need a lot
+  data format is supported in the desired language. Ultimately, you need a lot
   of libraries to sustain this: the cross product of `|languages| x |formats|`,
-  not to mention the glue and conversion loss.  You have better things to do
+  not to mention the glue and conversion loss. You have better things to do
   than to waste your time with that.
 - *Efficiency*: If one program uses one format/language and some other program
   uses another, then there is usually manual coding effort and data copying in
-  order to convert.  The problem gets worse the more pieces you glue together.
+  order to convert. The problem gets worse the more pieces you glue together.
   Modern software has a lot of pieces.
 - *Flexibility*: By performing data transformations on a neutral representation,
   you can define common operations that apply across many data formats. For
@@ -69,7 +69,7 @@ packaging, you will need also need to tweak the following env vars:
   after that. It should be set to the directory containing the *.pc* files used
   by the prerequisite you built.
 - *LD_LIBRARY_PATH* needs to be set whenever you actually load the Ellis
-  library, such as when you run the unit tests with *ninja test*.  It should be
+  library, such as when you run the unit tests with *ninja test*. It should be
   set to the directory containing the built prerequisite libraries.
 
 # Build instructions
@@ -91,7 +91,7 @@ To rebuild at any time, you just need to rerun the last `ninja` command:
 ninja
 ```
 
-You can run this command from any directory you like.  For instance, to
+You can run this command from any directory you like. For instance, to
 rebuild from the top level directory, use the ninja `-C` option to point ninja
 at the build directory:
 
@@ -99,7 +99,7 @@ at the build directory:
 ninja -C build
 ```
 
-Also, there is nothing special about the directory name `build`.  If you
+Also, there is nothing special about the directory name `build`. If you
 prefer a different name than `build`, this is not a problem, and you
 can have different build directories with different configurations; meson and
 ninja don't care.
