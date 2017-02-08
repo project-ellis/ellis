@@ -4,19 +4,16 @@
 
 * (jmc) Make delimited text codec more useful.
 * (jmc) Make a more proper `delimited_text_test` from the `test/codec_test`.
-* Name registration for encode/decode.
-* Run doxygen for purposes of checking inline docs.
-* Doxygen consistency, including using comments from the C headers if/when
-  appropriate.
-* Pick license.
-* (jmc to review) General documentation for public.
-* (jmc to review) Build instructions.
+* (jmc) Name registration for encode/decode.
+* (both) Doxygen consistency
+* (martin) Add license headers (MIT, copyright 2016 surround.io)
 * (jmc) Write unit test that catches u8str deep copy bug.
-* Codec framework layer that handles framing and simple issues like forgetting
-  to call reset at the right time.
 
 ## Maturation
 
+* Run doxygen for purposes of checking inline docs.
+* Codec framework layer that handles framing and simple issues like forgetting
+  to call reset at the right time.
 * Make the msgpack encoder not inefficiently copy its input by parsing
   per-character instead of per-node and representing all state explicitly via
   stacks.
@@ -29,8 +26,6 @@
 * C wrappers.
 * Sample application code.
 * Sample codec (delimited text codec--improve).
-* CSV codec
-* PNM codec
 * Command line converter and pipeline tool.
 * Codec registration system via shared libraries, dlopen, etc.
 * Schema archetypal happy case test code.
@@ -38,10 +33,6 @@
 * Schema C++ code
 * Schema tests
 * Schema wrappers
-* XML codec
-* YAML codec
-* HDF codec
-* ROS codec
 * Zero-copy I/O for `binary_node`?
 * Make it easier to install ninja
 * Write at least one simple perf test (use meson benchmark?)
@@ -52,6 +43,17 @@
 * Do a perf run to see if there are any major blunders.
 * Investigate an automatic but predictable perf test.
 * Extensive tests, including fuzz tests, with valgrind.
+
+## Codecs
+
+* CSV codec
+* PNM codec
+* ORC codec
+* Parquet codec
+* XML codec
+* YAML codec
+* HDF codec
+* ROS codec
 
 ## Future improvements
 
