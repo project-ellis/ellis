@@ -1,38 +1,38 @@
 # Ellis
 
-Everybody has a favorite general-purpose data format.  Json, Msgpack, Yaml,
-ORC, Parquet, and so forth.  If you like something else, you must convert.
+Everybody has a favorite general-purpose data format: JSON, msgpack, YAML, ORC,
+parquet, and so forth.  If you like something else, you must convert.
 
-This is how it was with images, once upon a time.  The people grew tired of
-this treadmill, instead adopting smart input libraries that support all of
-them and just give you a neutral in-memory representation.
+This is how it was with images, once upon a time.  The people grew tired of this
+treadmill, instead adopting smart input libraries that support all of them and
+just giving you a neutral in-memory representation.
 
-Ellis does that for general data, and it gives you some convenient tools
-for interoperability.
+Ellis does that for general data, and it gives you some convenient tools for
+interoperability.
 
-At heart, ellis seeks to provide cross-language bindings for a common
-in-memory representation of hierarchical data, along with encoder and decoder
-plugins for common data formats, schemas, and streaming mechanisms.
+At heart, ellis seeks to provide cross-language bindings for a common in-memory
+representation of hierarchical data, along with encoder and decoder plugins for
+common data formats, schemas, and streaming mechanisms.
 
 #### Advantages to this approach
 
-- *Simplicity*: Many libraries require some particular data format
-  which may only be available in some particular programming language. If
-  you want to use a different format, you need a different library.  If you
-  want to use a different language, you again need to find a different
-  library, assuming the data format is supported in the desired language.
-  Ultimately, you need a lot of libraries to sustain this--the cross product
-  of `|languages| x |formats|`.  Not to mention the glue and conversion loss.
-  A time-wasting headache.
+- *Simplicity*: Many libraries require some particular data format which may
+  only be available in some particular programming language. If you want to use
+  a different format, you need a different library.  If you want to use a
+  different language, you again need to find a different library, assuming the
+  data format is supported in the desired language.  Ultimately, you need a lot
+  of libraries to sustain this: the cross product of `|languages| x |formats|`,
+  not to mention the glue and conversion loss.  You have better things to do
+  than to waste your time with that.
 - *Efficiency*: If one program uses one format/language and some other program
-  uses another, then there is usually manual coding effort and data copying
-  in order to convert.  The problem gets worse the more pieces you glue
-  together.  Modern software has a lot of pieces.
+  uses another, then there is usually manual coding effort and data copying in
+  order to convert.  The problem gets worse the more pieces you glue together.
+  Modern software has a lot of pieces.
 - *Flexibility*: By performing data transformations on a neutral representation,
   you can define common operations that apply across many data formats. For
   example, you can define *sort* or *transpose* operations that work
-  independently of which format the data was originally in, or which data
-  format it will eventually be stored as.
+  independently of which format the data was originally in, or which data format
+  it will eventually be stored as.
 
 #### Components of Ellis
 
@@ -123,8 +123,8 @@ ninja test-valgrind
 
 #### Running all static analysis and style checking
 
-(Be aware that the below includes calls to cppcheck, clang-check, and clang-tidy,
-which requires that you have such things installed on your system).
+Be aware that the below includes calls to cppcheck, clang-check, and
+clang-tidy, which requires that you have such things installed on your system.
 
 ```
 ninja check
