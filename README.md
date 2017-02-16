@@ -42,7 +42,7 @@ common data formats, schemas, and streaming mechanisms.
 - *stream*: Support for data streams so that you can easily encode or decode
   data from some source (e.g. file stream, or socket stream).
 
-# Build prerequisites
+## Build prerequisites
 
 - *meson* (recent). Unless your distro has a recent meson (probably 2016 or
   later), you should install via pip: *pip3 install meson*, or get it from
@@ -72,7 +72,7 @@ packaging, you will need also need to tweak the following env vars:
   library, such as when you run the unit tests with *ninja test*. It should be
   set to the directory containing the built prerequisite libraries.
 
-# Build instructions
+## Build instructions
 
 #### First time builds
 
@@ -106,7 +106,7 @@ ninja don't care.
 
 #### Compiling with clang instead of gcc
 
-It's the usual meson methodology:
+If you want to use clang, it's the usual meson methodology:
 
 ```
 mkdir build.clang
@@ -116,12 +116,15 @@ ninja
 ```
 
 #### Running tests
-
+```
+ninja test
+```
+or
 ```
 ninja test-valgrind
 ```
 
-#### Running all static analysis and style checking
+#### Running static analysis and style checking
 
 Be aware that the below includes calls to cppcheck, clang-check, and
 clang-tidy, which requires that you have such things installed on your system.
@@ -131,4 +134,4 @@ ninja check
 ```
 
 If you don't have clang installed, for instance, you can use the individual
-`cppcheck` target.
+targets such as `cppcheck`.
