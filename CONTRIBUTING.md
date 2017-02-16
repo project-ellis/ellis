@@ -13,8 +13,7 @@ Use the following workflow when making changes to Ellis:
 - In your fork, create a new branch from master, ideally with a name
   describing the types of change you want to make.
 - Make your commits as desired.  (See below re cleanup/rebasing).
-- Test your changes, adhering to [code quality guidelines](#Quality-guidelines)
-  and testing.
+- Test your changes, adhering to [code quality guidelines](#Code-quality-guidelines).
 - Prior to submission, fetch the latest master, rebase onto it, and retest to
   verify nothing broke.
 - Squash your changes into a linear series of clean, small, self-contained,
@@ -25,7 +24,7 @@ Use the following workflow when making changes to Ellis:
 - Open a Github pull request. If someone doesn't respond to you within a few
   days, feel free to ping the reviewers; they won't mind. :).
 
-# Quality guidelines
+## Code quality guidelines
 
 * Follow the [coding standards](doc/coding_standard.md).
 * Do not break the unit tests.
@@ -46,19 +45,19 @@ If you are changing code behavior, *modify unit tests* appropriately.
 
 Unit tests should accompany most everything that's not refactoring.
 
-# Commit messages
+## Commit messages
 
 #### Title
 
 The commit title string is lowercase, with no period at the end.  Try to stay
-under 50 chars (target), and never exceed 72 (hard limit).
+under 50 chars (target); never exceed 72 (hard limit).
 
-First identify the part of Ellis that is changed, and then summarize the
-change starting with a verb in the imperative grammatical form--for example,
-`codec/msgpack: remove dead code`--so that it is quick for a human reader to
-parse.
+First identify the part of Ellis that changed, and then summarize the
+change starting with a verb in imperative grammatical form--for example,
+`codec/msgpack: remove dead code`--so that it's quick for a human reader to
+scan.
 
-Leave a blank line between the title and the body of the commit message.
+*Leave a blank line* between the title and the body of the commit message.
 
 #### Body
 
@@ -76,7 +75,7 @@ like to be consistent with the word "Resolves" for the sake of searching.
 
 This goes on its own line.
 
-#### Example message
+#### Example commit message
 
 ```
 codec/msgpack: fix msgpack encoder race
