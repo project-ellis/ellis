@@ -53,14 +53,8 @@ common data formats, schemas, and streaming mechanisms.
     - ```unzip ninja-linux.zip```
     - ```sudo install -o root -g root -m755 ninja /usr/bin/ninja
       # or put it somewhere else in your PATH```
-- *boost-asio*
-- *boost-system*
-- *nghttp2* (>= 1.18.0). If you need to compile, use these flags for
-  configure:
-  *--with-jemalloc --enable-asio-lib*
-  Note that *--with-jemalloc* is technically optional but will improve
-  performance.
-- *openssl* (>= 1.0.2). (needed by nghttp2)
+
+#### Custom requirements building
 
 Note that, if any of your build prerequisites do not come from standard distro
 packaging, you will need also need to tweak the following env vars:
@@ -71,6 +65,39 @@ packaging, you will need also need to tweak the following env vars:
 - *LD_LIBRARY_PATH* needs to be set whenever you actually load the Ellis
   library, such as when you run the unit tests with *ninja test*. It should be
   set to the directory containing the built prerequisite libraries.
+
+#### Debian unstable
+
+To get your build requirements, you just need to run:
+
+```
+sudo apt-get -y install meson ninja-build
+```
+
+#### Fedora 24 and 25 packages
+
+To get your build requirements, you just need to run:
+
+```
+sudo dnf -y install meson ninja-build
+```
+
+Note that on fedora you will substitute the **ninja-build** command instead of
+the **ninja** command for the various build commands on this page.
+
+#### Additional requirements for ellis-op
+
+(To be moved to a separate standalone project)
+
+- *boost-asio*
+- *boost-system*
+- *nghttp2* (>= 1.18.0). If you need to compile, use these flags for
+  configure:
+  *--with-jemalloc --enable-asio-lib*
+  Note that *--with-jemalloc* is technically optional but will improve
+  performance.
+- *openssl* (>= 1.0.2). (needed by nghttp2)
+
 
 ## Build instructions
 
