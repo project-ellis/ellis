@@ -35,7 +35,7 @@ std::string get_mode_string(uint16_t mode);
  * depending on the given PID.
  *
  * @param pid a PID
- * @param value an OBD II value
+ * @param val an OBD II value
  *
  * @return a decoded value
  */
