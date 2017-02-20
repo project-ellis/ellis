@@ -113,6 +113,9 @@ foreach u : utils
     dependencies: [ thread_deps, asio_dep, nghttp2_dep, ssl_dep ])
 endforeach
 
+# Documentation.
+run_target('doc', command: 'meson/makedocs')
+
 # Static analysis.
 run_target('check', command: 'meson/check')
 run_target('clangcheck', command: 'meson/clangcheck')
