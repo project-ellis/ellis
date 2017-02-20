@@ -114,7 +114,7 @@ foreach u : utils
 endforeach
 
 # Documentation.
-run_target('doc', command: 'meson/makedocs')
+run_target('docs', command: 'meson/makedoc')
 
 # Static analysis.
 run_target('check', command: 'meson/check')
