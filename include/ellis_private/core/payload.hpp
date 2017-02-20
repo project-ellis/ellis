@@ -27,7 +27,9 @@ namespace payload_types {
 }
 
 
+/** Used to store refcount and underlying container type. */
 struct payload {
+ /** The refcount for the underlying container. */
   payload_types::refcount_t m_refcount;
   union {
     payload_types::arr_t m_arr;
