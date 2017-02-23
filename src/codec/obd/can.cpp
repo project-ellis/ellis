@@ -14,11 +14,17 @@ namespace ellis {
 namespace obd {
 
 
+/** The response from a vehicle ECU. */
 struct ecu_response {
+  /** Data length. */
   byte extra_bytes;
+  /** A CAN PID mode. */
   byte mode;
+  /** A CAN PID. */
   byte pid;
+  /* PID data. */
   byte data[4];
+  /* Unused. */
   byte unused;
 };
 

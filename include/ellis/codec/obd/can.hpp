@@ -21,6 +21,7 @@ namespace ellis {
 namespace obd {
 
 
+/** A CAN decoder. */
 class can_decoder : public decoder {
   std::unique_ptr<node> m_node;
   /** Makes an OBD II node from a given byte sequence.

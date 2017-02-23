@@ -29,6 +29,7 @@ UNUSED static inline uint32_t byte_d(uint32_t x)
   return (x >> 0) & 0xFF;
 }
 
+/** Information used for interpreting a given PID. */
 struct pid_info {
   const char *description;
   std::function<double(uint32_t)> convert;
