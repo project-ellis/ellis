@@ -129,8 +129,8 @@ enum class msgpack_type {
 };
 
 
-parse_ctx::parse_ctx() :
-  state(parse_state::UNDEFINED)
+msgpack_parse_ctx::msgpack_parse_ctx() :
+  state(msgpack_parse_state::UNDEFINED)
 {
 }
 
@@ -249,7 +249,7 @@ T accum_be(T num, byte b)
 }
 
 
-void accum_header(parse_ctx & ctx, byte b, parse_state next)
+void accum_header(msgpack_parse_ctx & ctx, byte b, msgpack_parse_state next)
 {
   ctx.data_len = accum_be(ctx.data_len, b);
   --ctx.header_len;
@@ -259,26 +259,26 @@ void accum_header(parse_ctx & ctx, byte b, parse_state next)
 }
 
 
-void init_vec_data(parse_ctx & ctx, size_t len)
+void init_vec_data(msgpack_parse_ctx & ctx, size_t len)
 {
   ctx.buf = make_unique<vector<byte>>();
   ctx.buf->reserve(len);
 }
 
 
-void msgpack_decoder::accum_str_header(parse_ctx & ctx, byte b)
+void msgpack_decoder::accum_str_header(msgpack_parse_ctx & ctx, byte b)
 {
-  accum_header(ctx, b, parse_state::STR_DATA);
-  if (ctx.state == parse_state::STR_DATA) {
+  accum_header(ctx, b, msgpack_parse_state::STR_DATA);
+  if (ctx.state == msgpack_parse_state::STR_DATA) {
     init_vec_data(ctx, ctx.data_len);
   }
 }
 
 
-void msgpack_decoder::accum_map_key_header(parse_ctx & ctx, byte b)
+void msgpack_decoder::accum_map_key_header(msgpack_parse_ctx & ctx, byte b)
 {
-  accum_header(ctx, b, parse_state::MAP_KEY_DATA);
-  if (ctx.state == parse_state::MAP_KEY_DATA) {
+  accum_header(ctx, b, msgpack_parse_state::MAP_KEY_DATA);
+  if (ctx.state == msgpack_parse_state::MAP_KEY_DATA) {
     /* We store the map length separately from data length so we don't
      * clobber it when we start parsing the data length of each map key. */
     init_vec_data(ctx, ctx.data_len);
@@ -287,19 +287,19 @@ void msgpack_decoder::accum_map_key_header(parse_ctx & ctx, byte b)
 }
 
 
-void msgpack_decoder::accum_bin_header(parse_ctx & ctx, byte b)
+void msgpack_decoder::accum_bin_header(msgpack_parse_ctx & ctx, byte b)
 {
-  accum_header(ctx, b, parse_state::BIN_DATA);
-  if (ctx.state == parse_state::BIN_DATA) {
+  accum_header(ctx, b, msgpack_parse_state::BIN_DATA);
+  if (ctx.state == msgpack_parse_state::BIN_DATA) {
     init_vec_data(ctx, ctx.data_len);
   }
 }
 
 
-node_progress msgpack_decoder::accum_arr_header(parse_ctx & ctx, byte b)
+node_progress msgpack_decoder::accum_arr_header(msgpack_parse_ctx & ctx, byte b)
 {
-  accum_header(ctx, b, parse_state::ARRAY_DATA);
-  if (ctx.state == parse_state::ARRAY_DATA) {
+  accum_header(ctx, b, msgpack_parse_state::ARRAY_DATA);
+  if (ctx.state == msgpack_parse_state::ARRAY_DATA) {
     /* Empty array. */
     unique_ptr<node> n = make_unique<node>(ellis::type::ARRAY);
     if (ctx.data_len == 0) {
@@ -314,9 +314,9 @@ node_progress msgpack_decoder::accum_arr_header(parse_ctx & ctx, byte b)
 }
 
 
-node_progress msgpack_decoder::accum_map_header(parse_ctx & ctx, byte b)
+node_progress msgpack_decoder::accum_map_header(msgpack_parse_ctx & ctx, byte b)
 {
-  const parse_state next = parse_state::MAP_KEY_TYPE;
+  const msgpack_parse_state next = msgpack_parse_state::MAP_KEY_TYPE;
   accum_header(ctx, b, next);
   if (ctx.state == next) {
     /* We store the map length separately from data length so we don't
@@ -335,7 +335,7 @@ node_progress msgpack_decoder::accum_map_header(parse_ctx & ctx, byte b)
 
 
 template <typename T>
-node_progress accum_num_data(parse_ctx & ctx, byte b)
+node_progress accum_num_data(msgpack_parse_ctx & ctx, byte b)
 {
   ctx.data = accum_be(ctx.data, b);
   --ctx.data_len;
@@ -348,7 +348,7 @@ node_progress accum_num_data(parse_ctx & ctx, byte b)
 }
 
 
-bool accum_str(parse_ctx & ctx, byte b)
+bool accum_str(msgpack_parse_ctx & ctx, byte b)
 {
   ctx.buf->push_back(b);
   --ctx.data_len;
@@ -359,7 +359,7 @@ bool accum_str(parse_ctx & ctx, byte b)
 }
 
 
-node_progress accum_str_node(parse_ctx & ctx, byte b)
+node_progress accum_str_node(msgpack_parse_ctx & ctx, byte b)
 {
   bool done = accum_str(ctx, b);
   if (done) {
@@ -373,7 +373,7 @@ node_progress accum_str_node(parse_ctx & ctx, byte b)
 }
 
 
-node_progress accum_bin(parse_ctx & ctx, byte b)
+node_progress accum_bin(msgpack_parse_ctx & ctx, byte b)
 {
   ctx.buf->push_back(b);
   --ctx.data_len;
@@ -410,7 +410,7 @@ node_progress progmore()
 }
 
 
-node_progress msgpack_decoder::handle_type(parse_ctx &ctx, byte b)
+node_progress msgpack_decoder::handle_type(msgpack_parse_ctx &ctx, byte b)
 {
   msgpack_type type = get_msgpack_type(b);
   switch (type) {
@@ -432,7 +432,7 @@ node_progress msgpack_decoder::handle_type(parse_ctx &ctx, byte b)
     /* TODO: refactor so the FIX* versions don't require any duplication. */
 
     case msgpack_type::FIXMAP:
-      ctx.state = parse_state::MAP_KEY_TYPE;
+      ctx.state = msgpack_parse_state::MAP_KEY_TYPE;
       ctx.map_len = b & 0x0f;
       {
         unique_ptr<node> n = make_unique<node>(ellis::type::MAP);
@@ -446,7 +446,7 @@ node_progress msgpack_decoder::handle_type(parse_ctx &ctx, byte b)
       return progmore();
 
     case msgpack_type::FIXARRAY:
-      ctx.state = parse_state::ARRAY_DATA;
+      ctx.state = msgpack_parse_state::ARRAY_DATA;
       ctx.data_len = b & 0x0f;
       {
         unique_ptr<node> n = make_unique<node>(ellis::type::ARRAY);
@@ -461,7 +461,7 @@ node_progress msgpack_decoder::handle_type(parse_ctx &ctx, byte b)
       return progmore();
 
     case msgpack_type::FIXSTR:
-      ctx.state = parse_state::STR_DATA;
+      ctx.state = msgpack_parse_state::STR_DATA;
       ctx.data_len = get_fixstr_length(b);
       if (ctx.data_len == 0) {
         return node_progress(make_unique<node>(""));
@@ -470,106 +470,106 @@ node_progress msgpack_decoder::handle_type(parse_ctx &ctx, byte b)
       return progmore();
 
     case msgpack_type::BIN8:
-      ctx.state = parse_state::BIN_DATA;
+      ctx.state = msgpack_parse_state::BIN_DATA;
       ctx.header_len = sizeof(uint8_t);
       return progmore();
 
     case msgpack_type::BIN16:
-      ctx.state = parse_state::BIN_DATA;
+      ctx.state = msgpack_parse_state::BIN_DATA;
       ctx.header_len = sizeof(uint16_t);
       return progmore();
 
     case msgpack_type::BIN32:
-      ctx.state = parse_state::BIN_DATA;
+      ctx.state = msgpack_parse_state::BIN_DATA;
       ctx.header_len = sizeof(uint32_t);
       return progmore();
 
     case msgpack_type::FLOAT32:
-      ctx.state = parse_state::FLOAT32_DATA;
+      ctx.state = msgpack_parse_state::FLOAT32_DATA;
       ctx.data_len = sizeof(float);
       ctx.data = 0;
       return progmore();
 
     case msgpack_type::FLOAT64:
-      ctx.state = parse_state::FLOAT64_DATA;
+      ctx.state = msgpack_parse_state::FLOAT64_DATA;
       ctx.data_len = sizeof(double);
       ctx.data = 0;
       return progmore();
 
     case msgpack_type::UINT8:
-      ctx.state = parse_state::UINT8_DATA;
+      ctx.state = msgpack_parse_state::UINT8_DATA;
       ctx.data_len = sizeof(uint8_t);
       ctx.data = 0;
       return progmore();
 
     case msgpack_type::UINT16:
-      ctx.state = parse_state::UINT16_DATA;
+      ctx.state = msgpack_parse_state::UINT16_DATA;
       ctx.data_len = sizeof(uint16_t);
       ctx.data = 0;
       return progmore();
 
     case msgpack_type::UINT32:
-      ctx.state = parse_state::UINT32_DATA;
+      ctx.state = msgpack_parse_state::UINT32_DATA;
       ctx.data_len = sizeof(uint32_t);
       ctx.data = 0;
       return progmore();
 
     case msgpack_type::INT8:
-      ctx.state = parse_state::INT8_DATA;
+      ctx.state = msgpack_parse_state::INT8_DATA;
       ctx.data_len = sizeof(int8_t);
       ctx.data = 0;
       return progmore();
 
     case msgpack_type::INT16:
-      ctx.state = parse_state::INT16_DATA;
+      ctx.state = msgpack_parse_state::INT16_DATA;
       ctx.data_len = sizeof(int16_t);
       ctx.data = 0;
       return progmore();
 
     case msgpack_type::INT32:
-      ctx.state = parse_state::INT32_DATA;
+      ctx.state = msgpack_parse_state::INT32_DATA;
       ctx.data_len = sizeof(int32_t);
       ctx.data = 0;
       return progmore();
 
     case msgpack_type::INT64:
-      ctx.state = parse_state::INT64_DATA;
+      ctx.state = msgpack_parse_state::INT64_DATA;
       ctx.data_len = sizeof(int64_t);
       ctx.data = 0;
       return progmore();
 
     case msgpack_type::STR8:
-      ctx.state = parse_state::STR_HEADER;
+      ctx.state = msgpack_parse_state::STR_HEADER;
       ctx.header_len = sizeof(uint8_t);
       return progmore();
 
     case msgpack_type::STR16:
-      ctx.state = parse_state::STR_HEADER;
+      ctx.state = msgpack_parse_state::STR_HEADER;
       ctx.header_len = sizeof(uint16_t);
       return progmore();
 
     case msgpack_type::STR32:
-      ctx.state = parse_state::STR_HEADER;
+      ctx.state = msgpack_parse_state::STR_HEADER;
       ctx.header_len = sizeof(uint32_t);
       return progmore();
 
     case msgpack_type::ARRAY16:
-      ctx.state = parse_state::ARRAY_HEADER;
+      ctx.state = msgpack_parse_state::ARRAY_HEADER;
       ctx.header_len = sizeof(uint16_t);
       return progmore();
 
     case msgpack_type::ARRAY32:
-      ctx.state = parse_state::ARRAY_HEADER;
+      ctx.state = msgpack_parse_state::ARRAY_HEADER;
       ctx.header_len = sizeof(uint32_t);
       return progmore();
 
     case msgpack_type::MAP16:
-      ctx.state = parse_state::MAP_HEADER;
+      ctx.state = msgpack_parse_state::MAP_HEADER;
       ctx.header_len = sizeof(uint16_t);
       return progmore();
 
     case msgpack_type::MAP32:
-      ctx.state = parse_state::MAP_HEADER;
+      ctx.state = msgpack_parse_state::MAP_HEADER;
       ctx.header_len = sizeof(uint32_t);
       return progmore();
   }
@@ -589,113 +589,113 @@ node_progress msgpack_decoder::parse_byte(byte b)
    */
   m_parse_stack.reserve(m_parse_stack.size() * 2);
 
-  parse_ctx &ctx = m_parse_stack.back();
+  msgpack_parse_ctx &ctx = m_parse_stack.back();
   node_progress prog(stream_state::CONTINUE);
   switch (ctx.state) {
-    case parse_state::UNDEFINED:
+    case msgpack_parse_state::UNDEFINED:
       prog = handle_type(ctx, b);
       break;
 
-    case parse_state::STR_HEADER:
+    case msgpack_parse_state::STR_HEADER:
       accum_str_header(ctx, b);
       break;
 
-    case parse_state::BIN_HEADER:
+    case msgpack_parse_state::BIN_HEADER:
       accum_bin_header(ctx, b);
       break;
 
-    case parse_state::ARRAY_HEADER:
+    case msgpack_parse_state::ARRAY_HEADER:
       prog = accum_arr_header(ctx, b);
       break;
 
-    case parse_state::MAP_HEADER:
+    case msgpack_parse_state::MAP_HEADER:
       prog = accum_map_header(ctx, b);
       break;
 
-    case parse_state::UINT8_DATA:
+    case msgpack_parse_state::UINT8_DATA:
       prog = node_progress(make_unique<node>(static_cast<int64_t>(b)));
       break;
 
-    case parse_state::UINT16_DATA:
+    case msgpack_parse_state::UINT16_DATA:
       prog = accum_num_data<uint16_t>(ctx, b);
       break;
 
-    case parse_state::UINT32_DATA:
+    case msgpack_parse_state::UINT32_DATA:
       prog = accum_num_data<uint32_t>(ctx, b);
       break;
 
-    case parse_state::INT8_DATA:
+    case msgpack_parse_state::INT8_DATA:
       prog = accum_num_data<int8_t>(ctx, b);
       break;
 
-    case parse_state::INT16_DATA:
+    case msgpack_parse_state::INT16_DATA:
       prog = accum_num_data<int16_t>(ctx, b);
       break;
 
-    case parse_state::INT32_DATA:
+    case msgpack_parse_state::INT32_DATA:
       prog = accum_num_data<int32_t>(ctx, b);
       break;
 
-    case parse_state::INT64_DATA:
+    case msgpack_parse_state::INT64_DATA:
       prog = accum_num_data<int64_t>(ctx, b);
       break;
 
-    case parse_state::FLOAT32_DATA:
+    case msgpack_parse_state::FLOAT32_DATA:
       prog = accum_num_data<float>(ctx, b);
       break;
 
-    case parse_state::FLOAT64_DATA:
+    case msgpack_parse_state::FLOAT64_DATA:
       prog = accum_num_data<double>(ctx, b);
       break;
 
-    case parse_state::STR_DATA:
+    case msgpack_parse_state::STR_DATA:
       prog = accum_str_node(ctx, b);
       break;
 
-    case parse_state::BIN_DATA:
+    case msgpack_parse_state::BIN_DATA:
       prog = accum_bin(ctx, b);
       break;
 
-    case parse_state::ARRAY_DATA:
+    case msgpack_parse_state::ARRAY_DATA:
       ELLIS_ASSERT_UNREACHABLE();
       break;
 
-    case parse_state::MAP_KEY_TYPE:
+    case msgpack_parse_state::MAP_KEY_TYPE:
       {
         msgpack_type type = get_msgpack_type(b);
         if (!type_is_string(type)) {
           THROW_ELLIS_ERR(TRANSLATE_FAIL, "Map key must be a string");
         }
         if (type != msgpack_type::FIXSTR) {
-          ctx.state = parse_state::MAP_KEY_HEADER;
+          ctx.state = msgpack_parse_state::MAP_KEY_HEADER;
         }
         else {
           ctx.data_len = get_fixstr_length(b);
-          ctx.state = parse_state::MAP_KEY_DATA;
+          ctx.state = msgpack_parse_state::MAP_KEY_DATA;
           init_vec_data(ctx, ctx.data_len);
         }
       }
       break;
 
-    case parse_state::MAP_KEY_HEADER:
+    case msgpack_parse_state::MAP_KEY_HEADER:
       accum_map_key_header(ctx, b);
       break;
 
-    case parse_state::MAP_KEY_DATA:
+    case msgpack_parse_state::MAP_KEY_DATA:
       {
         bool done = accum_str(ctx, b);
         if (done) {
-          ctx.state = parse_state::MAP_VALUE_DATA;
+          ctx.state = msgpack_parse_state::MAP_VALUE_DATA;
           m_parse_stack.emplace_back();
         }
       }
       break;
 
-    case parse_state::MAP_VALUE_DATA:
+    case msgpack_parse_state::MAP_VALUE_DATA:
       ELLIS_ASSERT_UNREACHABLE();
       break;
 
-    case parse_state::COMPLETE:
+    case msgpack_parse_state::COMPLETE:
       ELLIS_ASSERT_UNREACHABLE();
   }
 
@@ -703,7 +703,7 @@ node_progress msgpack_decoder::parse_byte(byte b)
     return prog;
   }
   ctx.node = std::move(prog.extract_value());
-  ctx.state = parse_state::COMPLETE;
+  ctx.state = msgpack_parse_state::COMPLETE;
 
   /*
    * Reduce the stack by absorbing the top of the stack into parent containers
@@ -711,15 +711,15 @@ node_progress msgpack_decoder::parse_byte(byte b)
    */
 
   while (m_parse_stack.size() > 1) {
-    parse_ctx &top = m_parse_stack.back();
-    if (top.state != parse_state::COMPLETE) {
+    msgpack_parse_ctx &top = m_parse_stack.back();
+    if (top.state != msgpack_parse_state::COMPLETE) {
       /* Node is not complete. */
       return node_progress(stream_state::CONTINUE);
     }
 
     unique_ptr<node> n = std::move(top.node);
     m_parse_stack.pop_back();
-    parse_ctx &parent = m_parse_stack.back();
+    msgpack_parse_ctx &parent = m_parse_stack.back();
     if (parent.node->get_type() == type::ARRAY) {
       parent.node->as_mutable_array().append(*n);
       --parent.data_len;
@@ -727,7 +727,7 @@ node_progress msgpack_decoder::parse_byte(byte b)
         m_parse_stack.emplace_back();
       }
       else {
-        parent.state = parse_state::COMPLETE;
+        parent.state = msgpack_parse_state::COMPLETE;
       }
     }
     else if (parent.node->get_type() == type::MAP) {
@@ -736,10 +736,10 @@ node_progress msgpack_decoder::parse_byte(byte b)
       parent.node->as_mutable_map().insert(std::move(key).c_str(), *n);
       --parent.map_len;
       if (parent.map_len > 0) {
-        parent.state = parse_state::MAP_KEY_TYPE;
+        parent.state = msgpack_parse_state::MAP_KEY_TYPE;
       }
       else {
-        parent.state = parse_state::COMPLETE;
+        parent.state = msgpack_parse_state::COMPLETE;
       }
     }
     else {
@@ -748,8 +748,8 @@ node_progress msgpack_decoder::parse_byte(byte b)
     }
   }
 
-  parse_ctx &top = m_parse_stack.back();
-  if (top.state != parse_state::COMPLETE) {
+  msgpack_parse_ctx &top = m_parse_stack.back();
+  if (top.state != msgpack_parse_state::COMPLETE) {
     /* Node is not complete. */
     return node_progress(stream_state::CONTINUE);
   }

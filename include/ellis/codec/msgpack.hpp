@@ -16,7 +16,7 @@
 namespace ellis {
 
 
-enum class parse_state {
+enum class msgpack_parse_state {
   UNDEFINED,
   COMPLETE,
   ARRAY_HEADER,
@@ -42,32 +42,42 @@ enum class parse_state {
 };
 
 
-struct parse_ctx {
-  parse_state state;
+/** All the state needed to represent the current msgpack parse state. */
+struct msgpack_parse_ctx {
+  /** The current parse state; used to interpret incoming parse data. */
+  msgpack_parse_state state;
+  /** The length of the data currently being parsed. */
   uint_fast32_t data_len;
   union {
+    /** Header length, if currently parsing a header. Otherwise unused. */
     uint_fast8_t header_len;
+    /** The current data, for numeric types. */
     uint64_t data;
   };
   /* Possible optimization: fold buf and (and maybe node too) into the union. */
+
+  /** The length of a map, if parsing a map. Otherwise unused. */
   uint_fast32_t map_len;
+  /** A buffer used to store vector data (e.g. strings or binary). */
   std::unique_ptr<std::vector<byte>> buf;
+  /** The node output of the current parse. */
   std::unique_ptr<ellis::node> node;
 
-  parse_ctx();
+  msgpack_parse_ctx();
 };
 
 
+/** A msgpack decoder. */
 class msgpack_decoder : public decoder {
-  std::vector<parse_ctx> m_parse_stack;
+  std::vector<msgpack_parse_ctx> m_parse_stack;
 
-  node_progress handle_type(parse_ctx &ctx, byte b);
+  node_progress handle_type(msgpack_parse_ctx &ctx, byte b);
 
-  void accum_str_header(parse_ctx & ctx, byte b);
-  void accum_bin_header(parse_ctx & ctx, byte b);
-  void accum_map_key_header(parse_ctx & ctx, byte b);
-  node_progress accum_arr_header(parse_ctx & ctx, byte b);
-  node_progress accum_map_header(parse_ctx & ctx, byte b);
+  void accum_str_header(msgpack_parse_ctx & ctx, byte b);
+  void accum_bin_header(msgpack_parse_ctx & ctx, byte b);
+  void accum_map_key_header(msgpack_parse_ctx & ctx, byte b);
+  node_progress accum_arr_header(msgpack_parse_ctx & ctx, byte b);
+  node_progress accum_map_header(msgpack_parse_ctx & ctx, byte b);
   node_progress parse_byte(byte b);
 
 public:
@@ -80,6 +90,7 @@ public:
 };
 
 
+/** A msgpack encoder. */
 class msgpack_encoder : public encoder {
   std::vector<byte> m_buf;
   size_t m_pos;
