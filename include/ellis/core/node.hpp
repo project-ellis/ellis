@@ -93,13 +93,16 @@ class node {
    */
 
   /** Construct an ARRAY, MAP, or NIL node. */
-  node(type);
+  node(type);  // TODO: should make this explicit?  which other ctors?
 
   /** Construct a BINARY node. */
   node(const byte *mem, size_t bytes);
 
-  /** Construct a BOOL node. */
-  node(bool);
+  /** Construct a BOOL node.
+   *
+   * This is explicit in order to prevent accidental conversion from node*.
+   */
+  explicit node(bool);
 
   /** Construct an INT64 node. */
   node(int);
@@ -276,7 +279,7 @@ class node {
    * This means that an exception can be thrown if the type is incorrect,
    * as is the case with the as_xxx() converter functions.
    */
-  operator bool() const;
+  explicit operator bool() const;
   operator int() const;
   operator unsigned int() const;
   operator int64_t() const;
