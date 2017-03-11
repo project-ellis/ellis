@@ -7,7 +7,6 @@
 * (jmc) Name registration for encode/decode.
 * (both) Doxygen consistency
 * (martin) Add license headers (MIT, copyright 2016 surround.io)
-* (jmc) Write unit test that catches u8str deep copy bug.
 
 ## Maturation
 

@@ -257,6 +257,54 @@ static void strtest()
   ELLIS_ASSERT_NEQ(n2, "hello world");
 }
 
+/** Test for deep copy bug.
+ *
+ * In this test, we try to catch bugs involved with deep copy of u8str
+ * objects, either alone or embedded inside other structures.
+ */
+static void u8strdeepcopytest()
+{
+  using namespace ellis;
+
+  /* STAGE 1: make some reference objects, and perform trivial checks. */
+
+  node n1("hello");
+  /* Make a copy and delete copy, to make sure copy is independent and the
+   * original object is not damaged. */
+  node n2( { "hey", "you" } );
+  auto trivial_chk = [] (const node &o1, const node &o2) {
+    ELLIS_ASSERT_EQ(o1.get_type(), type::U8STR);
+    ELLIS_ASSERT_EQ(o1, "hello");
+    ELLIS_ASSERT_EQ(o2.get_type(), type::ARRAY);
+    ELLIS_ASSERT_EQ(o2.as_array().length(), 2);
+    ELLIS_ASSERT_EQ(o2.at("[0]"), "hey");
+    ELLIS_ASSERT_EQ(o2.at("[1]"), "you");
+  };
+  trivial_chk(n1, n2);
+
+  /* STAGE 2: explicit copy ref objects, repeat checks on src and dest. */
+
+  node *n1c = new node(n1);
+  node *n2c = new node(n2);
+  trivial_chk(n1, n2);
+  trivial_chk(*n1c, *n2c);
+
+  /* STAGE 3: write/modify original and restore, repeat checks. */
+
+  n1.as_mutable_u8str().assign("ahoy!");
+  n2.as_mutable_array().erase(1);
+  n1.as_mutable_u8str().assign("hello");
+  n2.as_mutable_array().append("you");
+  trivial_chk(n1, n2);
+  trivial_chk(*n1c, *n2c);
+
+  /* STAGE 4: delete explicit copies, repeat checks. */
+
+  delete n1c;
+  delete n2c;
+  trivial_chk(n1, n2);
+}
+
 static void arraytest()
 {
   using namespace ellis;
@@ -621,6 +669,7 @@ int main()
   binarytest();
   maptest();
   pathtest();
+  u8strdeepcopytest();
   printf("all tests completed.\n");
   return 0;
 }
