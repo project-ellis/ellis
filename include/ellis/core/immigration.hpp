@@ -120,6 +120,15 @@ std::unique_ptr<node> load_stream(std::istream &is, TDECODER &&deco)
 }
 
 
+/**
+ * Synchronous load from a file, selecting decoder based on extension.
+ *
+ * Throws exceptions from load as well as filename extension lookup.
+ */
+std::unique_ptr<node> load_file_autodecode(
+        const char *filename);
+
+
 }  /* namespace ellis */
 
 #endif  /* ELLIS_CORE_IMMIGRATION_HPP_ */

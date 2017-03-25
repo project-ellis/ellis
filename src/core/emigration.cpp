@@ -5,6 +5,7 @@
 #include <ellis/stream/fd_output_stream.hpp>
 #include <ellis/stream/file_output_stream.hpp>
 #include <ellis/stream/mem_output_stream.hpp>
+#include <ellis_private/convenience/file.hpp>
 #include <ellis_private/using.hpp>
 
 
@@ -72,6 +73,42 @@ void dump_stream(
   dump(nod, cpp_output_stream(os), *enco);
 }
 
+
+void dump_file_autoencode(
+    const node *nod,
+    const char *filename)
+{
+  string exten = get_extension(filename);
+  auto fmts = system_lookup_data_formats_by_extension(exten.c_str());
+  if (fmts.empty()) {
+    THROW_ELLIS_ERR(NO_SUCH,
+        "No valid format found for output extension (" << exten << ")");
+  }
+
+  bool write_success = false;
+  string failmsg = "no encoders found";
+  for (auto fmt: fmts) {
+    auto enc = (fmt->m_make_encoder)();
+    if (!enc) {
+      /* No encoder function; move on to the next format. */
+      continue;
+    }
+    try {
+      dump_file(nod, filename, enc.get());
+      write_success = true;
+      break;
+    }
+    catch (const ellis::err &e) {
+      /* Failed encode; remember error, but move on to the next format. */
+      failmsg = e.msg();
+    }
+  }
+
+  if (! write_success) {
+    THROW_ELLIS_ERR(TRANSLATE_FAIL,
+        "Unable to encode file (" << filename << "):" << failmsg);
+  }
+}
 
 
 }  /* namespace ellis */

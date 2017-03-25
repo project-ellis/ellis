@@ -2,10 +2,28 @@
 
 #include <ellis/core/array_node.hpp>
 #include <ellis/core/err.hpp>
+#include <ellis/core/system.hpp>
 #include <ellis/core/u8str_node.hpp>
 #include <ellis_private/using.hpp>
 
 namespace ellis {
+
+
+static class dummy_init {
+public:
+  dummy_init()
+  {
+    system_add_data_format(
+        make_unique<const data_format>(
+          "builtin.txtfile.lines",
+          "txt",
+          "Text file representing an array of lines",
+          [](){ return unique_ptr<decoder>(
+            new ellis::delimited_text_decoder()); },
+          [](){ return unique_ptr<encoder>(
+            new ellis::delimited_text_encoder()); }));
+  }
+} unused_dummy_init;
 
 
 void delimited_text_decoder::_clear_ss() {

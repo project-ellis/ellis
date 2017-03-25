@@ -33,6 +33,8 @@ void dump(
 /**
  * Alternate versions that take references or rvalue references.
  *
+ * Similar semantics and exceptions as dump() above.
+ *
  * See the comments in immigration.hpp regarding universal references.
  */
 template<typename TSTREAM, typename TENCODER>
@@ -45,7 +47,7 @@ void dump(const node *nod, TSTREAM &&out, TENCODER &&enco)
 /**
  * Synchronous (blocking) dump to an open socket/fd.
  *
- * Similar behavior to dump() above.
+ * Similar semantics and exceptions as dump() above.
  */
 void dump_fd(
     const node *nod,
@@ -63,7 +65,7 @@ void dump_fd(const node *nod, int fd, TENCODER &&enco)
 /**
  * Synchronous (blocking) dump to a file.
  *
- * Similar behavior to dump() above.
+ * Similar semantics and exceptions as dump() above.
  */
 void dump_file(
     const node *nod,
@@ -79,9 +81,9 @@ void dump_file(const node *nod, const char *filename, TENCODER &&enco)
 
 
 /**
- * Synchronous (blocking) dump to a memory buffer.
+ * Dump to a memory buffer.
  *
- * Similar behavior to dump() above.
+ * Similar semantics and exceptions as dump() above.
  */
 void dump_mem(
     const node *nod,
@@ -98,9 +100,9 @@ void dump_mem(const node *nod, void *buf, size_t len, TENCODER &&enco)
 
 
 /**
- * Synchronous (blocking) dump to a stream.
+ * Synchronous (blocking) dump to a c++ stream.
  *
- * Similar behavior to dump() above.
+ * Similar semantics and exceptions as dump() above.
  */
 void dump_stream(
     const node *nod,
@@ -113,6 +115,16 @@ void dump_stream(const node *nod, std::ostream &os, TENCODER &&enco)
 {
   dump_stream(nod, os, (encoder*)&enco);
 }
+
+
+/**
+ * Synchronous dump to a file, selecting encoder based on extension.
+ *
+ * Throws exceptions from dump as well as filename extension lookup.
+ */
+void dump_file_autoencode(
+    const node *nod,
+    const char *filename);
 
 
 }  /* namespace ellis */

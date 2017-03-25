@@ -5,6 +5,7 @@
 #include <ellis/stream/fd_input_stream.hpp>
 #include <ellis/stream/file_input_stream.hpp>
 #include <ellis/stream/mem_input_stream.hpp>
+#include <ellis_private/convenience/file.hpp>
 #include <ellis_private/using.hpp>
 
 
@@ -82,6 +83,41 @@ std::unique_ptr<node> load_stream(
     decoder *deco)
 {
   return load(cpp_input_stream(is), *deco);
+}
+
+
+std::unique_ptr<node> load_file_autodecode(
+    const char *filename)
+{
+  string exten = get_extension(filename);
+  string failmsg = "no decoders found";
+
+  auto fmts = system_lookup_data_formats_by_extension(exten.c_str());
+  if (fmts.empty()) {
+    THROW_ELLIS_ERR(NO_SUCH,
+        "No valid format found for input extension (" << exten << ")");
+  }
+
+  unique_ptr<node> nod;
+  for (auto fmt: fmts) {
+    auto dec = (fmt->m_make_decoder)();
+    if (!dec) {
+      /* No decoder function; move on to the next format. */
+      continue;
+    }
+    try {
+      nod = load_file(filename, dec.get());
+    }
+    catch (const err &e) {
+      /* Failed decode; remember error, but move on to the next format. */
+      failmsg = e.msg();
+    }
+  }
+  if (! nod) {
+    THROW_ELLIS_ERR(PARSE_FAIL,
+        "Unable to decode file (" << filename << "): " << failmsg);
+  }
+  return nod;
 }
 
 

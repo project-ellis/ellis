@@ -95,6 +95,21 @@
 namespace ellis {
 
 
+static class dummy_init {
+public:
+  dummy_init()
+  {
+    system_add_data_format(
+        make_unique<const data_format>(
+          "builtin.msgpack.generic",
+          "msgpack",
+          "Msgpack generic data",
+          [](){ return unique_ptr<decoder>(new ellis::msgpack_decoder()); },
+          [](){ return unique_ptr<encoder>(new ellis::msgpack_encoder()); }));
+  }
+} unused_dummy_init;
+
+
 enum class msgpack_type {
   NIL,
   FALSE,

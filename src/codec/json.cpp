@@ -16,6 +16,21 @@
 namespace ellis {
 
 
+static class dummy_init {
+public:
+  dummy_init()
+  {
+    system_add_data_format(
+        make_unique<const data_format>(
+          "builtin.json.generic",
+          "json",
+          "JSON generic data",
+          [](){ return unique_ptr<decoder>(new ellis::json_decoder()); },
+          [](){ return unique_ptr<encoder>(new ellis::json_encoder()); }));
+  }
+} unused_dummy_init;
+
+
 using std::array;
 
 static char ord(int n)

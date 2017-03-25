@@ -9,8 +9,11 @@
 #define ELLIS_CORE_SYSTEM_HPP_
 
 #include <cstring>
+#include <functional>
 #include <iomanip>
+#include <memory>
 #include <sstream>
+#include <vector>
 #include <ellis/core/defs.hpp>
 
 
@@ -22,6 +25,8 @@ namespace ellis {
  * | |   / _ \| '_ \ \ / / _ \ '_ \| |/ _ \ '_ \ / __/ _ \
  * | |__| (_) | | | \ V /  __/ | | | |  __/ | | | (_|  __/
  *  \____\___/|_| |_|\_/ \___|_| |_|_|\___|_| |_|\___\___|
+ *
+ * (for use throughout system, but also used in within this header).
  *
  */
 
@@ -62,6 +67,74 @@ namespace ellis {
  */
 #define ELLIS_SSTRING(args) \
   ((::std::ostringstream&)((::std::ostringstream{}) << args)).str()
+
+
+
+/*  ____            _     _             _   _
+ * |  _ \ ___  __ _(_)___| |_ _ __ __ _| |_(_) ___  _ __
+ * | |_) / _ \/ _` | / __| __| '__/ _` | __| |/ _ \| '_ \
+ * |  _ <  __/ (_| | \__ \ |_| | | (_| | |_| | (_) | | | |
+ * |_| \_\___|\__, |_|___/\__|_|  \__,_|\__|_|\___/|_| |_|
+ *            |___/
+ *
+ * (registration of plugins, codecs, etc).
+ */
+
+
+// forward declaration
+class decoder;
+class encoder;
+class node;
+// TODO(jmc) class schema;
+// TODO(jmc): move data_format to separate header
+
+struct data_format {
+    std::string m_unique_name;
+    std::string m_extension;
+    std::string m_description;
+    std::function<std::unique_ptr<decoder>
+      (void)> m_make_decoder;
+    std::function<std::unique_ptr<encoder>
+      (void)> m_make_encoder;
+    // TODO(jmc) std::unique_ptr<schema> m_schema;
+    //std::function<std::unique_ptr<node>
+    //  (/* const schema *, */
+    //  uint64_t amount,
+    //  uint64_t seed)> m_randgen;
+
+    /* Simple constructor, no copying allowed. */
+    data_format(
+        std::string unique_name,
+        std::string extension,
+        std::string description,
+        std::function<std::unique_ptr<decoder>
+          (void)> make_decoder,
+        std::function<std::unique_ptr<encoder>
+          (void)> make_encoder) :
+      m_unique_name(unique_name),
+      m_extension(extension),
+      m_description(description),
+      m_make_decoder(make_decoder),
+      m_make_encoder(make_encoder)
+    {
+    }
+    data_format(const data_format &) = delete;
+    data_format & operator=(const data_format &) = delete;
+};
+
+
+void system_add_data_format(
+    std::unique_ptr<const data_format> fmt);
+
+void system_remove_data_format(
+    const char *unique_name);
+
+const data_format *system_lookup_data_format_by_unique_name(
+    const char *unique_name);
+
+std::vector<const data_format *> system_lookup_data_formats_by_extension(
+    const char *extension);
+
 
 
 /*  _                      _               _   _             _
@@ -321,6 +394,12 @@ using system_crash_fn_t = decltype(&default_crash_function);
 void set_system_crash_function(system_crash_fn_t fn);
 
 
+/**
+ * Return the current system crash function.
+ */
+system_crash_fn_t get_system_crash_function();
+
+
 /* Implementation details, referenced in macros. */
 extern system_crash_fn_t g_system_crash_fn;
 
@@ -398,6 +477,7 @@ static inline void _stream_mem_block(
   }
 }
 
+
 static inline void _assert_mem_eq( \
     const byte *x,
     const byte *y,
@@ -452,6 +532,8 @@ static inline void _assert_mem_eq( \
       nullptr);
   ELLIS_UNREACHABLE_HINT();
 }
+
+
 
 /*  ____            _                               _     _
  * / ___| _   _ ___| |_ ___ _ __ ___      __      _(_) __| | ___

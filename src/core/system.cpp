@@ -8,7 +8,73 @@
 #include <stdio.h>
 #include <time.h>
 
+
 namespace ellis {
+
+
+class system_haus {
+public:
+  map<string, unique_ptr<const data_format>> m_formats;
+  system_haus() {}
+};
+
+static system_haus * g_system_haus = nullptr;
+
+
+/**
+ * Create the system if it's not there yet.
+ *
+ * This for initialization order safety, but isn't intended to be thread safe.
+ * It's supposed to be called early in process setup, before multiple threads
+ * are launched.
+ */
+static inline system_haus * get_sys()
+{
+  if (g_system_haus == nullptr) {
+    g_system_haus = new system_haus();
+  }
+  return g_system_haus;
+}
+
+
+void system_add_data_format(
+        unique_ptr<const data_format> fmt)
+{
+  get_sys()->m_formats.emplace(fmt->m_unique_name, std::move(fmt));
+}
+
+
+void system_remove_data_format(
+        const char *unique_name)
+{
+  get_sys()->m_formats.erase(unique_name);
+}
+
+
+const data_format *system_lookup_data_format_by_unique_name(
+        const char * unique_name)
+{
+  const auto it = get_sys()->m_formats.find(unique_name);
+  if (it == get_sys()->m_formats.end()) {
+    return nullptr;
+  }
+  return it->second.get();
+}
+
+
+vector<const data_format *> system_lookup_data_formats_by_extension(
+        const char *extension)
+{
+  /* We could use a global multimap on format, but there just aren't that
+   * many formats, so skip it for now. */
+  vector<const data_format *> retval;
+  for (const auto & it : get_sys()->m_formats) {
+    if (it.second->m_extension == extension) {
+      retval.emplace_back(it.second.get());
+    }
+  }
+  return retval;
+}
 
 
 // TODO: a more reliable pairing method, not that these should ever change.
@@ -109,6 +175,13 @@ system_crash_fn_t g_system_crash_fn = &default_crash_function;
 void set_system_crash_function(system_crash_fn_t fn)
 {
   g_system_crash_fn = fn;
+}
+
+
+// TODO(jmc): make this safe w.r.t. startup order via system object.
+system_crash_fn_t get_system_crash_function()
+{
+  return g_system_crash_fn;
 }
 
 

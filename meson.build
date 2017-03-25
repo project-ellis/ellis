@@ -66,6 +66,7 @@ src = [
   'src/codec/obd/can.cpp',
   'src/codec/obd/elm327.cpp',
   'src/codec/obd/pid.cpp',
+  'src/convenience/file.cpp',
   'src/core/array_node.cpp',
   'src/core/binary_node.cpp',
   'src/core/decoder.cpp',
