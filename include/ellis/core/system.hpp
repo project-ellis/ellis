@@ -33,7 +33,7 @@
 #define ELLIS_CORE_SYSTEM_HPP_
 
 #include <cstring>
-#include <functional>
+//#include <functional>
 #include <iomanip>
 #include <memory>
 #include <sstream>
@@ -106,56 +106,60 @@ namespace ellis {
 
 
 // forward declaration
-class decoder;
-class encoder;
-class node;
-// TODO(jmc) class schema;
-// TODO(jmc): move data_format to separate header
-
-struct data_format {
-    std::string m_unique_name;
-    std::string m_extension;
-    std::string m_description;
-    std::function<std::unique_ptr<decoder>
-      (void)> m_make_decoder;
-    std::function<std::unique_ptr<encoder>
-      (void)> m_make_encoder;
-    // TODO(jmc) std::unique_ptr<schema> m_schema;
-    //std::function<std::unique_ptr<node>
-    //  (/* const schema *, */
-    //  uint64_t amount,
-    //  uint64_t seed)> m_randgen;
-
-    /* Simple constructor, no copying allowed. */
-    data_format(
-        std::string unique_name,
-        std::string extension,
-        std::string description,
-        std::function<std::unique_ptr<decoder>
-          (void)> make_decoder,
-        std::function<std::unique_ptr<encoder>
-          (void)> make_encoder) :
-      m_unique_name(unique_name),
-      m_extension(extension),
-      m_description(description),
-      m_make_decoder(make_decoder),
-      m_make_encoder(make_encoder)
-    {
-    }
-    data_format(const data_format &) = delete;
-    data_format & operator=(const data_format &) = delete;
-};
+struct data_format;
 
 
+/**
+ * Register a new data format.
+ *
+ * See data_format.h for more information on data formats.
+ *
+ * Ownership is transferred.  No further modifications are allowed.
+ * There must not be a registered data format of the same unique name.
+ *
+ * Not threadsafe.
+ */
 void system_add_data_format(
     std::unique_ptr<const data_format> fmt);
 
+
+/**
+ * Unregister a data format.
+ *
+ * See data_format.h for more information on data formats.
+ *
+ * There must be a previously registered data format with the given name.
+ *
+ * Not threadsafe.
+ */
 void system_remove_data_format(
     const char *unique_name);
 
+
+/**
+ * Lookup a data format via its unique name.
+ *
+ * @return : non-owning pointer to the const data_format record uniquely
+ *   identified by the name, or nullptr if no such entry is registered. 
+ *
+ * No modifications to the data_format record are allowed.
+ *
+ * Not threadsafe.
+ */
 const data_format *system_lookup_data_format_by_unique_name(
     const char *unique_name);
 
+
+/**
+ * Find the list of data formats apropos the given filename extension.
+ *
+ * @return : a vector of non-owning pointers to const data_format records,
+ *   possibly empty.
+ *
+ * No modifications to the records are allowed.
+ *
+ * Not threadsafe.
+ */
 std::vector<const data_format *> system_lookup_data_formats_by_extension(
     const char *extension);
 

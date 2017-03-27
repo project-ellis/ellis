@@ -24,6 +24,7 @@
 
 #include <ellis/core/immigration.hpp>
 
+#include <ellis/core/data_format.hpp>
 #include <ellis/core/system.hpp>
 #include <ellis/stream/cpp_input_stream.hpp>
 #include <ellis/stream/fd_input_stream.hpp>

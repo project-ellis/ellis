@@ -27,7 +27,10 @@
 #include <cfloat>
 #include <cmath>
 #include <ellis/core/defs.hpp>
+#include <ellis/core/data_format.hpp>
 #include <ellis_private/using.hpp>
+#include <map>
+#include <memory>
 #include <stdarg.h>
 #include <stdio.h>
 #include <time.h>

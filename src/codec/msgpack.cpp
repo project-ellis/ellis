@@ -27,9 +27,10 @@
 #include <cfloat>
 #include <cstdint>
 #include <cstring>
-#include <ellis/core/err.hpp>
 #include <ellis/core/array_node.hpp>
 #include <ellis/core/binary_node.hpp>
+#include <ellis/core/data_format.hpp>
+#include <ellis/core/err.hpp>
 #include <ellis/core/map_node.hpp>
 #include <ellis/core/type.hpp>
 #include <ellis/core/u8str_node.hpp>

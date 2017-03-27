@@ -24,6 +24,7 @@
 
 #include <ellis/core/emigration.hpp>
 
+#include <ellis/core/data_format.hpp>
 #include <ellis/core/system.hpp>
 #include <ellis/stream/cpp_output_stream.hpp>
 #include <ellis/stream/fd_output_stream.hpp>

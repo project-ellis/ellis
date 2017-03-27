@@ -26,6 +26,7 @@
 
 #include <ellis/core/array_node.hpp>
 #include <ellis/core/binary_node.hpp>
+#include <ellis/core/data_format.hpp>
 #include <ellis/core/disposition.hpp>
 #include <ellis/core/map_node.hpp>
 #include <ellis/core/system.hpp>
