@@ -1,12 +1,10 @@
 # TODO
 
-## Initial release to public
+## Initial TODOs
 
 * (jmc) Make delimited text codec more useful.
 * (jmc) Make a more proper `delimited_text_test` from the `test/codec_test`.
-* (jmc) Name registration for encode/decode.
 * (both) Doxygen consistency
-* (martin) Add license headers (MIT, copyright 2016 surround.io)
 
 ## Maturation
 
