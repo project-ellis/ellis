@@ -8,6 +8,8 @@
 
 ## Maturation
 
+* Come up with a clearer policy regarding how many levels of namespaces.
+* Should codecs use a separate namespace?
 * Run doxygen for purposes of checking inline docs.
 * Codec framework layer that handles framing and simple issues like forgetting
   to call reset at the right time.
@@ -30,6 +32,7 @@
 * Schema C++ code
 * Schema tests
 * Schema wrappers
+* Two versions of reset--one with schema, one that keeps prior schema.
 * Zero-copy I/O for `binary_node`?
 * Make it easier to install ninja
 * Write at least one simple perf test (use meson benchmark?)
