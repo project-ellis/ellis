@@ -39,13 +39,13 @@
 namespace ellis {
 
 
-class system_haus {
+class system_singleton {
 public:
-  map<string, unique_ptr<const data_format>> m_formats;
-  system_haus() {}
+  map<string, unique_ptr<const data_format>> m_data_formats;
+  system_singleton() {}
 };
 
-static system_haus * g_system_haus = nullptr;
+static system_singleton * g_system_singleton = nullptr;
 
 
 /**
@@ -55,34 +55,34 @@ static system_haus * g_system_haus = nullptr;
  * It's supposed to be called early in process setup, before multiple threads
  * are launched.
  */
-static inline system_haus * get_sys()
+static inline system_singleton * get_sys()
 {
-  if (g_system_haus == nullptr) {
-    g_system_haus = new system_haus();
+  if (g_system_singleton == nullptr) {
+    g_system_singleton = new system_singleton();
   }
-  return g_system_haus;
+  return g_system_singleton;
 }
 
 
 void system_add_data_format(
         unique_ptr<const data_format> fmt)
 {
-  get_sys()->m_formats.emplace(fmt->m_unique_name, std::move(fmt));
+  get_sys()->m_data_formats.emplace(fmt->m_unique_name, std::move(fmt));
 }
 
 
 void system_remove_data_format(
         const char *unique_name)
 {
-  get_sys()->m_formats.erase(unique_name);
+  get_sys()->m_data_formats.erase(unique_name);
 }
 
 
 const data_format *system_lookup_data_format_by_unique_name(
         const char * unique_name)
 {
-  const auto it = get_sys()->m_formats.find(unique_name);
-  if (it == get_sys()->m_formats.end()) {
+  const auto it = get_sys()->m_data_formats.find(unique_name);
+  if (it == get_sys()->m_data_formats.end()) {
     return nullptr;
   }
   return it->second.get();
@@ -95,7 +95,7 @@ vector<const data_format *> system_lookup_data_formats_by_extension(
   /* We could use a global multimap on format, but there just aren't that
    * many formats, so skip it for now. */
   vector<const data_format *> retval;
-  for (const auto & it : get_sys()->m_formats) {
+  for (const auto & it : get_sys()->m_data_formats) {
     if (it.second->m_extension == extension) {
       retval.emplace_back(it.second.get());
     }
