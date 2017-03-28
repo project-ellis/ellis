@@ -140,7 +140,7 @@ void system_remove_data_format(
  * Lookup a data format via its unique name.
  *
  * @return : non-owning pointer to the const data_format record uniquely
- *   identified by the name, or nullptr if no such entry is registered. 
+ *   identified by the name, or nullptr if no such entry is registered.
  *
  * No modifications to the data_format record are allowed.
  *
@@ -307,7 +307,7 @@ do { \
   if (EXPR) { \
     /* Empty, but catches accidental assignment (i.e. a=b) in EXPR. */ \
   } else { \
-    (*::ellis::g_system_crash_fn)( \
+    (*::ellis::get_system_crash_function())( \
         __FILE__, \
         __LINE__, \
         __FUNCTION__, \
@@ -379,7 +379,7 @@ do { \
  */
 #define ELLIS_ASSERT_UNREACHABLE() \
   do { \
-    (*::ellis::g_system_crash_fn)( \
+    (*::ellis::get_system_crash_function())( \
         __FILE__, \
         __LINE__, \
         __FUNCTION__, \
@@ -393,7 +393,7 @@ do { \
  */
 #define ELLIS_CRASH(...) \
   do { \
-    (*::ellis::g_system_crash_fn)( \
+    (*::ellis::get_system_crash_function())( \
         __FILE__, \
         __LINE__, \
         __FUNCTION__, \
@@ -426,10 +426,6 @@ void set_system_crash_function(system_crash_fn_t fn);
  * Return the current system crash function.
  */
 system_crash_fn_t get_system_crash_function();
-
-
-/* Implementation details, referenced in macros. */
-extern system_crash_fn_t g_system_crash_fn;
 
 
 bool dbl_equal(double a, double b);
@@ -469,7 +465,7 @@ static inline void _assert_##name( \
   const std::string &msg = \
     ELLIS_SSTRING("Assert: failed expression (" << expr << ") " \
     "with LHS = %s and RHS = %s"); \
-  (*ellis::g_system_crash_fn)( \
+  (*ellis::get_system_crash_function())( \
       file, \
       line, \
       function, \
@@ -551,7 +547,7 @@ static inline void _assert_mem_eq( \
   }
   ss << "  ^\n";
 
-  (*ellis::g_system_crash_fn)(
+  (*ellis::get_system_crash_function())(
       file,
       line,
       function,

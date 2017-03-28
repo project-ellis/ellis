@@ -39,17 +39,48 @@
 namespace ellis {
 
 
+/**
+ * A system object containing global state.
+ *
+ * This purpose of this object is to reduce bugs due to initialization order
+ * at startup.  It may be initialized before other objects in this shared lib,
+ * particularly if another library calls a function that invokes get_sys().
+ * In this case, the system_singleton constructor will cause the global state
+ * described here to be initialized in a consistent order.
+ */
 class system_singleton {
 public:
+  /* Data format registration map. */
   map<string, unique_ptr<const data_format>> m_data_formats;
+
+  /* Stash of details of system crash (easy to find in a core file). */
+  char          m_crash_epitaph[1024];
+  const char *  m_crash_file = nullptr;
+  int           m_crash_line = 0;
+  const char *  m_crash_funcname = nullptr;
+
+  /* Current system crash function. */
+  system_crash_fn_t m_system_crash_fn = &default_crash_function;
+
+  /**
+   * Constructor.
+   */
   system_singleton() {}
 };
 
+
+/**
+ * Global pointer to system singleton.
+ *
+ * It is done this way, rather than as a static variable inside function
+ * get_sys(), so that in the event of a crash one can more easily access
+ * g_system_singleton (and its member variables) from the debugger.
+ */
 static system_singleton * g_system_singleton = nullptr;
 
 
 /**
- * Create the system if it's not there yet.
+ * Create the system singleton object if it's not there yet, and return it.
  *
  * This for initialization order safety, but isn't intended to be thread safe.
  * It's supposed to be called early in process setup, before multiple threads
@@ -165,50 +196,41 @@ void set_system_log_prefilter(log_severity sev)
 }
 
 
-char g_crash_epitaph[1024];
-const char * g_crash_file = nullptr;
-int g_crash_line = 0;
-const char * g_crash_func = nullptr;
-
-
 void default_crash_function(
     const char *file,
     int line,
     const char *func,
     const char *fmt, ...)
 {
-  g_crash_file = file;
-  g_crash_line = line;
-  g_crash_func = func;
+  get_sys()->m_crash_file = file;
+  get_sys()->m_crash_line = line;
+  get_sys()->m_crash_funcname = func;
   va_list(args);
   va_start(args, fmt);
-  vsnprintf(g_crash_epitaph, sizeof(g_crash_epitaph), fmt, args);
+  vsnprintf(get_sys()->m_crash_epitaph, sizeof(get_sys()->m_crash_epitaph),
+      fmt, args);
   va_end(args);
   fprintf(stderr, "%s at %s:%d [%s]\n",
-      g_crash_epitaph,
-      g_crash_file,
-      g_crash_line,
-      g_crash_func);
+      get_sys()->m_crash_epitaph,
+      get_sys()->m_crash_file,
+      get_sys()->m_crash_line,
+      get_sys()->m_crash_funcname);
   fflush(stderr);
   (*g_system_log_fn)(log_severity::CRIT, file, line, func, "%s",
-      g_crash_epitaph);
+      get_sys()->m_crash_epitaph);
   abort();
 }
 
 
-system_crash_fn_t g_system_crash_fn = &default_crash_function;
-
-
 void set_system_crash_function(system_crash_fn_t fn)
 {
-  g_system_crash_fn = fn;
+  get_sys()->m_system_crash_fn = fn;
 }
 
 
-// TODO(jmc): make this safe w.r.t. startup order via system object.
 system_crash_fn_t get_system_crash_function()
 {
-  return g_system_crash_fn;
+  return get_sys()->m_system_crash_fn;
 }
 
 
