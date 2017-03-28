@@ -190,7 +190,7 @@ std::vector<const data_format *> system_lookup_data_formats_by_extension(
     if ((int)::ellis::log_severity::LVL \
         <= (int)::ellis::g_system_log_prefilter) \
     { \
-      (*::ellis::g_system_log_fn)( \
+      (*::ellis::get_system_log_function())( \
           ::ellis::log_severity::LVL, \
           __FILE__, \
           __LINE__, \
@@ -211,7 +211,7 @@ std::vector<const data_format *> system_lookup_data_formats_by_extension(
     if ((int)::ellis::log_severity::LVL \
         <= (int)::ellis::g_system_log_prefilter) \
     { \
-      (*::ellis::g_system_log_fn)( \
+      (*::ellis::get_system_log_function())( \
           ::ellis::log_severity::LVL, \
           __FILE__, \
           __LINE__, \
@@ -259,6 +259,12 @@ using system_log_fn_t = decltype(&default_system_log_function);
 void set_system_log_function(system_log_fn_t fn);
 
 
+/**
+ * Return the current system log function.
+ */
+system_log_fn_t get_system_log_function();
+
+
 /** Adjust the prefilter severity that gets checked before the arguments to
  * ELLIS_LOG are evaluated or forwarded to the system log function.
  *
@@ -277,6 +283,8 @@ void set_system_log_prefilter(log_severity sev);
 
 /* Implementation details, referenced in macros. */
 extern system_log_fn_t g_system_log_fn;
+/* Implementation detail; not placed inside global system object because
+ * we do not want to invoke get_sys() every time we check the prefilter. */
 extern log_severity g_system_log_prefilter;
 
 

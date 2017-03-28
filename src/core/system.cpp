@@ -62,6 +62,9 @@ public:
   /* Current system crash function. */
   system_crash_fn_t m_system_crash_fn = &default_crash_function;
 
+  /* Current system logging function. */
+  system_log_fn_t m_system_log_fn = &default_system_log_function;
+
   /**
    * Constructor.
    */
@@ -178,15 +181,19 @@ void default_system_log_function(
 }
 
 
-system_log_fn_t g_system_log_fn = &default_system_log_function;
-
 
 log_severity g_system_log_prefilter = log_severity::WARN;
 
 
 void set_system_log_function(system_log_fn_t fn)
 {
-  g_system_log_fn = fn;
+  get_sys()->m_system_log_fn = fn;
+}
+
+
+system_log_fn_t get_system_log_function()
+{
+  return get_sys()->m_system_log_fn;
 }
 
 
@@ -216,7 +223,7 @@ void default_crash_function(
       get_sys()->m_crash_line,
       get_sys()->m_crash_funcname);
   fflush(stderr);
-  (*g_system_log_fn)(log_severity::CRIT, file, line, func, "%s",
+  (*get_system_log_function())(log_severity::CRIT, file, line, func, "%s",
       get_sys()->m_crash_epitaph);
   abort();
 }
