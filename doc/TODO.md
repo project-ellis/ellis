@@ -8,6 +8,8 @@
 
 ## Maturation
 
+* (martin) Register CAN codecs.
+* (martin) Register ELM327 codecs.
 * Come up with a clearer policy regarding how many levels of namespaces.
 * Should codecs use a separate namespace?
 * Run doxygen for purposes of checking inline docs.
