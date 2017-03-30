@@ -1,13 +1,20 @@
-# API design sketch
+# API design sketches
 
-Note: this is a work-in-progress document, and should be deleted in favor of more
-formal documentation once we generally agree on the contents and start
-implementation work. Basically, this is a document indicating stuff that is
-still being discussed and in-flux. As stuff becomes more concrete, it should be
-moved into more formal documentation documents and header files until nothing is
-left, at which point we can delete this file.
+This document is used for ideas and work in progress.
+
+As the details take shape and become more concrete, they should be moved into
+more permanent formal resting places, such as header files or other markdown
+files.
 
 ## Metadata
+
+When representing large amounts of data, it may be useful to separate out the
+metadata describing the records, in order to reduce unnecessary repetition.
+
+Possibly a "sticky metadata" approach might be used, where the metadata for
+a given type of field is fixed until something changes it.
+
+This is TBD.
 
 ```
 {
@@ -250,37 +257,10 @@ Base types of EllisNode
     }
 ```
 
-## API
+## Ellispipe
 
-Ellis.hpp:
+Example of an ellispipe command:
 
-```c++
-/* This is the C++ header for libellis, which implements the standalone JSON-like Ellis data format. */
-
-/* ELLIS DATA FORMAT */
-
-[ TODO ]
 ```
-
-ellisschema.h:
-
-```c
-/* This is the C header for libellisschema, which implements the standalone Ellis schema support. */
+ellispipe sel '[:100]' ! sort ! transpose
 ```
-
-ellisschema.hpp:
-
-```c++
-/* This is the C++ header for libellisschema, which implements the standalone Ellis schema support. */
-```
-
-ellis_flow.hpp:
-
-```c++
-/* This is the C++ header for libellisflow, which implements Ellis sources and Ellis sinks. */
-
-[ TODO ]
-/* SOURCES */
-/* SINKS */
-```
-
