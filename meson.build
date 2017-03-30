@@ -1,7 +1,7 @@
 # Summary.
 project('ellis', 'cpp',
   version: '0.1',
-  license: 'proprietary',
+  license: 'mit',
   default_options: [
     'c_std=c99',
     'cpp_std=c++14',
@@ -20,43 +20,11 @@ pkg = import('pkgconfig')
 # Enable threads.
 thread_deps = dependency('threads')
 
-# Dependencies that are specific to Ellis Ex.
-asio_dep = dependency('boost', modules : ['asio', 'system'])
-nghttp2_dep = dependency('libnghttp2_asio', version : '>=1.18.0')
-ssl_dep = dependency('libssl')
-
 # Includes.
 inc = include_directories('include')
-public_headers = [
-  'include/ellis/core/array_node.hpp',
-  'include/ellis/core/binary_node.hpp',
-  'include/ellis/core/codec/delimited_text.hpp',
-  'include/ellis/core/codec/json.hpp',
-  'include/ellis/core/decoder.hpp',
-  'include/ellis/core/defs.hpp',
-  'include/ellis/core/disposition.hpp',
-  'include/ellis/core/emigration.hpp',
-  'include/ellis/core/encoder.hpp',
-  'include/ellis/core/err.hpp',
-  'include/ellis/core/immigration.hpp',
-  'include/ellis/core/map_node.hpp',
-  'include/ellis/core/codec/msgpack.hpp',
-  'include/ellis/core/node.hpp',
-  'include/ellis/core/sync_input_stream.hpp',
-  'include/ellis/core/sync_output_stream.hpp',
-  'include/ellis/core/system.hpp',
-  'include/ellis/core/type.hpp',
-  'include/ellis/core/u8str_node.hpp',
-  'include/ellis/stream/cpp_input_stream.hpp',
-  'include/ellis/stream/cpp_output_stream.hpp',
-  'include/ellis/stream/fd_input_stream.hpp',
-  'include/ellis/stream/fd_output_stream.hpp',
-  'include/ellis/stream/file_input_stream.hpp',
-  'include/ellis/stream/file_output_stream.hpp',
-  'include/ellis/stream/mem_input_stream.hpp',
-  'include/ellis/stream/mem_output_stream.hpp',
-  'include/ellis/stream/tcp_client_stream.hpp']
-install_headers(public_headers, subdir: 'ellis')
+install_subdir('include/ellis/codec', install_dir : 'include/ellis')
+install_subdir('include/ellis/core', install_dir : 'include/ellis')
+install_subdir('include/ellis/stream', install_dir : 'include/ellis')
 
 # libellis.
 src = [
@@ -111,7 +79,8 @@ foreach u : utils
     u.get(1),
     include_directories: inc,
     link_with: lib,
-    dependencies: [ thread_deps, asio_dep, nghttp2_dep, ssl_dep ])
+    install: true,
+    dependencies: [ thread_deps ])
 endforeach
 
 # Documentation.
@@ -126,7 +95,6 @@ run_target('cppcheck', command: 'meson/cppcheck')
 # Tests.
 tests = [
   ['core_node_test', 'test/core/node_test.cpp'],
-  ['op_op_test', 'test/op/op_test.cpp'],
   ['codec_delimited_text_test', 'test/codec/delimited_text_test.cpp'],
   ['codec_json_test', 'test/codec/json_test.cpp'],
   ['codec_msgpack_test', 'test/codec/msgpack_test.cpp'],
@@ -139,6 +107,6 @@ foreach t : tests
     t.get(1),
     include_directories: inc,
     link_with: lib,
-    dependencies: [ thread_deps, asio_dep, nghttp2_dep, ssl_dep ])
+    dependencies: [ thread_deps ])
   test(t.get(0), exe)
 endforeach

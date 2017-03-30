@@ -87,20 +87,6 @@ sudo dnf -y install meson ninja-build
 Note that on fedora you will substitute the **ninja-build** command instead of
 the **ninja** command for the various build commands on this page.
 
-#### Additional requirements for ellis-op
-
-(To be moved to a separate standalone project)
-
-- *boost-asio*
-- *boost-system*
-- *nghttp2* (>= 1.18.0). If you need to compile, use these flags for
-  configure:
-  *--with-jemalloc --enable-asio-lib*
-  Note that *--with-jemalloc* is technically optional but will improve
-  performance.
-- *openssl* (>= 1.0.2). (needed by nghttp2)
-
-
 ## Build instructions
 
 #### First time builds
