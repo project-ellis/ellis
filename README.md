@@ -1,18 +1,20 @@
-# Ellis
+# Project Ellis
 
 Everybody has a favorite general-purpose data format: JSON, msgpack, YAML, ORC,
-parquet, and so forth. If you like something else, you must convert.
+parquet, and so forth. If you happen to like something else, typically you must
+adapt and convert.
 
-This is how it was with images, once upon a time. The people grew tired of this
-treadmill, instead adopting smart input libraries that support all of them and
-just giving you a neutral in-memory representation.
+It was like that with picture file formats too, once upon a time. However, the
+world moved on, toward smart image I/O libraries that import or export to/from
+almost any picture file format and just provide the programmer with a neutral
+in-memory representation.
 
-Ellis does that for general data, and it gives you some convenient tools for
-interoperability.
-
-At heart, ellis seeks to provide cross-language bindings for a common in-memory
-representation of hierarchical data, along with encoder and decoder plugins for
-common data formats, schemas, and streaming mechanisms.
+Project Ellis seeks to achieve a similar gain for general data formats, and
+includes some convenient tools for interoperability.  Specifically, Project
+Ellis seeks to provide cross-language bindings for a common in-memory
+representation of hierarchical data, along with encoder and decoder plugins
+for common data formats, schemas, and streaming mechanisms.  In addition to
+the library, command line tools like `ellisconv` and `ellispipe` are provided.
 
 #### Advantages to this approach
 
