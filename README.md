@@ -154,6 +154,6 @@ targets such as `cppcheck`.
 
 See the [doc](doc) folder for more documentation, such as:
 
-* [CONTRIBUTING instructions](doc/contributing.md)
+* [Instructions for contributing](doc/CONTRIBUTING.md)
 * [Coding standard](doc/coding_standard.md)
 * [Design notes](doc/design.md)
