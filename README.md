@@ -53,8 +53,7 @@ the library, command line tools like `ellisconv` and `ellispipe` are provided.
   will download and install a more recent version:
     - ```wget https://github.com/ninja-build/ninja/releases/download/v1.7.2/ninja-linux.zip```
     - ```unzip ninja-linux.zip```
-    - ```sudo install -o root -g root -m755 ninja /usr/bin/ninja
-      # or put it somewhere else in your PATH```
+    - ```sudo install -o root -g root -m755 ninja /usr/bin/ninja # or put it somewhere else in your PATH```
 
 #### Custom requirements building
 
@@ -150,3 +149,11 @@ ninja check
 
 If you don't have clang installed, for instance, you can use the individual
 targets such as `cppcheck`.
+
+## Documentation
+
+See the [doc](doc) folder for more documentation, such as:
+
+* [CONTRIBUTING instructions](doc/contributing.md)
+* [Coding standard](doc/coding_standard.md)
+* [Design notes](doc/design.md)
