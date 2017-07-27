@@ -510,7 +510,7 @@ static inline void _stream_mem_block(
 }
 
 
-static inline void _assert_mem_eq( \
+static inline void _assert_mem_eq(
     const byte *x,
     const byte *y,
     size_t count,
