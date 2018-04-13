@@ -1,13 +1,11 @@
 # Project Ellis
 
-Everybody has a favorite general-purpose data format: JSON, msgpack, YAML, ORC,
-parquet, and so forth. If you happen to like something else, typically you must
-adapt and convert.
+JSON, MessagePack, CBOR, YAML, Avro, ORC, Parquet...  All fine choices, but
+if your favorite is different than theirs, oh well... convert to theirs.
 
-It was like that with picture file formats too, once upon a time. However, the
-world moved on, toward smart image I/O libraries that import or export to/from
-almost any picture file format and just provide the programmer with a neutral
-in-memory representation.
+Once upon a time, it was like that with picture file formats.  And then we
+got image libraries that import or export whatever, presenting the programmer
+with a neutral in-memory representation.
 
 Project Ellis seeks to achieve a similar gain for general data formats, and
 includes some convenient tools for interoperability.  Specifically, Project
@@ -18,23 +16,17 @@ the library, command line tools like `ellisconv` and `ellispipe` are provided.
 
 #### Advantages to this approach
 
-- *Simplicity*: Many libraries require some particular data format which may
-  only be available in some particular programming language. If you want to use
-  a different format, you need a different library. If you want to use a
-  different language, you again need to find a different library, assuming the
-  data format is supported in the desired language. Ultimately, you need a lot
-  of libraries to sustain this: the cross product of `|languages| x |formats|`,
-  not to mention the glue and conversion loss. You have better things to do
-  than to waste your time with that.
-- *Efficiency*: If one program uses one format/language and some other program
-  uses another, then there is usually manual coding effort and data copying in
-  order to convert. The problem gets worse the more pieces you glue together.
-  Modern software has a lot of pieces.
+- *Simplicity*: Many libraries require a particular format. If you have a
+  different format, use a different library. Different programming language?
+  Different library.  That's going to be a lot of libraries (cross product of
+  `|languages| x |formats|`, not to mention glue and conversion loss. You have
+  better things to do with your time.
 - *Flexibility*: By performing data transformations on a neutral representation,
   you can define common operations that apply across many data formats. For
   example, you can define *sort* or *transpose* operations that work
   independently of which format the data was originally in, or which data format
-  it will eventually be stored as.
+  it will eventually be stored as, as long as the data has some fundamental
+  structure.
 
 #### Components of Ellis
 
@@ -57,8 +49,8 @@ the library, command line tools like `ellisconv` and `ellispipe` are provided.
 
 #### Custom requirements building
 
-Note that, if any of your build prerequisites do not come from standard distro
-packaging, you will need also need to tweak the following env vars:
+If any of your build prerequisites do not come from standard distro
+packaging, you may need to tweak the following env vars:
 
 - *PKG_CONFIG_PATH* needs to be set only when you run *meson* and doesn't matter
   after that. It should be set to the directory containing the *.pc* files used
@@ -69,7 +61,7 @@ packaging, you will need also need to tweak the following env vars:
 
 #### Debian unstable
 
-To get your build requirements, you just need to run:
+To take care of build requirements, you just need to run:
 
 ```
 sudo apt-get -y install meson ninja-build
@@ -77,7 +69,7 @@ sudo apt-get -y install meson ninja-build
 
 #### Fedora 24 and 25 packages
 
-To get your build requirements, you just need to run:
+To take care of build requirements, you just need to run:
 
 ```
 sudo dnf -y install meson ninja-build
